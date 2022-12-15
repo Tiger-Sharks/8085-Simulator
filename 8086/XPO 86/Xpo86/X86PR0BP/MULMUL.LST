@@ -1,0 +1,63 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000        SCPD EQU 0000H ;Scratch Pad location.
+ = 1000        NUM1 EQU 1000H ;Address of Multiplicand.
+ = 1002        NUM2 EQU 1002H ;AddreSS of Multiplier.
+ ;This program gives multiplication using MUL instruction.
+ ;User can store multiplicand at memory location 0000:1000H
+ ;and multiplier at memory location 0000:1002H
+ ;can see result at memory location 0000:1010H
+ ;using substitute command.
+ 	 	 	 	
+ 0000	 	 	 	            MULM SEGMENT
+ 	 	 	 	            ASSUME CS:MULM,DS:MULM
+ 	 	 	 	            ASSUME ES:MULM
+ 0100	 	 	 	            ORG 100H                    ;Com fo
+	 	 	 	rmat is recommanded.
+ 0100  EB 01 90	 	 	    START:JMP SKIP_DATA                 ;Skip l
+	 	 	 	ookup data bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	
+ 0103	 	 	 	    SKIP_DATA:
+ 0103  B8 10FF	 	 	                MOV AX,10FFH
+ 0106  8B E0	 	 	                MOV SP,AX               ;Init S
+	 	 	 	P register
+ 0108  0E	 	 	                PUSH CS                 ;Init D
+	 	 	 	S register
+ 0109  1F	 	 	                POP DS
+ 010A  B8 0000	 	 	                MOV AX,SCPD
+ 010D  8E C0	 	 	                MOV ES,AX
+ 010F  2B D2	 	 	                SUB DX,DX               ;Zero o
+	 	 	 	ut overflow register.
+ 0111  26: A1 1000	 	                MOV AX,ES:NUM1             ;Put
+	 	 	 	 value to AX
+ 0115  26: F7 26 1002	 	                MUL ES:NUM2             ;Multip
+	 	 	 	ly NUM1 and NUM2
+ 011A  26: A3 1010	 	                MOV ES:[1010H],AX             ;
+	 	 	 	Move LSB in ANS1
+ 011E  26: 89 16 1012	 	                MOV ES:[1012H],DX             ;
+	 	 	 	Put DX in MSB in ANS2
+ 0123  CD A5	 	 	                INT 0A5H                ;Return
+	 	 	 	 to command mode
+
+ 	 	 	 	                                       ;If you 
+	 	 	 	are running your
+ 	 	 	 	                                       ;softwar
+	 	 	 	e on PC insert
+ 	 	 	 	                                        ;------
+	 	 	 	->include
+ 0125	 	 	 	  MULM ENDS
+ 	 	 	 	  END START
+

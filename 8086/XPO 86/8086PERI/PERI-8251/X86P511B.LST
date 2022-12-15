@@ -1,0 +1,200 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST  :  1 (B)
+ 	 	 	 	                   PAGE,80
+ 	 	 	 	       TITLE--USING 8251 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 14A8:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can  
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;This programme demonstrates 8251 Periware in A
+	 	 	 	synchronous Mode of operation 
+ 	 	 	 	;using Interrupt IR0.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86P511B  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P511B, DS:X86P511B ,ES:X86
+	 	 	 	P511B
+ 0100	 	 	 	 	ORG 100H 	 	;Com format is 
+	 	 	 	recommended.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	PUSH CS	 	;Init for DS
+ 0109  58	 	 	POP  AX	 	;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	NOP	 	;In PC using
+ 010D  90	 	 	NOP	 	;CALL in place
+ 010E  90	 	 	NOP	 	;of 3 NOP`S
+ 	 	 	 	
+ 010F  8B C8	 	 	MOV  CX,AX       ;SEG ADDR OF ISR FOR IR0
+ 0111  BE 0163 R	 	MOV  SI,OFFSET ISR ;OFFSET ADDR  
+ 0114  B0 90	 	 	MOV  AL,90H      ;INIT OF 0000:0240H-44H BYTES 
+	 	 	 	SO 
+ 	 	 	 	 	 	 ;ON INTERRUPT IR0 "INT 90,91..
+ 	 	 	 	 	 	 ;ARE EXECUTED.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+ 0116  CD BE	 	 	INT  0BEH        ; 
+ 0118  B0 1B	 	 	MOV  AL,1BH      ;EDGE,SINGLE
+ 	 	 	 	 	 	 ;ICW1 A1=0
+ 011A  BA 9400	 	 	MOV  DX,9400H    ; 
+ 011D  EE	 	 	OUT  DX,AL       ; 
+ 011E  B0 90	 	 	MOV  AL,90H	 ;ISR OF IR0 =INT 90H ETC
+ 0120  BA 9402	 	 	MOV  DX,9402H    ;A1=1	
+ 0123  EE	 	 	OUT  DX,AL 	 ;ICW2	
+ 0124  B0 01	 	 	MOV  AL,01H	 ;8086,NORMAL EOI,NON BUFERED,
+ 	 	 	 	 	 	 ;NON SPECIAL,NEST
+ 0126  EE	 	 	OUT  DX,AL	 ;ICW4,A1=1
+ 0127  B0 FE	 	 	MOV  AL,0FEH	 ;ENABLE IR0.
+ 0129  EE	 	 	OUT  DX,AL 	 ;OCW1 
+ 	 	 	 	
+ 012A  B0 00	 	 	MOV  AL,00H	 ; Dummy code.
+ 012C  BA 01E2	 	 	MOV  DX,01E2H
+ 012F  EE	 	 	OUT  DX,AL
+ 0130  CD AC	 	 	INT  0ACH	 ; Clear screen. Give delay.
+ 0132  EE	 	 	OUT  DX,AL	 ; Dummy code
+ 0133  CD AC	 	 	INT  0ACH	
+ 0135  EE	 	 	OUT  DX,AL	 ; Dummy code
+ 0136  CD AC	 	 	INT  0ACH
+ 0138  B0 40	 	 	MOV  AL,40H
+ 013A  EE	 	 	OUT  DX,AL  	; Reset code
+ 013B  CD AC	 	 	INT  0ACH
+ 013D  B0 4D	 	 	MOV  AL,4DH
+ 013F  EE	 	 	OUT  DX,AL  	; Mode word, Stop Bits=1, 
+ 	 	 	 	 	 	; Character Length=8 Bits
+ 0140  CD AC	 	 	INT  0ACH   	; Baud Rate Factor =1.
+ 0142  B0 27	 	 	MOV  AL,27H
+ 0144  EE	 	 	OUT  DX,AL  	; Command Word, 
+ 	 	 	 	 	 	; RxEnable=1, TxEnable=1
+ 	 	 	 	 	 	; DSR=1
+ 0145	 	 	 	LOOP4:
+ 0145  BA 01E2	 	 	MOV  DX,01E2H
+ 0148  EC	 	 	IN   AL,DX	; Check for transmitter ready
+ 0149  24 81	 	 	AND  AL,81H	; If no then remain in loop and
+	 	 	 	 
+ 	 	 	 	 	 	; wait.
+ 014B  3C 81	 	 	CMP  AL,81H	
+ 014D  75 F6	 	 	JNZ  LOOP4
+ 	 	 	 	
+ 014F  CD AC	 	 	INT  0ACH	; Set cursor to left
+ 	 	 	 	
+ 0151  BB 0199 R	 	MOV  BX,OFFSET MSGBY ; Pointer for look up tabl
+	 	 	 	e
+ 0154  B0 02	 	 	MOV  AL, 02H
+ 0156  B4 10	 	 	MOV  AH,10H
+ 0158  CD B9	 	 	INT  0B9H	; Routine to receive number
+	 	 	 	 	
+ 	 	 	 	
+ 015A  8A C2	 	 	MOV  AL,DL
+ 015C  BA 01E0	 	 	MOV  DX,01E0H
+ 015F  EE	 	 	OUT  DX,AL	; Send data to Transmitter Buff
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+	 	 	 	er
+ 	 	 	 	
+ 0160	 	 	 	HERE:
+ 0160  FB	 	 	STI
+ 0161  EB FD	 	 	JMP  HERE
+ 	 	 	 	
+ 0163	 	 	 	ISR:           	;ISR for receiving data byte
+ 	 	 	 	
+ 0163  FA	 	 	CLI	 	; Disable Interrupt
+ 0164  BA 01E0	 	 	MOV  DX,01E0H
+ 0167  EC	 	 	IN   AL,DX	; Receive the data from receive
+	 	 	 	r 
+ 	 	 	 	 	 	; output.
+ 0168  E8 016E R	 	CALL DSPLY	; Displays the byte on seven 
+ 	 	 	 	 	 	; segments.
+ 016B  CD A4	 	 	INT 0A4H	;Resister saving interrupt.
+ 	 	 	 	 	 	; Go to Command Mode.
+ 016D  CF	 	 	IRET	
+ 	 	 	 	
+ 016E	 	 	 	DSPLY PROC NEAR
+ 016E  CD AC	 	 	INT  0ACH
+ 0170  26: A2 1000	 	MOV  ES:[1000H],AL   ; Store received data in m
+	 	 	 	emory
+ 0174  BB 0194 R	 	MOV  BX,OFFSET MSGDA ; Pointer for look up tabl
+	 	 	 	e.
+ 0177  CD AF	 	 	INT  0AFH	; Calls display routine
+ 0179  B2 20	 	 	MOV  DL,20H	;Out ascii space charater
+ 017B  B4 02	 	 	MOV  AH,02H
+ 017D  CD A2	 	 	INT  0A2H
+ 017F  B2 20	 	 	MOV  DL,20H	;Out ascii space char.
+ 0181  B4 02	 	 	MOV  AH,02H
+ 0183  CD A2	 	 	INT  0A2H
+ 0185  B9 FFFF	 	 	MOV  CX,0FFFFH	; Wait to stabilise the display
+ 0188  CD AA	 	 	INT  0AAH	; Calls delay routine
+ 018A  B0 02	 	 	MOV  AL,02H	; Number of digits to be displa
+	 	 	 	yed
+ 	 	 	 	 	 	; in data segment.
+ 018C  26: 8A 16 1000	 	MOV  DL,ES:[1000H] ; Load the data back to the 
+	 	 	 	ACC
+ 0191  CD AE	 	 	INT  0AEH	; NMOUT routine is called
+ 0193  C3	 	 	RET
+ 	 	 	 	
+ 0194	 	 	 	DSPLY ENDP
+ 	 	 	 	
+ 0194  44 41 54 41 03	 	MSGDA:  DB "DATA", 03H
+ 0199  42 59 54 45 03	 	MSGBY:  DB "BYTE", 03H
+ 	 	 	 	
+ 019E	 	 	 	X86P511B  ENDS
+ 	 	 	 	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P511B . . . . . . . . . . . .	019E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DSPLY. . . . . . . . . . . . . .	N PROC	016E	X86P511B	Length 
+	 	 	 	=0026
+HERE . . . . . . . . . . . . . .	L NEAR 	0160	X86P511B
+ISR. . . . . . . . . . . . . . .	L NEAR 	0163	X86P511B
+LOOP4. . . . . . . . . . . . . .	L NEAR 	0145	X86P511B
+MSGBY. . . . . . . . . . . . . .	L NEAR 	0199	X86P511B
+MSGDA. . . . . . . . . . . . . .	L NEAR 	0194	X86P511B
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P511B
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P511B
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

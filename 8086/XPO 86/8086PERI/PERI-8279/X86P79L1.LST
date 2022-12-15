@@ -1,0 +1,102 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8279 PERIWARE.	 	 	 	 	 	12-03-99    
+
+
+ 	 	 	 	;LIST 1
+ 	 	 	 	       TITLE--USING 8279 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 1315:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;Program in list 1 illustrates the operation of
+	 	 	 	 8279
+ 	 	 	 	;in input mode. It detects valid key closure & 
+	 	 	 	immediately 
+ 	 	 	 	;reads corresponding Scan lines, Return lines, 
+	 	 	 	CNTL & SHIFT
+ 	 	 	 	;line status. It is displayed on 8 bit Data Bus
+	 	 	 	 LEDs.
+ 	 	 	 	
+ 0000	 	 	 	X86P79L1  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P79L1, DS:X86P79L1 ,ES:X86
+	 	 	 	P79L1
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	PUSH CS	 	;Init for DS
+ 0109  58	 	 	POP  AX	 	;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	NOP	 	;In PC using
+ 010D  90	 	 	NOP	 	;CALL in place
+ 010E  90	 	 	NOP	 	;of 3 NOP`S
+ 	 	 	 	
+ 	 	 	 	
+ 010F  B0 00	 	 	MOV  AL,00H	; Control Word for 
+ 0111  BA 01E2	 	 	MOV  DX,01E2H	; encoded Scan keyboard
+ 0114  EE	 	 	OUT  DX,AL	; 2 key lockout.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8279 PERIWARE.	 	 	 	 	 	12-03-99    
+
+
+ 	 	 	 	
+ 0115	 	 	 	STS: 
+ 0115  BA 01E2	 	 	MOV  DX,01E2H
+ 0118  EC	 	 	IN   AL,DX	; Read FIFO status to 
+ 	 	 	 	 	 	; check key press.
+ 0119  24 07	 	 	AND  AL,07H	; If no key press is found 
+ 011B  74 F8	 	 	JZ   STS	; go back.
+ 	 	 	 	 	 	
+ 011D  BA 01E0	 	 	MOV  DX,01E0H 	; Read FIFO to get code of 
+ 0120  EC	 	 	IN   AL,DX	; key pressed.
+ 0121  EB F2	 	 	JMP  STS	; Go back to check other 
+ 	 	 	 	 	 	; key press.
+ 	 	 	 	
+ 0123	 	 	 	X86P79L1  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8279 PERIWARE.	 	 	 	 	 	12-03-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P79L1 . . . . . . . . . . . .	0123	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P79L1
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P79L1
+STS. . . . . . . . . . . . . . .	L NEAR 	0115	X86P79L1
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

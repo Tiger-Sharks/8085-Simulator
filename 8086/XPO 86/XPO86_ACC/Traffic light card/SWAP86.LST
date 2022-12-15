@@ -1,0 +1,87 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	07-14-:0    
+
+
+ 	 	 	 	;This program inputs the data from port A and o
+	 	 	 	ut the data to port B
+ 0000	 	 	 	            SWAP SEGMENT
+ 	 	 	 	            ASSUME CS:SWAP
+ 	 	 	 	            ASSUME DS:SWAP
+ 	 	 	 	            ASSUME ES:SWAP
+ = 8006	 	 	 	             CONTWD EQU 8006H
+ = 8000	 	 	 	            PORTA EQU 8000H
+ = 8002	 	 	 	            PORTB EQU 8002H
+ = 8004	 	 	 	            PORTC EQU 8004H
+ 0100	 	 	 	            ORG 0100H
+ 0100  EB 01 90	 	 	      STRT: JMP SKIP_DATA
+ 0103  B8 10FF	 	 	    SKIP_DATA:MOV AX,10FFH
+ 0106  8B E0	 	 	            MOV SP,AX
+ 0108  0E	 	 	            PUSH CS
+ 0109  1F	 	 	            POP DS
+ 010A  B8 0000	 	 	            MOV AX,0000H
+ 010D  8E C0	 	 	            MOV ES,AX
+ 010F  B0 90	 	 	      BACK: MOV AL,90H;Set portA as input and
+ 0111  BA 8006	 	 	            MOV DX,CONTWD;portB as output port
+ 0114  EE	 	 	            OUT DX,AL
+ 0115  B5 08	 	 	            MOV CH,08H;Laod counts for 8 bit lo
+	 	 	 	op
+ 0117  B1 01	 	 	            MOV CL,01H;Rotate right counter
+ 0119  B6 01	 	 	            MOV DH,01H;Data to mask sussesive b
+	 	 	 	its
+ 011B  B2 00	 	 	            MOV DL,00H;Save result after each t
+	 	 	 	urn
+ 011D  52	 	 	            PUSH DX
+ 011E  BA 8000	 	 	            MOV DX,PORTA;Read the data from por
+	 	 	 	tA
+ 0121  EC	 	 	            IN AL,DX
+ 0122  5A	 	 	            POP DX
+ 0123  8A D8	 	 	            MOV BL,AL
+ 0125  8A C3	 	 	   NEXTBIT: MOV AL,BL
+ 0127  22 C6	 	 	            AND AL,DH;Mask the bit
+ 0129  D2 C8	 	 	            ROR AL,CL;Rotate the data
+ 012B  FE C1	 	 	            INC CL   ;Increament data rotation
+ 012D  FE C1	 	 	            INC CL   ;by two for next
+ 012F  D0 C6	 	 	            ROL DH,01H;Rotate the masking bit
+ 0131  0A D0	 	 	            OR DL,AL; Save the bit
+ 0133  FE CD	 	 	            DEC CH  ;dec. bit loop counter
+ 0135  75 EE	 	 	            JNZ NEXTBIT;If 8 bit are completed
+ 0137  8A C2	 	 	            MOV AL,DL ;out the data to port B
+ 0139  BA 8002	 	 	            MOV DX,PORTB
+ 013C  EE	 	 	            OUT DX,AL
+ 013D  B4 08	 	 	            MOV AH,08H
+ 013F  CD A1	 	 	            INT 0A1H
+ 0141  3C 1B	 	 	            CMP AL,1BH
+ 0143  75 CA	 	 	            JNE BACK
+ 0145  CD A3	 	 	            INT 0A3H
+ 0147	 	 	 	            SWAP ENDS
+ 	 	 	 	            END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	07-14-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+SWAP . . . . . . . . . . . . . .	0147	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BACK . . . . . . . . . . . . . .	L NEAR 	010F	SWAP
+CONTWD . . . . . . . . . . . . .	Number	8006	
+NEXTBIT. . . . . . . . . . . . .	L NEAR 	0125	SWAP
+PORTA. . . . . . . . . . . . . .	Number	8000	
+PORTB. . . . . . . . . . . . . .	Number	8002	
+PORTC. . . . . . . . . . . . . .	Number	8004	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	SWAP
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	SWAP
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

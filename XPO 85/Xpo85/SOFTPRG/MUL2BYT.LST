@@ -1,0 +1,59 @@
+                
+                ;TITLE : MULTIPLICATIONOF TWO ONE BYTE BINARY NUMBER.
+                
+                ;TO MULTIPLY TWO ONE BYTE BINARY NUMBERS STORED AT LOCATION X & Y 
+                ;DISPLAY THE RESULT IN ADDRESS FIELD.
+                
+                ;ADDRESS OF FIRST OPERAND X LOCATION = OPR1:
+                ;ADDRESS OF SECOND OPERAND Y LOCATION = OPR2:
+                
+                ;REGISTERS USED ALL
+                
+                ;INPUT TO THE PROGRAM
+                ;INPUT1 STORED AT X LOCATION =OPR1:
+                ;INPUT2 STORED AT Y LOCATION =OPR2:
+                
+                ;OUTPUT OF PROGRAM ON DISPLAY .
+                
+ 0000                              CPU"8085.TBL"   ;CPU USED IS 8085.
+ 0000                              HOF"INT8"       ;INTELHEX 8 BIT FORMAT IS USED.
+                
+                
+ 048A =                        CRLF:   EQU 048AH   ;CLEAR DISPLAY.
+ 036C =                        NMOUT:  EQU 036CH   ;OUT THE NUMBER TO DISPLAY.
+ 0013 =                        CMDWDP: EQU 0013H   ;RETURN TO COMMAND MODE WITHOUT
+                                                   ;DISTURBING DISPLAY.
+ 6340                               ORG 6340H
+ 6340 216563                        LXI H,OPR1     ;FIRST OPERAND.
+ 6343 5E                            MOV E,M        ;SAVE FIRST OPERAND IN
+ 6344 1600                          MVI D,00H      ;DE RESISTER PAIR.
+ 6346 216663                        LXI H,OPR2     ;SECOND OPERAND.
+ 6349 7E                            MOV A,M
+ 634A 4F                            MOV C,A        ;C SECOND OPERAND USED AS COUNTER
+ 634B 210000                        LXI H,0000H    ;MAKE HL 00H
+ 634E FE00                          CPI 00H        ;GOTO DISPLAY IF SECOND OPERAND
+ 6350 CA5863                        JZ ZERO        ;IS ZERO.
+                                   
+ 6353 19                        XX: DAD D          ;ADDS FIRST OPERAND UNTIL
+ 6354 0D                            DCR C          ;SECOND OPERAND BECOMES ZERO.
+ 6355 C25363                        JNZ XX
+                                                  
+ 6358 CD8A04                  ZERO: CALL CRLF      ;CLEAR DISPLAY.
+ 635B 54                            MOV D,H
+ 635C 5D                            MOV E,L
+ 635D 0604                          MVI B,04H
+ 635F CD6C03                        CALL NMOUT     ;DISPLAY RESULAT IN ADDRESS FIELD.
+ 6362 CD1300                        CALL CMDWDP    ;GOTO COMMAND MODE.
+                                    
+ 6365 04                      OPR1: DFB 04H        ;FIRST OPERAND
+ 6366 02                      OPR2: DFB 02H        ;SECOND OPERAND
+                     
+                ;END OF PROGRAM
+                                      
+                	END
+0007  A                    0000  B                    0001  C             
+0013  CMDWDP               048A  CRLF                 0002  D             
+0003  E                    0004  H                    0005  L             
+0006  M                    036C  NMOUT                6365  OPR1          
+6366  OPR2                 6353  XX                   6358  ZERO          
+

@@ -1,0 +1,109 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING RTC(58167).	 	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	       PAGE,80
+ 	 	 	 	       TITLE-- USING RTC(58167).
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86RTCTM   	SEGMENT
+ 	 	 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X86RTCTM, DS:X86RTCTM
+	 	 	 	 ,ES:X86RTCTM
+ 0100	 	 	 	          	ORG 100H      	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	JMP 	SKIP_DATA      	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	;Init of SP for
+	 	 	 	 kit
+ 0106  8B C0	 	 	        MOV 	AX,AX     	;MOV AX,AX   on
+	 	 	 	 PC
+ 0108  0E	 	 	        PUSH	CS        	;Init for DS
+ 0109  1F	 	 	        POP   	DS  
+ 	 	 	 	                            	;Load kit Int's
+	 	 	 	 (A0-BF) in PC using
+ 010A  90	 	 	        NOP               	;
+ 010B  90	 	 	        NOP               	;CALL in place 
+	 	 	 	of 3 NOP`S
+ 010C  90	 	 	        NOP               	;
+ 010D  CD AC	 	 	        INT    	0ACH       	;Clear/refresh 
+	 	 	 	display
+ 010F  BA A009	 	 	START:  MOV    	DX,0A009H
+ 0112  EC	 	 	        IN     	AL,DX 	 	;Read hours fro
+	 	 	 	m I/P port 0A008H
+ 0113  8A D0	 	 	        MOV    	DL,AL      	;Hours are dire
+	 	 	 	ctly in BCDS
+ 0115  B0 02	 	 	 	MOV    	AL,02H     	;Display Hours 
+	 	 	 	(two digits)
+ 0117  CD AE	 	 	        INT   	0AEH       	;On display
+ 0119  B2 20	 	 	        MOV   	DL,20H     	;Display blank 
+	 	 	 	space
+ 011B  B4 02	 	 	        MOV   	AH,02H	 	;
+ 011D  CD A2	 	 	        INT   	0A2H       	;On the display
+ 011F  BA A007	 	 	        MOV   	DX,0A007H	;
+ 0122  EC	 	 	        IN    	AL,DX      	;Read minutes f
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- USING RTC(58167).	 	 	 	 	 	10-02-99    
+
+
+	 	 	 	rom I/P port 0A006H
+ 0123  8A D0	 	 	        MOV   	DL,AL      	;in BCD format
+ 0125  B0 02	 	 	        MOV   	AL,02H     	;Display minute
+	 	 	 	s (two digits)
+ 0127  CD AE	 	 	        INT   	0AEH       	;in BCD format
+ 0129  B2 20	 	 	        MOV   	DL,20H     	;Display blank 
+	 	 	 	Space
+ 012B  B4 02	 	 	        MOV   	AH,02H	 	;
+ 012D  CD A2	 	 	        INT   	0A2H       	;on the display
+ 012F  BA A005	 	 	        MOV   	DX,0A005H 	;
+ 0132  EC	 	 	        IN    	AL,DX      	;Read second fr
+	 	 	 	om I/P port 0A004H
+ 0133  8A D0	 	 	        MOV   	DL,AL      	;in BCD format
+ 0135  B0 02	 	 	        MOV   	AL,02H     	;Display second
+	 	 	 	s (two digits)
+ 0137  CD AE	 	 	        INT   	0AEH       	;On the display
+ 0139  CD AB	 	 	        INT   	0ABH       	;Curser at star
+	 	 	 	t position
+ 013B  EB D2	 	 	        JMP   	START      	;Jump to start.
+ 	 	 	 	 	 	
+ 013D	 	 	 	X86RTCTM  	ENDS
+ 	 	 	 	 	END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING RTC(58167).	 	 	 	 	 	10-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86RTCTM . . . . . . . . . . . .	013D	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86RTCTM
+START. . . . . . . . . . . . . .	L NEAR 	010F	X86RTCTM
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86RTCTM
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,9 @@
+
+Warning: No STACK segment
+
+ Start  Stop   Length  Name                   Class
+ 00000H 00154H 0155H  X86P511A               
+
+ Origin   Group
+
+Program entry point at 0000:0100

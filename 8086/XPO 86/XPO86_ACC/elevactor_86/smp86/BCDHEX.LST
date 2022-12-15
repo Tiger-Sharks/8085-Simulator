@@ -1,0 +1,69 @@
+
+;***FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+;   PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+;   THE SAME FROM 0140:0100[0000:1500] AND EXECUTE. 
+;*********CONVERTING BCD TO HEX
+;----------------------------------------------------------------------
+;BCDHEX TRANSLATES THE BCD NUMBER IN  AX TO ITS HEX EQUIVALENT IN AX.
+;ON ENTRY AX MUST CONTAIN OR VALID BCD DIGITS, OTHERWISE THE
+;RESULTS ARE UNPREDICTABLE.
+;	ALL REGISTERS OTHER THAN AX    PRESERVED.
+;-----------------------------------------------------------------------
+;PASCAL CONSTRUCT-
+;var
+;	n : integeer;
+;	d : array[0..3] of [0..9];
+;	i : integer;
+;begin
+;	n:= 0;
+;	for i := 3 down to 0  do
+;	    n := 10*n + d[i];
+;end.
+1030:0100 B8FF10        MOV	AX,10FF 
+1030:0103 8BE0          MOV	SP,AX   
+1030:0105 0E            PUSH	CS      
+1030:0106 1F            POP	DS      
+1030:0107 90            NOP	        
+1030:0108 90            NOP	        
+1030:0109 90            NOP	        
+1030:010A B89640        MOV	AX,4096 ;BCD NO LOADED HERE
+1030:010D 53            PUSH	BX                                          
+1030:010E 51            PUSH	CX                                          
+1030:010F 52            PUSH	DX                                          
+1030:0110 56            PUSH	SI                                          
+1030:0111 57            PUSH	DI                                          
+1030:0112 BE0A00        MOV	SI,000A ;SOURCE OF CONSTANT 10               
+1030:0115 B90100        MOV	CX,0001 ;COUNT                              
+1030:0118 8BD8          MOV	BX,AX   ;BCD NUMBER IN BX                   
+1030:011A 33FF          XOR	DI,DI   ;FORM ANSWER IN DI. FIRST INIT
+1030:011C 53            PUSH	BX      ; SUM TO 0.                         
+1030:011D 81E30F00      AND	BX,000F                                     
+1030:0121 03FB          ADD	DI,BX   ;RETAIN LOW NIBBLE ONLY             
+1030:0123 5B            POP	BX      ;UNIT PLACE                         
+1030:0124 D1CB          ROR	BX,1    ;RESTORE ROTATED BCD NUMBER         
+1030:0126 D1CB          ROR	BX,1                                        
+1030:0128 D1CB          ROR	BX,1                                        
+1030:012A D1CB          ROR	BX,1    ;GET NEXT DIGT TO RT NIBLE OF B
+1030:012C 53            PUSH	BX      ;SAVE ROTATED VALUE                 
+1030:012D 51            PUSH	CX                                          
+1030:012E 81E30F00      AND	BX,000F ;RETAIN LOW NIBBLE ONLY             
+1030:0132 8BC3          MOV	AX,BX                                       
+1030:0134 F7E6          MUL	SI      ;IN := N*10. PRODUCT  IN DX,AX
+1030:0136 E2FC          LOOP	0134    ;DX SHOULD GET NO CARRY.            
+1030:0138 59            POP	CX                                          
+1030:0139 41            INC	CX                                          
+1030:013A 03F8          ADD	DI,AX                                       
+1030:013C 5B            POP	BX      ;N := N*10 + d[i]                   
+1030:013D 83F904        CMP	CX,+04                                      
+1030:0140 72E2          JB	0124                                        
+1030:0142 8BC7          MOV	AX,DI   ;REPEAT FOR FOUR BCD DIGITS         
+1030:0144 5F            POP	DI                                          
+1030:0145 5E            POP	SI                                          
+1030:0146 5A            POP	DX                                          
+1030:0147 59            POP	CX                                          
+1030:0148 5B            POP	BX                                          
+1030:0149 CDA5          INT	A5      ;AX= RESULT / REPLACE HERE 'RET'
+					;TO MAKE IT CALLABLE		    
+                                        
+                                        
+                                        

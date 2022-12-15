@@ -1,0 +1,59 @@
+ AS V1.42 Beta [Bld 56] - source file add.asm - page 1 - 1/1/1999 2:29:34
+
+
+       1/       0 :                               cpu 8085
+       2/    6940 :                               org 6940h
+       3/    6940 : 2A 00 21                      lhld 2100h
+       4/    6943 : 7C                            mov a,h   ; move 1st 16 bits num in register a & b
+       5/    6944 : 45                  		  mov b,l
+       6/    6945 : 2A 02 21            		  lhld 2102h
+       7/    6948 : 54                  		  mov d,h   ; move 2nd 16 bits num in register d & e
+       8/    6949 : 5D                  		  mov e,l
+       9/    694A : 82                  		  add d     ; add 1st 8 bits num
+      10/    694B : 67                  		  mov h,a   
+      11/    694C : 78                  		  mov a,b
+      12/    694D : 8B                  		  adc e     ; add 2nd 8 bits num with carry from previous addition
+      13/    694E : 6F                  		  mov l,a
+      14/    694F : 22 04 21            		  shld 2104h; store the results at memory location
+      15/    6952 : CF                  		  rst 1
+      16/    6953 :                               
+      17/    6953 :                     
+ AS V1.42 Beta [Bld 56] - source file add.asm - page 2 - 1/1/1999 2:29:34
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                    1/1/1999 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *TIME :                     2:29:34 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     28 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file add.asm - page 3 - 1/1/1999 2:29:34
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     17 lines source file
+      1 pass
+      0 errors
+      0 warnings

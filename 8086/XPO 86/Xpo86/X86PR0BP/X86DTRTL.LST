@@ -1,0 +1,93 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	08-30-99    
+
+
+ 	 	 	 	;Write software to toggle DTR(pin 24) of 8251. 
+ 	 	 	 	;You can check the result at CM link pin5/L25. 
+ 	 	 	 	;Link L25  is located to the left of USART IC n
+	 	 	 	ear pin 5/U19.
+ 	 	 	 	;Connect the LOGIC probe or CRO at 24/8251 to s
+	 	 	 	ee the toggling of DTR.
+ 	 	 	 	
+ 0000	 	 	 	X86DTRTL SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86DTRTL, DS:X86DTRTL ,ES:X86
+	 	 	 	DTRTL
+ 0100	 	 	 	 	ORG 100H ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100	 	 	 	STRT: 	
+ 0100  EB 01 90	 	 	JMP  SKIP_DATA 	;SKIP LOOK UP/ DATA BASES IF AN
+	 	 	 	Y
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH  	;Initof SP for Kit
+ 0106  8B C0	 	 	MOV  AX,AX     	;On PC
+ 0108  0E	 	 	PUSH CS        	;Init for DS
+ 0109  1F	 	 	POP  DS  
+ 	 	 	 	              	;Load kit INTS (A0-BF) 
+ 010A  90	 	 	NOP             ;In PC using
+ 010B  90	 	 	NOP             ;CALL in place of 3 NOP`S
+ 010C  90	 	 	NOP             ;
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	
+ 010D	 	 	 	START:	
+ 010D  B0 37	 	 	MOV  AL,37H 	;37H, CW 
+ 010F  BA 9002	 	 	MOV  DX,9002H   ;forDTR=0
+ 0112  EF	 	 	OUT  DX,AX      ;i.e. enable,
+ 	 	 	 	 	 	;write CW.
+ 	 	 	 	
+ 0113  B9 FFFF	 	 	MOV  CX,0FFFFH 	;delay count
+ 0116  CD AA	 	 	INT  0AAH 	;call delay
+ 	 	 	 	
+ 0118  B0 35	 	 	MOV AL,35H 	;35H, CW
+ 	 	 	 	                ;for DTR = 1
+ 	 	 	 	                ;i.e. disable,
+ 011A  EF	 	 	OUT DX,AX 	;write CW
+ 	 	 	 	
+ 011B  B9 FFFF	 	 	MOV CX,0FFFFH 	;delay count
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	08-30-99    
+
+
+ 011E  CD AA	 	 	INT 0AAH 	;call delay
+ 	 	 	 	
+ 0120  EB EB	 	 	JMP START 	;jump to start.
+ 	 	 	 	
+ 0122	 	 	 	X86DTRTL  ENDS
+ 	 	 	 	    END   STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	08-30-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86DTRTL . . . . . . . . . . . .	0122	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86DTRTL
+START. . . . . . . . . . . . . .	L NEAR 	010D	X86DTRTL
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86DTRTL
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

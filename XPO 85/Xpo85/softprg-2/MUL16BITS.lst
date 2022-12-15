@@ -1,0 +1,96 @@
+ AS V1.42 Beta [Bld 56] - source file MUL16BITS.ASM - page 1 - 2/13/2008 19:00:57
+
+
+       1/       0 :                     ;Program for 16-bit multiplication
+       2/       0 :                     	    CPU 8085
+       3/    6000 :                     	    org 6000h
+       4/    6000 : 31 F0 27            		lxi sp,27f0h
+       5/    6003 : 2A 00 21            	    lhld 2100h
+       6/    6006 : 44                  	    mov b,h
+       7/    6007 : 4D                  	    mov c,l
+       8/    6008 : 2A 02 21            	    lhld 2102h
+       9/    600B : 54                  	    mov d,h
+      10/    600C : 5D                  	    mov e,l
+      11/    600D : 7B                  	    mov a,e         ;bc*de=de,hl
+      12/    600E : D5                  	    push d          ;Load lowest order byte of
+      13/    600F :                                             ;m'plier/save highest
+      14/    600F :                     					    ;order m'plier
+      15/    600F : CD 2C 60            	    call BMULT     ;Byte 1 mult
+      16/    6012 : E3                  	    xthl           ;Save lowest order byte product  
+      17/    6013 :                     	                   ;,Get M'plier    
+      18/    6013 : F5                  		push psw       ;Store h-order byte of product
+      19/    6014 : 7C                  	    mov a,h
+      20/    6015 : CD 2C 60            	    call BMULT
+      21/    6018 : 57                  	    mov d,a         ;Position h-order byte of product
+      22/    6019 : F1                  	    pop psw
+      23/    601A : 84                  	    add h
+      24/    601B : 5F                  	    mov e,a
+      25/    601C : D2 20 60            	    jnc MUNC1      ;don't decr d if no CY
+      26/    601F : 14                  	    inr d
+      27/    6020 : 65                  MUNC1:  mov h,l
+      28/    6021 : 2E 00               	    mvi L,00h
+      29/    6023 : C1                  	    pop b
+      30/    6024 : 09                  	    dad b          ;Get final product l-order 2-byte
+      31/    6025 : D2 42 60            	    Jnc end
+      32/    6028 : 13                  	    inx d
+      33/    6029 : C3 42 60            	    jmp end
+      34/    602C : 21 00 00            BMULT:  lxi h,0000h    ;1 byte *2 byte MUL
+      35/    602F : 11 07 00                    lxi d,0007h	   ;Bit counter 
+      36/    6032 : 87                          add a
+      37/    6033 : D2 38 60            BMULUP1:jnc BMU0
+      38/    6036 : 09                          dad b
+      39/    6037 : 8A                  		adc d
+      40/    6038 : 29                  BMU0:   dad h          ;Shift product left
+      41/    6039 : 8F                          adc a
+      42/    603A : 1D                  		dcr e
+      43/    603B : C2 33 60            		jnz BMULUP1
+      44/    603E : D0                  		rnc 
+      45/    603F : 09                  		dad b
+      46/    6040 : 8A                  		adc d
+      47/    6041 : C9                  		ret
+      48/    6042 : 22 04 21            END:	shld 2104h    ;Lower 16-bit
+      49/    6045 : EB                  		xchg          ;Upper 16-bit
+      50/    6046 : 22 06 21            		shld 2106h
+      51/    6049 : CF                  		rst 1
+ AS V1.42 Beta [Bld 56] - source file MUL16BITS.ASM - page 2 - 2/13/2008 19:00:57
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+ BMU0 :                        6038 C |  BMULT :                       602C C |
+ BMULUP1 :                     6033 C | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   2/13/2008 - |  END :                         6042 C |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - |  MUNC1 :                       6020 C |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*TIME :                    19:00:57 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     33 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file MUL16BITS.ASM - page 3 - 2/13/2008 19:00:57
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     51 lines source file
+      2 passes
+      0 errors
+      0 warnings

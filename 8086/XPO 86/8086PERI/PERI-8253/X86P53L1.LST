@@ -1,0 +1,161 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8253 PERIWARE.	 	 	 	 	 	12-04-99    
+
+
+ 	 	 	 	;LIST 1
+ 	 	 	 	                   PAGE,80
+ 	 	 	 	       TITLE--USING 8253 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 12A0:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can  
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;This is a sample program to illustrate the 825
+	 	 	 	3 in Mode 0. In this mode, 
+ 	 	 	 	;the output will be low initially after the Mod
+	 	 	 	e Set operation. After the 
+ 	 	 	 	;count is loaded, into the selected count regis
+	 	 	 	ter, the output will remain 
+ 	 	 	 	;low and the counter will count. When the termi
+	 	 	 	nal count is reached, the 
+ 	 	 	 	;output will go high and remain high until the 
+	 	 	 	new count is loaded. In the 
+ 	 	 	 	;Interrupt service routine of RST5.5, "XPO" is 
+	 	 	 	displayed.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86P53L1  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P53L1, DS:X86P53L1 ,ES:X86
+	 	 	 	P53L1
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH	 	;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX	 	;On PC
+ 0108  0E	 	 	PUSH CS	 	        ;Init for DS
+ 0109  58	 	 	POP  AX	 	        ;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	 	;(A0-BF) 
+ 010C  90	 	 	NOP	 	 	;In PC using
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8253 PERIWARE.	 	 	 	 	 	12-04-99    
+
+
+ 010D  90	 	 	NOP	 	 	;CALL in place
+ 010E  90	 	 	NOP	 	 	;of 3 NOP`S
+ 	 	 	 	
+ 010F  8B C8	 	 	MOV  CX,AX         ;SEG ADDR OF ISR FOR IR0
+ 0111  BE 0146 R	 	MOV  SI,OFFSET ISR ;OFFSET ADDR  
+ 0114  B0 90	 	 	MOV  AL,90H	   ;INIT OF 0000:0240H-44H BYTE
+	 	 	 	S SO 
+ 	 	 	 	 	 	   ;ON INTERRUPT IR0 "INT 90,91
+	 	 	 	..
+ 	 	 	 	 	 	   ;ARE EXECUTED.
+ 0116  CD BE	 	 	INT  0BEH          ;                       
+ 0118  B0 1B	 	 	MOV  AL,1BH    	   ;EDGE,SINGLE	
+ 	 	 	 	 	 	   ;ICW1 A1=0                  
+	 	 	 	       
+ 011A  BA 9400	 	 	MOV  DX,9400H      ;                      
+ 011D  EE	 	 	OUT  DX,AL         ;                    
+ 011E  B0 90	 	 	MOV  AL,90H	   ;ISR OF IR0 =INT 90H ETC
+ 0120  BA 9402	 	 	MOV  DX,9402H      ;A1=1	
+ 0123  EE	 	 	OUT  DX,AL 	   ;ICW2	
+ 0124  B0 01	 	 	MOV  AL,01H	   ;8086,NORMAL EOI,NON BUFERED
+	 	 	 	,
+ 	 	 	 	 	 	   ;NON SPECIAL,NEST
+ 0126  EE	 	 	OUT  DX,AL	   ;ICW4,A1=1
+ 0127  B0 FE	 	 	MOV  AL,0FEH	   ;ENABLE IR0.
+ 0129  EE	 	 	OUT  DX,AL 	   ;OCW1                       
+	 	 	 	      
+ 	 	 	 	
+ 012A  B0 10	 	 	MOV AL,10H	;Initialization-Counter 0,
+ 012C  BA 01E6	 	 	MOV DX,01E6H	;Mode 0, Binary.
+ 012F  EE	 	 	OUT DX,AL
+ 	 	 	 	
+ 0130  B0 04	 	 	MOV AL, 04H	;Count value to be loaded.
+ 0132  BA 01E0	 	 	MOV DX,01E0H
+ 0135  EE	 	 	OUT DX,AL
+ 	 	 	 	
+ 0136  BA 01E6	 	 	MOV DX,01E6H
+ 0139  EC	 	 	IN  AL,DX    	;No operation-alongwith the nex
+	 	 	 	t no op.
+ 	 	 	 	 	 	;provides a clock pulse to load
+	 	 	 	 the
+ 	 	 	 	 	 	;counter with the count value.
+ 013A  EC	 	 	IN  AL,DX	; No operation.
+ 013B  BA 01E0	 	 	MOV DX,01E0H
+ 013E	 	 	 	UP:
+ 013E  EC	 	 	IN  AL,DX	; Reads present count.
+ 013F  3C 00	 	 	CMP AL,00H	; Checks for the end of count.
+ 0141  75 FB	 	 	JNZ UP
+ 0143  FB	 	 	STI
+ 0144  EB FE	 	 	WET: JMP WET
+ 	 	 	 	
+ 	 	 	 	
+ 0146	 	 	 	ISR:  
+ 0146  BB 0155 R	 	MOV BX,OFFSET DATA ;Pointer to message database
+	 	 	 	.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8253 PERIWARE.	 	 	 	 	 	12-04-99    
+
+
+ 0149  CD AC	 	 	INT 0ACH	;Clear Display.
+ 014B  CD AF	 	 	INT 0AFH        ;Display message.
+ 014D  B9 FFFF	 	 	MOV CX,0FFFFH	;Delay count.
+ 0150  CD AA	 	 	INT 0AAH	;Provides delay to stabilise di
+	 	 	 	splay.
+ 0152  CD A5	 	 	INT 0A5H        ;Resister saving interrupt.
+ 0154  CF	 	 	IRET
+ 	 	 	 	
+ 0155  58 50 4F 03	 	DATA:	DB "XPO" ,03H ;XPO DATA.
+ 	 	 	 	
+ 	 	 	 	
+ 0159	 	 	 	X86P53L1  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8253 PERIWARE.	 	 	 	 	 	12-04-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P53L1 . . . . . . . . . . . .	0159	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DATA . . . . . . . . . . . . . .	L NEAR 	0155	X86P53L1
+ISR. . . . . . . . . . . . . . .	L NEAR 	0146	X86P53L1
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P53L1
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P53L1
+UP . . . . . . . . . . . . . . .	L NEAR 	013E	X86P53L1
+WET. . . . . . . . . . . . . . .	L NEAR 	0144	X86P53L1
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

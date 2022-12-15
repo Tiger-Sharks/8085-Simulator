@@ -1,0 +1,50 @@
+                
+                 ;PROGRAM FOR TRAFFIC LIGHT CONTROLLER
+                
+ 0000                   CPU "8085.TBL"
+ 0000                   HOF "INT8"
+                
+ 0615 =         DELAY:  EQU 0615H 
+                
+ 7700                   ORG 7700H
+ 7700 310021            LXI SP,2100H       ;INITIALISE STACK POINTER
+ 7703 3E80              MVI A,80H          ;CLEAR ALL PORTS 
+ 7705 D30B              OUT 0BH            ;SET ALL PORTS AS OUTPUT PORTS
+ 7707 3E61       START: MVI A,61H         ;TURN ALL THE RED SIGNALS ON
+ 7709 D308              OUT 08H
+ 770B 3E68              MVI A,68H
+ 770D D309              OUT 09H
+ 770F 3E86              MVI A,86H
+ 7711 D30A              OUT 0AH
+ 7713 CD3777            CALL DELAY1     ;DELAY FOR 4 SEC.
+ 7716 3E92              MVI A,92H          ;TURN ALL YELLOW SIGNALS ON
+ 7718 D308              OUT 08H
+ 771A 3E84              MVI A,84H
+ 771C D309              OUT 09H
+ 771E 3E48              MVI A,48H
+ 7720 D30A              OUT 0AH
+ 7722 CD4777            CALL DELAY2        ;DELAY FOR 2 SEC.
+ 7725 3E0C              MVI A,0CH       ;TURN ALL GREEN SIGNALS ON
+ 7727 D308              OUT 08H
+ 7729 3E13              MVI A,13H
+ 772B D309              OUT 09H
+ 772D 3E31              MVI A,31H
+ 772F D30A              OUT 0AH
+ 7731 CD3777            CALL DELAY1  ;DELAY FOR 4 SEC.
+ 7734 C30777            JMP START
+ 7737 11FFFF    DELAY1: LXI D,0FFFFH      ;DELAY COUNT
+ 773A CD1506            CALL DELAY
+ 773D CD1506            CALL DELAY
+ 7740 CD1506            CALL DELAY
+ 7743 CD1506            CALL DELAY
+ 7746 C9                RET
+ 7747 11FFFF    DELAY2: LXI D,0FFFFH
+ 774A CD1506            CALL DELAY
+ 774D CD1506            CALL DELAY
+ 7750 C9                RET
+ 0000                   END
+0007  A                    0000  B                    0001  C             
+0002  D                    0615  DELAY                7737  DELAY1        
+7747  DELAY2               0003  E                    0004  H             
+0005  L                    0006  M                    7707  START         
+

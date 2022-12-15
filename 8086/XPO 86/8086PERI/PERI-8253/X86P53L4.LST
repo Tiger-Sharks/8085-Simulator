@@ -1,0 +1,122 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8253 PERIWARE.	 	 	 	 	 	11-20-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST 4
+ 	 	 	 	                   PAGE,80
+ 	 	 	 	       TITLE--USING 8253 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 12DC:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;A program to demonstrate the 8253 in Mode 3, w
+	 	 	 	hich is also 
+ 	 	 	 	;called as Square-Wave Generator. The output wi
+	 	 	 	ll remain high
+ 	 	 	 	;until one half the count has been completed. (
+	 	 	 	for even numbers)
+ 	 	 	 	;and go low for the other half of the count. If
+	 	 	 	 the count is odd 
+ 	 	 	 	;and the output is high, the first clock pulse 
+	 	 	 	decrements the 
+ 	 	 	 	;count by 1 subsequent clock pulses decrement t
+	 	 	 	he clock by 2. 
+ 	 	 	 	;After time out, the output goes low and the fu
+	 	 	 	ll count is reloaded,
+ 	 	 	 	;the first clock pulse decrements the counter b
+	 	 	 	y 3 subsequent
+ 	 	 	 	;clock pulses decrement the count by 2, until t
+	 	 	 	imeout. In this
+ 	 	 	 	;way if the count is odd the output will be hig
+	 	 	 	h for (n+1) / 2 
+ 	 	 	 	;counts and low for (n-1) / 2 counts.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86P53L4  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P53L4, DS:X86P53L4 ,ES:X86
+	 	 	 	P53L4
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8253 PERIWARE.	 	 	 	 	 	11-20-99    
+
+
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV   AX,10FFH	 	;Initof SP for Kit
+ 0106  8B E0	 	 	MOV   SP,AX	 	;On PC
+ 0108  0E	 	 	PUSH  CS	 	;Init for DS
+ 0109  1F	 	 	POP   DS	 	;Load kit INTS 
+ 	 	 	 	 	 	 	;(A0-BF) 
+ 010A  90	 	 	NOP	 	 	;In PC using
+ 010B  90	 	 	NOP	 	 	;CALL in place
+ 010C  90	 	 	NOP	 	 	;of 3 NOP`S
+ 	 	 	 	
+ 010D  B0 96	 	 	MOV  AL,96H	; Initialization-Counter2, 
+ 	 	 	 	 	 	;Mode3, Binary.
+ 010F  BA 01E6	 	 	MOV  DX,01E6H
+ 0112  EE	 	 	OUT  DX,AL
+ 0113  B0 08	 	 	MOV  AL,08H	; Count value to be loaded.
+ 0115  BA 01E4	 	 	MOV  DX,01E4H
+ 0118  EE	 	 	OUT  DX,AL
+ 0119  BA 01E6	 	 	MOV  DX,01E6H
+ 011C  EC	 	 	IN   AL,DX	; No operation-alongwith the ne
+	 	 	 	xt
+ 	 	 	 	 	 	; no op, provides a clock pulse
+	 	 	 	 to
+ 	 	 	 	 	 	; load the counter with the cou
+	 	 	 	nt value.
+ 011D  EC	 	 	IN   AL,DX	; No operation.
+ 011E	 	 	 	UP:	
+ 011E  BA 01E4	 	 	MOV  DX,01E4H
+ 0121  EC	 	 	IN   AL,DX	; Reads the present count.
+ 0122  EB FA	 	 	JMP  UP
+ 	 	 	 	
+ 0124	 	 	 	X86P53L4  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8253 PERIWARE.	 	 	 	 	 	11-20-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P53L4 . . . . . . . . . . . .	0124	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P53L4
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P53L4
+UP . . . . . . . . . . . . . . .	L NEAR 	011E	X86P53L4
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

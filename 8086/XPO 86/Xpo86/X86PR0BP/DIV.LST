@@ -1,0 +1,83 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000         SCPD EQU 0000H    ;Scratch Pad  Location.
+ = 1000         NUM1 EQU 1000H    ;Address for devidend.
+ = 1002         NUM2 EQU 1002H    ;Address for Divisor.
+  ; This program gives 16 bit by 8-bit binary division
+  ; User can store dividend at memory location 0000:1000H
+  ; and divisor at memory location 0000:1002H
+  ; User can see result at memory location 0000:1010H
+ 0000	 	 	 	       DIV SEGMENT
+ 	 	 	 	       ASSUME CS:DIV,DS:DIV
+ 	 	 	 	       ASSUME ES:DIV
+ 0100	 	 	 	       ORG 100H                        ;Com for
+	 	 	 	mat is recommanded.
+ 0100  EB 01 90	 	 	       START: JMP SKIP_DATA            ;skip da
+	 	 	 	ta bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	      
+ 0103	 	 	 	     SKIP_DATA:
+ 0103  B8 10FF	 	 	                MOV AX,10FFH
+ 0106  8B E0	 	 	                MOV SP,AX               ;Init S
+	 	 	 	P for kit.
+ 0108  0E	 	 	                PUSH CS
+ 0109  1F	 	 	                POP DS                  ;Init D
+	 	 	 	S register.
+ 010A  B8 0000	 	 	                MOV AX,SCPD
+ 010D  8E C0	 	 	                MOV ES,AX
+ 010F  26: A1 1000	 	                MOV AX,ES:NUM1          ;Divide
+	 	 	 	nd in AX register.
+ 0113  26: 8A 1E 1002	 	                MOV BL,ES:NUM2          ;Diviso
+	 	 	 	r in BL register.
+ 0118  B7 00	 	 	 	 	MOV BH,00
+ 011A  B9 0008	 	 	                MOV CX,08               ;Loop i
+	 	 	 	s to be repeated 8 times
+ 011D  B2 00	 	 	                MOV DL,00               ;Quotie
+	 	 	 	nt=00.
+ 011F	 	 	 	 	BACK:	
+ 011F  03 C0	 	 	                ADD AX,AX               ;Dviden
+	 	 	 	d=2*Dvidend.
+ 0121  02 D2	 	 	                ADD DL,DL               ;Quotie
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+	 	 	 	nt=2*Quotient.
+ 0123  8A F4	 	 	                MOV DH,AH               ;Keep c
+	 	 	 	opy of AH in DH also.
+ 0125  2A E3	 	 	                SUB AH,BL               ;Is MSB
+	 	 	 	>=Divisor.
+ 0127  72 04	 	 	                JC AHEAD                ;No,go 
+	 	 	 	to next step.
+ 0129  8A F4	 	 	                MOV DH,AH               ;Substr
+	 	 	 	act diviser.
+ 012B  FE C2	 	 	                INC DL                  ;Add 1 
+	 	 	 	to quotient.
+ 012D	 	 	 	 	AHEAD:
+ 012D  8A E6	 	 	 	 	MOV AH,DH
+ 012F  E2 EE	 	 	                LOOP BACK               ;If CX<
+	 	 	 	>0 then repate the loop.
+ 0131  8A C2	 	 	                MOV AL,DL               ;Store 
+	 	 	 	quotient in quo memory location.
+ 0133  26: A3 1010	 	                MOV ES:[1010H],AX           ;Mo
+	 	 	 	ve rmainder in rem memory location.
+ 0137  CD A5	 	 	                INT 0A5H                ;Return
+	 	 	 	 to command mode.
+ 	 	 	 	                                        ;If you
+	 	 	 	 are runnig your software
+ 0139	 	 	 	  DIV ENDS                              ;on PC 
+	 	 	 	insert ---->include.
+ 	 	 	 	  END START
+

@@ -1,0 +1,109 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	;Program to find log to base 10 of a a number. 
+	 	 	 	The log is looked up 
+ 	 	 	 	;in a table. The log is stored as a multiplied 
+	 	 	 	by 10000 number. i.e.
+ 	 	 	 	;Actual answer that we get is 10000*log(number)
+ 	 	 	 	;THE LOG IS LOOKED UP A LOOKUP TABLE.
+ 	 	 	 	;A SECOND METHOD OF DOING LOG CALCULATIONS IS T
+	 	 	 	O ADD THE LOG SERIES TO
+ 	 	 	 	;A PREDECIDED NUMBER OF ELEMENTS.
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 18 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ 0103  0000 0BC2 12A3 1785	TABLE DW 0,3010,4771,6021,6990,7782,8451,9031,9
+	 	 	 	542,10000
+       1B4E 1E66 2103 2347	
+       2546 2710	 	
+ 	 	 	 	 	
+ 0117  02	 	 	NUM DB 2	
+ 0118  ????	 	 	ANSWER DW ?
+ 	 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	 	
+ 011A	 	 	 	SKIP_DATA:
+ 011A  B8 10FF	 	 	 	MOV AX,10FFH	 	;Initof SP for 
+	 	 	 	Kit
+ 011D  8B E0	 	 	 	MOV SP,AX	 	 	;On PC
+ 	 	 	 	
+ 011F  0E	 	 	 	PUSH CS	 	 	;Init for DS
+ 0120  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 0121  90	 	 	 	NOP
+ 0122  90	 	 	 	NOP
+ 0123  90	 	 	 	NOP
+ 	 	 	 	 	
+ 0124  B4 00	 	 	 	MOV AH,00H
+ 0126  A0 0117 R	 	 	MOV AL,BYTE PTR NUM	 	
+ 	 	 	 	 	;GET NUMBER TO LOOKUP LOG OF
+ 0129  75 06	 	 	 	JNZ LOOKUP	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+	 	 	 	 	 	 	;IF NUMBER ZERO INDICAT
+	 	 	 	E ERROR
+ 012B  BA EEEE	 	 	 	MOV DX,0EEEEH
+ 012E  EB 0E 90	 	 	 	JMP ENDPROG
+ 0131	 	 	 	LOOKUP:	
+ 0131  2C 01	 	 	 	SUB AL,1
+ 0133  98	 	 	 	CBW
+ 0134  D0 C0	 	 	 	ROL AL,1
+ 0136  8D 1E 0103 R	 	 	LEA BX,TABLE	 	;LOAD STARTING 
+	 	 	 	ADDRESS OF TABLE
+ 013A  03 D8	 	 	 	ADD BX,AX
+ 013C  8B 17	 	 	 	MOV DX,[BX]	 	 	
+ 	 	 	 	 	;LOOKUP THE LOG
+ 013E	 	 	 	ENDPROG:
+ 013E  89 16 0118 R	 	 	MOV ANSWER,DX
+ 0142  CD A5	 	 	 	INT 0A5H
+ 0144	 	 	 	COMSEG ENDS	
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0144	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ANSWER . . . . . . . . . . . . .	L WORD 	0118	COMSEG
+ENDPROG. . . . . . . . . . . . .	L NEAR 	013E	COMSEG
+LOOKUP . . . . . . . . . . . . .	L NEAR 	0131	COMSEG
+NUM. . . . . . . . . . . . . . .	L BYTE 	0117	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	011A	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+TABLE. . . . . . . . . . . . . .	L WORD 	0103	COMSEG
+
+50120 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

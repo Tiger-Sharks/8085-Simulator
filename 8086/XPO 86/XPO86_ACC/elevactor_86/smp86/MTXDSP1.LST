@@ -1,0 +1,118 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- TRAF3	 	 	 	 	 	 	06-12-:0    
+
+
+1	 	 	 	 	
+2	 	 	 	 	
+3	 	 	 	 	
+4	 	 	 	 	
+5	 	 	 	 	        PAGE,70
+6	 	 	 	 	        TITLE-- TRAF3
+7	 	 	 	 	;
+8	 0000	 	 	 	TRAF3     SEGMENT
+9	 	 	 	 	        ASSUME CS:TRAF3, DS:T
+	 	 	 	RAF3 ,ES:TRAF3
+10	 0100	 	 	 	        ORG 100H   ;COM FORMA
+	 	 	 	T IS RECOMMENDED.
+11	 0100  EB 01 90	 	 	STRT:   JMP SKIP_DATA
+12	;SKIP LOOK UP/ DATA BASES IF ANY
+13	;ON KIT YOU NEED TO DO INIT FOR SP
+14	;[TO SEPARATE STACK OF YOUR PROGRAME FROM
+15	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET
+16	;TO 0000 AT POWER ON BY MONITOR.
+17	;YOU CAN OFCOURSE CHANGE IT BY ADDING A
+18	;FEW MORE MOVE`S.
+19	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH
+20	;SEGMENT REGISTERS SINCE THE ARE
+21	;SET BY DOS LOADER,SO MANAGÅ THESE
+22	;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+23	 0103  B8 11FF	 SKIP_DATA:MOV AX,11FFH
+24	 	 	 ;INIT OF SP FOR KIT
+25	 0106  8B E0	 STRT1:  MOV SP,AX
+26	 	 	 ;MOV AX,AX   ON PC
+27	 0108  0E	 PUSH CS
+28	 	 	 ;THIS IS THE BEST WAY TO LOAD DS
+29	 0109  1Æ        POP DS
+30	 	 	 ;WITH SEGMENT VALUE.
+31	 010A  90	 NOP
+32	 	 	 ;LOAD KIT INT S (A0-BF) IN PC USING
+33	 010B  90	 NOP
+34	 	 	 ;CALL LDINPC
+35	 010C  90	 NOP
+36	 	 	 ;PLACE ABOVE CALL IN 
+          	 	 PLACE OF 3 NOP`S
+37	 010D  B0 80	 MOV AL,80H   ;PUT ALL THE PORTS
+38	 010F  BA 8807	 MOV DX,8807H ;OF LOWER 8255 AS
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-2
+-- TRAF3	 	 	 	 	 	 	06-12
+	 	 	 	-:0    
+
+39	 0112  EE	 OUT DX,AL    ;OUTPUT PORTS.
+40	 0113  BB 013· START:  MOV BX,0137H ;DATA POINTER WHERE
+41	 	 	 	 	    ;CODES ARE STORED.
+42	 0116  B1 FE	 MOV CL,0FEH  ;DATA TO ACTIVE PC0
+43	 0118  B5 07	 MOV CH,07H   ;NO. OF ROWS =7
+44	 011A  8A 0· NXTLIN: MOV AL,[BX]  ;READ FIRST BYTE IN AL
+45	 011C  43	 INC BX       ;INCREMÅNT DATA POINTER.
+46	 011D  BA 8801	 MOV DX,8801H ;PORT Á ADDRESS,
+47	 0120  EE	 OUT DX,AL    ;OUT DATA ON PORT A
+48	 0121  8A C1	 MOV AL,CL    ;MAKE CORRESPPONDING PIN
+49	 0123  BA 8805	 MOV DX,8805H ;OF PC7 ACTIVE
+50	 0126  EE	 OUT DX,AL    ;
+51	 0127  51	 PUSH CX      ;STORE CX
+52	 0128  B9 0225	 MOV CX,0225H ;DELAY COUNT
+53	 012B  CD AÁ     INT 0AAH     ;CALL DELAY
+54	 012D  59	 POP CX
+55	 012E  F9	 STC          ;SET CARRY FLAG
+56	 012F  D0 D1	 RCL CL,01H   ;ROTATE CL THROUGH CARRY
+57	 	 	 	      ;TO HAVE PROPER PC BIT
+58	 	 	 	      ;ACTIVE.
+59	 0131  FE CD	 DEC CH       ;DECREMENT CH, IF ALL ROWS
+60	 0133  75 E5	 JNZ NXTLIN   ;NOT OVER GOTO NEXT ROW ELSE
+61	 0135  EB DC	 JMP START    ;GOTO START
+62	 0137  C³    DBASE:  DB 0C3H      ;FIRST ROW CODE
+63	 0138  BÄ        DB 0BDH      ;SECOND ROW CODE
+64	 0139  7E	 DB 7EH       ;THIRD ROW CODE
+65	 013A  7E	 DB 7EH       ;FOURTÈ ROW CODE
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-3
+-- TRAF3	 	 	 	 	 	 	06-12
+	 	 	 	-:0    
+
+
+66	 013B  00	 DB 00H       ;FIFTH ROW CODE
+67	 013C  7E	 DB 7EH       ;SIXTH ROW CODE
+68	 013D  7E	 DB 7EH       ;SEVENTH ROW CODE
+69	 013E	 	 	 	TRAF3   ENDS
+70	 	 	 	 	        END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	Symbols-1
+-- TRAF3	 	 	 	 	 	 	06-12
+	 	 	 	-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+TRAF3. . . . . . . . . . . . . .	013E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DBASE. . . . . . . . . . . . . .	L NEAR 	0137	TRAF3
+NXTLIN . . . . . . . . . . . . .	L NEAR 	011A	TRAF3
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	TRAF3
+START. . . . . . . . . . . . . .	L NEAR 	0113	TRAF3
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	TRAF3
+STRT1. . . . . . . . . . . . . .	L NEAR 	0106	TRAF3
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0
+

@@ -1,0 +1,129 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8259	 	 	 	 	 	 	08-12-99    
+
+
+ 	 	 	 	       PAGE,100
+ 	 	 	 	       TITLE--USING 8259
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X868259  	SEGMENT
+ 	 	 	 	
+ 	 	 	 	         	ASSUME CS:X868259, DS:X868259 ,ES:X868259
+ 0100	 	 	 	         	ORG 100H	;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 13 90	 	 	STRT:    JMP 	SKIP_DATA	;SKIP LOOK UP/ DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE STACK OF YOUR PROGR
+	 	 	 	AME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON BY M
+	 	 	 	ONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MORE MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE TH
+	 	 	 	EY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS AS SHOWN IN COMMENT
+	 	 	 	 FIELD.  
+ 	 	 	 	 	 	 	 	
+ 0103  41 4E 53 48 55 4D	MSG1: 	DB "ANSHUMAN",03H  	;Message ANSHUMAN.
+       41 4E 03	 	 	
+ 010C  41 4E 53 48 20 4C	MSG2: 	DB "ANSH LC6",03H 	;Message ANSH LC6.
+       43 36 03	 	 	
+ 	 	 	 	 	 	 	 	                                   
+	 	 	 	         
+ 0115	 	 	 	SKIP_DATA:
+ 0115  B8 11F0	 	 	 	MOV	AX,11F0H    
+ 0118  8B E0	 	 	         MOV	SP,AX  	 	;Init of SP,DS(=CS).ES,SS=0000 
+ 011A  0E	 	 	 	 PUSH	CS    	 	;Fetch Present CS in AX
+ 011B  58	 	 	         POP	AX    	 	;And Load Into DS Since DS=CS 	
+ 011C  8E D8	 	 	         MOV	DS,AX   
+ 	 	 	 	 	 	 	        
+ 011E  90	 	 	         NOP    	;
+ 011F  90	 	 	         NOP            ;Place CALL in place of 3 NOP`S
+ 0120  90	 	 	         NOP            ;
+ 	 	 	 	
+ 0121  8B C8	 	 	         MOV	CX,AX         	;Seg addr of ISR for IR0
+ 0123  BE 0155 R	 	         MOV	SI,OFFSET ISR 	;Offeset addr  
+ 0126  B0 96	 	 	         MOV	AL,96H	      	;Init of 0000:0258H-5BH Bytes so 
+ 	 	 	 	 	 	 	      	;On Interrupt IR6 "INT 96,97..
+ 	 	 	 	 	 	 	      	;are exeuted.
+ 0128  CD BE	 	 	         INT	0BEH                                 
+ 012A  B0 13	 	 	         MOV	AL,13H 	      	;Edge,Single	
+ 	 	 	 	 	 	 	      	;ICW1 A1=0                         
+ 012C  BA 9400	 	 	         MOV	DX,9400H                            
+ 012F  EE	 	 	         OUT	DX,AL                              
+ 0130  B0 90	 	 	         MOV	AL,90H	      	;ISR of IR0 =INT 90H etc.
+ 0132  BA 9402	 	 	         MOV	DX,9402H      	;A1=1	
+ 0135  EE	 	 	         OUT	DX,AL 	      	;ICW2	
+ 0136  B0 01	 	 	         MOV	AL,01H	      	;8086,Normal EOI,Non Buffered,
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8259	 	 	 	 	 	 	08-12-99    
+
+
+ 	 	 	 	 	 	 	      	;Non Special,Nest
+ 0138  EE	 	 	         OUT	DX,AL	      	;ICW4,A1=1
+ 0139  B0 BF	 	 	         MOV	AL,0BFH	      	;Enable IR6.Apply L to H Pulse 
+ 	 	 	 	 	 	 	      	;to IR6 you may use Step switch.
+ 013B  EE	 	 	         OUT	DX,AL 	      	;OCW1                             
+ 013C  FB	 	 	         STI	 	 	;                                  
+	 	 	 	 
+ 013D  B8 0001	 	 	LOOP1:   MOV	AX,0001H        ;                    
+ 0140  B9 FFFF	 	 	LOOP2:   MOV	CX,0FFFFH       ;                     
+ 0143  CD AA	 	 	         INT	0AAH   	      	;Delay
+ 0145  48	 	 	         DEC	AX              ;                  
+ 0146  75 F8	 	 	         JNZ	LOOP2           ;                    
+ 0148  CD AC	 	 	         INT	0ACH          	;Clear display
+ 014A  BB 0103 R	 	         MOV	BX,OFFSET MSG1	;Pointer to "ANSHUMAN"
+ 014D  CD AF	 	 	         INT	0AFH          	;Display message                   
+	 	 	 	   
+ 014F  FB	 	 	         STI	                                   
+ 0150  EB EB	 	 	         JMP	LOOP1                               
+ 0152  90	 	 	         NOP	                                   
+ 0153  90	 	 	         NOP	                                   
+ 0154  90	 	 	         NOP	                                   
+ 	 	 	 	
+ 	 	 	 	;Now Apply L to H Pulse to IR6 using step switch. 8259 will feed IN
+	 	 	 	T 96H
+ 	 	 	 	
+ 	 	 	 	;ISR for 8259--IR6.Presently mapped to INT 96H by ICW2.
+ 	 	 	 	 	 	 	         
+ 0155  CD AC	 	 	ISR:    INT	0ACH     	;Clear to new line
+ 0157  BB 010C R	 	        MOV	BX,OFFSET MSG2	;Pointer to message table Ending
+ 	 	 	 	 	 	 	 	;in ETX
+ 015A  CD AF	 	 	        INT	0AFH 	 	;Display massage.	
+ 015C  B0 20	 	 	        MOV	AL,20H                              
+ 015E  BA 9400	 	 	        MOV	DX,9400H                            
+ 0161  EE	 	 	        OUT	DX,AL           ;OCW2--Non Specific
+ 0162  CF	 	 	        IRET	                                   
+ 	 	 	 	
+ 	 	 	 	
+ 0163	 	 	 	X868259  	ENDS
+ 	 	 	 	    	END  	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols-1
+--USING 8259	 	 	 	 	 	 	08-12-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X868259. . . . . . . . . . . . .	0163	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ISR. . . . . . . . . . . . . . .	L NEAR 	0155	X868259
+LOOP1. . . . . . . . . . . . . .	L NEAR 	013D	X868259
+LOOP2. . . . . . . . . . . . . .	L NEAR 	0140	X868259
+MSG1 . . . . . . . . . . . . . .	L NEAR 	0103	X868259
+MSG2 . . . . . . . . . . . . . .	L NEAR 	010C	X868259
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0115	X868259
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X868259
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

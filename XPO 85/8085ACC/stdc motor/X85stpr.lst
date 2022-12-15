@@ -1,0 +1,99 @@
+                ;Stepper motor interface has been provided through 8255 via 26 pin
+                ;FRC cable.Motor can be rotated clockwise or anticlock wise direction 
+                ;depending on the content of the location of sequense. Acceleration-
+                ;Deacceleration process is also implemented.'STEPR' is a subroutine 
+                ;which actually outputs the phase seq. code to the stepper using lookup table.
+                
+                
+ 0000                        CPU "8085.TBL"
+ 0000           	     HOF "INT8"
+ 0008 =         	     PORTA:EQU 08H
+ 000B =                      CR55:EQU 0BH
+ 2075 =                      READ:EQU 2075H
+ 0615 =         	     DELAY:EQU 0615H
+ 71D2                        ORG 71D2H
+ 71D2 310021           START:LXI SP,2100H ;Init. stack pointer
+ 71D5 3E80                   MVI A,80H    ;Init. 8255 ports
+ 71D7 D30B                   OUT CR55     ;A,B,C as OP ports
+ 71D9 3E00                   MVI A,00H	  ;OP disable code to 
+ 71DB D308                   OUT PORTA    ;stop motor
+ 71DD 214B72                 LXI H,TABLE  ;PTR for phase seq.
+ 71E0 1E10                   MVI E,10H    ;table top
+ 71E2 1620                   MVI D,20H    ;Init delay counter
+ 71E4 0E10                   MVI C,10H    ;To set 0.25 sec. step
+ 71E6 0608             BACK1:MVI B,08H    ;ACLR-DCLR loop count
+ 71E8 CD2372           BACK:CALL STPR     ;Half step drive
+ 71EB CD1506                CALL DELAY    ;Output one seq. code
+ 71EE 05                    DCR	B         ;Min speed, Max speed
+ 71EF C2E871                JNZ	BACK	 
+ 71F2 15                    DCR	D	  ;Decrease delay to ACCN.
+ 71F3 0D                    DCR	C	  ;Count doun for ACCN. phase
+ 71F4 C2E671                JNZ	BACK1	  ;At count 0 Max. speed
+ 71F7 0611                  MVI	B,11H	  ;Fix duration step count
+ 71F9 CD2372          BACK2:CALL STPR	  ;HL apropriate points
+ 71FC CD1506                CALL DELAY	  ;in phase seq. table
+ 71FF 05                    DCR	B         ;DeACCN. phase start
+ 7200 C2F971                JNZ	BACK2	 
+ 7203 0E10                  MVI	C,10H	  ;DeACCN. count
+ 7205 0608            BACK3:MVI	B,08H
+ 7207 CD2372             L1:CALL STPR
+ 720A CD1506                CALL DELAY
+ 720D 05                    DCR	B
+ 720E C20772                JNZ	L1	  ;Increase delay to cause
+ 7211 14                    INR	D	  ;DeACCN.
+ 7212 0D                    DCR	C
+ 7213 C20572                JNZ BACK3      ;DeACCN. phase ends here.
+ 7216 3E00                  MVI A,00H     ;Output disable code to
+ 7218 D308                  OUT PORTA     ;stop motor
+ 721A CD7520                CALL READ     ;Any key pressed?
+ 721D FE1B                  CPI 1BH       ;Is ESC key pressed
+ 721F C2D271                JNZ START     ;If yes begin rotation
+ 7222 CF                    RST 1         ;Again return to command mode
+                 
+                ;STPR Routine
+                ;HL pointer is used for phase code table and direction location
+                ;It outputs phase code and adjest HL appropriatly.
+ 7223 D5              STPR:PUSH D
+ 7224 7E                   MOV A,M       ;Fetch phase code
+ 7225 D308                 OUT PORTA
+ 7227 3AA020               LDA 20A0H
+ 722A FE01                CPI 01H       ;Jump to clockwise if zero
+ 722C C23D72              JNZ NEXT      ;flag not set
+ 722F 23                  INX H         ;Other wise go for anti-
+ 7230 7E                  MOV A,M       ;clock wise
+ 7231 FE00                CPI 00H       ;Check for OFF code
+ 7233 C23B72              JNZ NEXT1     ;Jump if not end of table
+ 7236 16FF                MVI D,0FFH    ;Subtract 08.
+ 7238 1EF8                MVI E,0F8H
+ 723A 19           REPEAT:DAD D
+ 723B D1            NEXT1:POP D
+ 723C C9                  RET
+ 723D 2B             NEXT:DCX H        ;For clockwise.
+ 723E 7E                  MOV A,M
+ 723F FE00                CPI 00H      ;Check for end of table
+ 7241 C23B72              JNZ NEXT1    ;Jump to continue if not
+ 7244 1600                MVI D,00H    ;Else add 08 to begine.
+ 7246 1E08                MVI E,08H
+ 7248 C33A72             JMP REPEAT
+                ;Phase code table for Half step drive.
+ 724B 00        TABLE:DFB 00H
+ 724C 02           DFB 02H
+ 724D 06           DFB 06H
+ 724E 04           DFB 04H
+ 724F 0C           DFB 0CH
+ 7250 08           DFB 08H
+ 7251 09           DFB 09H
+ 7252 01           DFB 01H
+ 7253 03           DFB 03H
+ 7254 00           DFB 00H
+                
+                	END
+0007  A                    0000  B                    71E8  BACK          
+71E6  BACK1                71F9  BACK2                7205  BACK3         
+0001  C                    000B  CR55                 0002  D             
+0615  DELAY                0003  E                    0004  H             
+0005  L                    7207  L1                   0006  M             
+723D  NEXT                 723B  NEXT1                0008  PORTA         
+2075  READ                 723A  REPEAT               71D2  START         
+7223  STPR                 724B  TABLE                
+

@@ -1,0 +1,74 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000      SCPD EQU 0000H           ;Scratch Pad Location.
+ 	 	 	 	
+ ; This program gives maximum of given series
+ ; Series is stored from memory location 1000:0103H to 1000:010CH
+ ; Result will be stored at memory location 0000:1000H
+ 0000	 	 	 	        MAX SEGMENT
+ 	 	 	 	        ASSUME CS:MAX,DS:MAX
+ 	 	 	 	        ASSUME ES:MAX
+ 0100	 	 	 	        ORG 100H                        ;com fo
+	 	 	 	rmat is recommended.
+ 0100  EB 0B 90	 	 	  START:JMP SKIP_DATA                   ;skip l
+	 	 	 	ook up data.
+ 	 	 	 	                                        ;bases 
+	 	 	 	if any.
+ 	 	 	 	 ;On kit you need to do initialise for SP(to se
+	 	 	 	perate stack of
+ 	 	 	 	 ;your programme from monitor),DS as shown belo
+	 	 	 	w.SS,ES are set
+ 	 	 	 	 ;to 0000H at power on by monitor.You can of co
+	 	 	 	urse change it
+ 	 	 	 	 ;by adding a few more MOVEs.But while working 
+	 	 	 	on PC you can't
+ 	 	 	 	 ;touch segment register since they are set by 
+	 	 	 	DOS loader,so
+ 	 	 	 	 ;manage these instructios as shown in comment 
+	 	 	 	field.
+ 	 	 	 	
+ 0103  50 51 4E 41 30 17	                LIST DB 80,81,78,65,48,23,13,10
+	 	 	 	,11,17
+       0D 0A 0B 11	 	
+ 010D	 	 	 	  SKIP_DATA:
+ 010D  B8 10FF	 	 	                MOV AX,10FFH
+ 0110  8B E0	 	 	                MOV SP,AX               ;Init S
+	 	 	 	P pointer
+ 0112  0E	 	 	                PUSH CS
+ 0113  1F	 	 	                POP DS                  ;Init D
+	 	 	 	S register.
+ 0114  B8 0000	 	 	                MOV AX,SCPD             ;To spe
+	 	 	 	cify SCPD on kit.
+ 0117  8E C0	 	 	                MOV ES,AX
+ 0119  BE 0103 R	 	                MOV SI,OFFSET LIST      ;Init S
+	 	 	 	I register
+ 011C  B3 00	 	 	                MOV BL,00H              ;Larges
+	 	 	 	t +ve no. for ref.
+ 011E  B9 000A	 	 	                MOV CX,0AH              ;Number
+	 	 	 	 of element
+ 0121	 	 	 	 	BACK:
+ 0121  3A 1C	 	 	                CMP BL,[SI]             ;Is nex
+	 	 	 	t element >maximum
+ 0123  73 02	 	 	 	 	JNC AHEAD	 	;
+ 0125  8A 1C	 	 	                MOV BL,[SI]             ;Yes re
+
+	 	 	 	place maximum
+ 	 	 	 	
+ 0127	 	 	 	 	AHEAD:
+ 0127  46	 	 	                INC SI                  ;Update
+	 	 	 	 data
+ 0128  E2 F7	 	 	                LOOP BACK
+ 012A  26: 88 1E 1000	 	                MOV ES:[1000H],BL
+ 012F  CD A5	 	 	                INT 0A5H                ;Return
+	 	 	 	 to commond mode
+ 	 	 	 	                                               
+	 	 	 	                               ;display
+ 	 	 	 	                                        ;If you
+	 	 	 	 are running
+ 0131	 	 	 	MAX ENDS                                ;your s
+	 	 	 	oftware on PC
+ 	 	 	 	END START                               ;insert
+	 	 	 	 include
+

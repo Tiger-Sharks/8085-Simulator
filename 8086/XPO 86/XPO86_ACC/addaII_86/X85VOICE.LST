@@ -1,0 +1,142 @@
+                ;8 bit ADC 0809 (SUCCESIVE APPROX. METHOD), 100 microsec.
+                ;convertion time is used to convert voltage signal 
+                ;simulated by on board pot. It provided varying voltage 
+                ;0 to 5v,connected to channel no.1. Processor interface 
+                ;is provided via 26 pin FRC.
+ 0000                   CPU "8085.TBL"
+ 0000                   HOF "INT8"
+ 000B =                 CR55:EQU 0BH
+ 0009 =                 PORTB:EQU 09H
+ 000A =                 PORTC:EQU 0AH
+ 0008 =         	PORTA:EQU 08H
+ 03D8 =                 OUTMSG:EQU 03D8H
+ 0497 =                 CRONLY: EQU 0497H
+ 0476 =                 RCVNO:EQU 0476H
+ 048A =                 CRLF:EQU 048AH
+ 0615 =                 DELAY:EQU 0615H
+ 01F1 =                 TEST:EQU 01F1H
+ 000C =         	CMDMOD:EQU 000CH
+                
+ 7F10           ORG 7F10H
+ 7F10 21C47F            LXI H,RST75  ;HL<=ISR addr
+ 7F13 225E20            SHLD 205EH   ;Store ISR addr
+ 7F16 3E1B              MVI A,1BH    ;of RST 7.5 at
+ 7F18 30                SIM          ;vector address
+ 7F19 3EB6              MVI A,0B6H   ;Initialise 8253
+ 7F1B D31B              OUT 1BH      ;as interrupt generator
+ 7F1D 3EB0              MVI A,0B0H   ;at every 200msec
+ 7F1F D31A              OUT 1AH
+ 7F21 3E02              MVI A,02H
+ 7F23 D31A              OUT 1AH
+ 7F25 21C97F      ADC:LXI H,DBAS1    ;message pointer
+ 7F28 CD8A04            CALL CRLF    ;clear display
+ 7F2B CDD803            CALL OUTMSG  ;display message
+ 7F2E 3E81              MVI A,81H    ;Init 8255 port A,B
+ 7F30 D30B              OUT CR55     ;C(upper) as OP
+ 7F32 3E00              MVI A,00H    ;Select channel 0
+ 7F34 D309              OUT PORTB
+ 7F36 3E09              MVI A,09H    ;Set PC4(ALE) high
+ 7F38 D30B              OUT CR55
+ 7F3A 3E08              MVI A,08H   ;Reset PC4(latched)
+ 7F3C D30B              OUT CR55    ;pulse for ALE pin
+ 7F3E 3E83              MVI A,83H   ;Set port B as IP
+ 7F40 D30B              OUT CR55    ;keeping rest same
+ 7F42 210021            LXI H,2100H ;Init memory pointer
+ 7F45 0E00       START: MVI C,00H   ;C is used as a flag
+ 7F47 FB                EI          ;enable interrupt
+ 7F48 3E0D              MVI A,0DH   ;Set PC6(start convertion)
+ 7F4A D30B              OUT CR55
+ 7F4C 3E0C              MVI A,0CH   ;Reset PC6.
+ 7F4E D30B              OUT CR55
+ 7F50 DB0A         BACK:IN PORTC    ;Read portC status
+ 7F52 E602              ANI 02H     ;Check PC3(end of convertion)
+ 7F54 C2507F            JNZ BACK
+ 7F57 DB0A         BACK1:IN PORTC
+ 7F59 E602              ANI 02H     ;To ckeckPC1 high
+ 7F5B CA577F            JZ BACK1    ;If yes ,Read data
+ 7F5E 3E0B              MVI A,0BH   ;Set OP enable
+ 7F60 D30B              OUT CR55
+ 7F62 DB09              IN 09H      ;Read digital OP data
+ 7F64 77                MOV M,A
+ 7F65 3E0A              MVI A,0AH   ;OP disable.PC5=0
+ 7F67 D30B              OUT CR55
+ 7F69 23                INX H       ;Increment memory pointer
+ 7F6A 7D                MOV A,L
+ 7F6B FE00              CPI 00H     ;check whether the
+ 7F6D C2797F            JNZ CHECK   ;last memory location
+ 7F70 7C                MOV A,H     ;where digital data
+ 7F71 FE7F              CPI 7FH     ;is stored is reached
+ 7F73 C2797F            JNZ CHECK   ;if not zero jump to check
+ 7F76 C3827F            JMP TOP     ;if zero start DAC
+ 7F79 79        CHECK:  MOV A,C     ;wait till interrupt
+ 7F7A FEFF              CPI 0FFH    ;occurs
+ 7F7C C2797F            JNZ CHECK   ;if unterrupt occurs
+ 7F7F C3457F            JMP START   ;jump to start of ADC
+                
+                ;DAC starts
+                
+ 7F82 CD8A04    TOP:    CALL CRLF   ;clear display
+ 7F85 21D17F            LXI H,DBAS2 ;message pointer
+ 7F88 CDD803            CALL OUTMSG ;display message
+ 7F8B 210021            LXI H,2100H ;initialise memory pointer
+ 7F8E 3E80              MVI A,80H   ;init 8255 port A,B,C in
+                                    ;output mode
+ 7F90 D30B              OUT CR55
+ 7F92 3E00              MVI A,00H   ;select digital gain
+ 7F94 D30A              OUT PORTC   ;for LS Amplifier
+ 7F96 0E00      AGAIN:  MVI C,00H   ;flag for interrupt
+ 7F98 FB                EI          ;enable interrupt
+ 7F99 7E                MOV A,M     ;transfer contents of
+ 7F9A D308              OUT PORTA   ;memory location to DAC
+ 7F9C 23                INX H       ;Increment memory pointer
+ 7F9D 7D                MOV A,L     ;check whether last memory
+ 7F9E FE00              CPI 00H     ;location is reached
+ 7FA0 C2BB7F            JNZ SELF    ;jump if not reached
+ 7FA3 7C                MOV A,H     ; to self
+ 7FA4 FE7F              CPI 7FH
+ 7FA6 C2BB7F            JNZ SELF
+ 7FA9 CDF101            CALL TEST   ;check for key press
+ 7FAC DA827F            JC TOP      ;no key,start DAC
+ 7FAF 57                MOV D,A     ;check whether"A" is
+ 7FB0 FE41              CPI 41H     ;pressed
+ 7FB2 CA257F            JZ ADC      ;if A is pressed start ADC
+ 7FB5 7A                MOV A,D     ;if key "Esc" is
+ 7FB6 FE1B              CPI 1BH     ;pressed jump to
+ 7FB8 CAC87F            JZ END      ;command mode.
+ 7FBB 79        SELF:MOV A,C        ;check whether
+ 7FBC FEFF              CPI 0FFH    ;interrupt has
+ 7FBE C2BB7F            JNZ SELF    ;has occured
+ 7FC1 C3967F            JMP AGAIN
+ 7FC4 F3           RST75:DI         ;ISR routine for
+ 7FC5 0EFF               MVI C,0FFH ;RST 7.5 to set C
+ 7FC7 C9                 RET
+ 7FC8 CF        END:RST 1           ;command mode
+ 7FC9 41        DBAS1:DFB 41H       ;DBASE to display "ACQUIRE"
+ 7FCA 43              DFB 43H
+ 7FCB 51              DFB 51H
+ 7FCC 55              DFB 55H
+ 7FCD 49              DFB 49H
+ 7FCE 52              DFB 52H
+ 7FCF 45              DFB 45H
+ 7FD0 03              DFB 03H
+ 7FD1 52        DBAS2:DFB 52H       ;DBASE to display "REPLAY"
+ 7FD2 45              DFB 45H
+ 7FD3 50              DFB 50H
+ 7FD4 4C              DFB 4CH
+ 7FD5 41              DFB 41H
+ 7FD6 59              DFB 59H
+ 7FD7 03              DFB 03H
+                
+                	END
+0007  A                    7F25  ADC                  7F96  AGAIN         
+0000  B                    7F50  BACK                 7F57  BACK1         
+0001  C                    7F79  CHECK                000C  CMDMOD        
+000B  CR55                 048A  CRLF                 0497  CRONLY        
+0002  D                    7FC9  DBAS1                7FD1  DBAS2         
+0615  DELAY                0003  E                    7FC8  END           
+0004  H                    0005  L                    0006  M             
+03D8  OUTMSG               0008  PORTA                0009  PORTB         
+000A  PORTC                0476  RCVNO                7FC4  RST75         
+7FBB  SELF                 7F45  START                01F1  TEST          
+7F82  TOP                  
+

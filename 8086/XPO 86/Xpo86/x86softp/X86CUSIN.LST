@@ -1,0 +1,99 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	08-20-99    
+
+
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;    ON ENTRY THE VARIABLES V1 AND V2 CONTAIN U
+	 	 	 	NSIGNED INTEGERS. THIS 
+ 	 	 	 	;    ROUTINE  RETURNS THE LARGER OF THE TWO IN 
+	 	 	 	THE VARIABLE V3.THESE 
+ 	 	 	 	;    VARIABLES ARE STORED AT SCPD LOCATIONS 010
+	 	 	 	0:012A,012C,012E [0000:
+ 	 	 	 	;    112A,112C,112E].PL.ENTER THEM BY HAND.
+ 	 	 	 	;	 	 	 
+ 0000	 	 	 	X86CUSIN 	SEGMENT
+ 	 	 	 	ASSUME CS:X86CUSIN, DS:X86CUSIN ,ES:X86CUSIN 
+ 0100	 	 	 	ORG 100H	      	;Com format 
+ 	 	 	 	                      	;is recommended.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA 	;skip look up/ 
+ 	 	 	 	 	 	    	;data bases if any
+ 	 	 	 	;On kit you need to do init for SP[to 
+ 	 	 	 	;separate stack of your program from
+ 	 	 	 	;monitors], DS as shown below. SS,ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You 
+ 	 	 	 	;can of course change it by adding a few 
+ 	 	 	 	;more moves. But while working on pc you 
+ 	 	 	 	;can't touch segment registers since 
+ 	 	 	 	;they are set by dos loader, so manage 
+ 	 	 	 	;these instructions as shown in comment 
+ 	 	 	 	;field.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV	AX,10FFH ;INIT OF SP FOR KIT  
+ 0106  8B E0	 	 	MOV	SP,AX                                  
+	 	 	 	      
+ 0108  0E	 	 	PUSH	CS      ;INIT FOR DS                   
+	 	 	 	       
+ 0109  1F	 	 	POP	DS      ;                              
+	 	 	 	        
+ 010A  90	 	 	NOP	                                       
+	 	 	 	        
+ 010B  90	 	 	NOP	                                       
+	 	 	 	        
+ 010C  90	 	 	NOP	                                       
+	 	 	 	       
+ 010D  B8 0100	 	 	MOV	AX,0100H                               
+	 	 	 	       
+ 0110  8E C0	 	 	MOV	ES,AX                                  
+	 	 	 	       
+ 0112  26: A1 012A	 	MOV	AX,ES:[012AH]
+ 0116  26: 3B 06 012C	 	CMP	AX,ES:[012CH] ;GET V1 IN AX   
+ 011B  72 07	 	 	JB	V2L   	      ;GENERATE V1-V2,BUT AX UN
+	 	 	 	CHANGED
+ 	 	 	 	   	 	      ;IF V1 IS BELOW V2 THEN G
+	 	 	 	OTO L10
+ 011D  26: A3 012E	 	MOV	ES:[012EH],AX ;V1 IS > V2. MAKE V3= V1 
+ 0121  EB 09 90	 	 	JMP	END           ;SKIP THE "ELSE" PART    
+	 	 	 	              
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	08-20-99    
+
+
+ 	 	 	 	        	      ;V2 IS > THAN V1. FETCH I
+	 	 	 	T.      
+ 0124  26: A1 012C	 	V2L:MOV	AX,ES:[012CH] ;MAKE V3 := V2           
+	 	 	 	          
+ 	 	 	 	        	      ;RETURN TO COMMAND= AFTER
+	 	 	 	            
+ 0128  26: A3 012E	 	MOV	ES:[012EH],AX ;SAVING REGISTERS. 
+ 012C  CD A5	 	 	END:INT	0A5H       
+ 	 	 	 	
+ 012E	 	 	 	X86CUSIN	ENDS 
+ 	 	 	 	    END 	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	08-20-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86CUSIN . . . . . . . . . . . .	012E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+END. . . . . . . . . . . . . . .	L NEAR 	012C	X86CUSIN
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86CUSIN
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86CUSIN
+V2L. . . . . . . . . . . . . . .	L NEAR 	0124	X86CUSIN
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

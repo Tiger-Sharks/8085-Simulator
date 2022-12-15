@@ -1,0 +1,157 @@
+ 
+;Stepper motor interface has been provided through 8255 via 26 pin
+;FRC cable.Motor can be rotated clockwise or anticlock wise direction 
+;depending on the content of the location of sequense. Acceleration-
+;Deacceleration process is also implemented.'STEPR' is a subroutine 
+;which actually outputs the phase seq. code to the stepper using lookup table.
+;Enter the speed from 1000h to ffffh, do not enter speed below 1000h                
+                    
+                              CPU 8085
+                	   PORTA: EQU 08H
+                        CR55: EQU 0BH
+                        READ: EQU 2075H
+                   	   DELAY: EQU 0615H
+                   	    CRLF: EQU 048AH
+                   	  OUTMSG: EQU 03D8H
+                   	  CMDMOD: EQU 000CH
+                  	    NMIN: EQU 0405H 
+                         ESC: EQU 1BH
+                              ORG 71D2H
+71D2 : 31 00 21        START: LXI SP,2100H ;Init. stack pointer
+71D5 : 3E 80                  MVI A,80H    ;Init. 8255 ports
+71D7 : D3 0B                  OUT CR55     ;A,B,C as OP ports
+71D9 : 3E 00                  MVI A,00H	   ;OP disable code to 
+71DB : D3 08                  OUT PORTA    ;stop motor
+71DD : 21 F2 72            	  LXI H,SPEED
+71E0 : CD 8A 04            	  CALL CRLF
+71E3 : CD D8 03            	  CALL OUTMSG
+71E6 : 06 04               	  MVI B,04H
+71E8 : 0E 10               	  MVI C,10H
+71EA : CD 05 04            	  CALL NMIN
+71ED : CD 8A 04       DISPLY: CALL CRLF    ;CLEAR DISPLAY
+71F0 : 21 F9 72      	      LXI H,DIR
+71F3 : CD D8 03      		  CALL OUTMSG  ;display message for dir
+71F6 : CD 75 20      RDAGAIN: CALL READ
+71F9 : 47                     MOV B,A
+71FA : FE 46         		  CPI 46H      ;check for forward dir
+71FC : C2 0D 72          	  JNZ RVD      ; if not go to reverse dir
+71FF : 3E 01                  MVI A,01H    ; forward dir
+7201 : 32 A0 20               STA 20A0H
+7204 : 21 11 73            	  LXI H,MSG1
+7207 : CD D8 03            	  CALL OUTMSG  ;display F for forward dir
+720A : C3 26 72            	  JMP MSG
+720D : 47                RVD: MOV B,A
+720E : FE 52               	  CPI 52H      ;check for reverse dir 
+7210 : CA 1B 72            	  JZ SKIP1
+7213 : FE 1B               	  CPI ESC      ;is ESC key is pressed
+7215 : C2 F6 71               JNZ RDAGAIN  ;if not read again
+7218 : C3 0C 00            	  JMP CMDMOD
+721B : 3E 00           SKIP1: MVI A,00H
+721D : 32 A0 20        	      STA 20A0H
+7220 : 21 14 73        		  LXI H,MSG2   ;display R for reverse dir
+7223 : CD D8 03        		  CALL OUTMSG
+7226 : CD 8A 04        	 MSG: CALL CRLF
+7229 : 21 02 73        		  LXI H,DRIVE
+722C : CD D8 03        		  CALL OUTMSG  ;display message for drive selection
+722F : CD 75 20        	  HF: CALL READ
+7232 : 47              		  MOV B,A
+7233 : FE 46           		  CPI 46H       ;check for full step drive
+7235 : C2 44 72        		  JNZ HALF     ;if not go to half step drive
+7238 : 21 11 73        		  LXI H,MSG1
+723B : CD D8 03        		  CALL OUTMSG  ;display F for full step drive
+723E : 21 DE 72        		  LXI H,TABLE1
+7241 : C3 6D 72        		  JMP SKIP2
+7244 : 47              	HALF: MOV B,A
+7245 : FE 48           	      CPI 48H      ;is half step drive
+7247 : C2 56 72        		  JNZ SKIP     ;if not go to wave drive
+724A : 21 17 73        		  LXI H,MSG3   ;display H for half step drive
+724D : CD D8 03        		  CALL OUTMSG
+7250 : 21 D4 72        		  LXI H,TABLE  ;PTR for phase seq.
+7253 : C3 6D 72        		  JMP SKIP2
+7256 : 47              	SKIP: MOV B,A
+7257 : FE 57           		  CPI 57H      ;check for wave drive
+7259 : CA 64 72        		  JZ SKIP3
+725C : FE 1B           		  CPI ESC
+725E : C2 2F 72        		  JNZ HF
+7261 : C3 0C 00        		  JMP CMDMOD
+7264 : 21 1A 73        SKIP3: LXI H,MSG4
+7267 : CD D8 03        		  CALL OUTMSG
+726A : 21 E8 72               LXI H,TABLE2
+726D : 0E 10           SKIP2: MVI C,10H    ;To set 0.25 sec. step
+726F : 06 08           BACK1: MVI B,08H    ;ACLR-DCLR loop count
+7271 : CD AC 72         BACK: CALL STPR    ;Half step drive
+7274 : CD 15 06               CALL DELAY   ;Output one seq. code
+7277 : 05                     DCR B        ;Min speed, Max speed
+7278 : C2 71 72               JNZ BACK	 
+727B : 15                     DCR D	       ;Decrease delay to ACCN.
+727C : 0D                     DCR C	       ;Count doun for ACCN. phase
+727D : C2 6F 72               JNZ BACK1	   ;At count 0 Max. speed
+7280 : 06 11                  MVI B,11H	   ;Fix duration step count
+7282 : CD AC 72        BACK2: CALL STPR	   ;HL apropriate points
+7285 : CD 15 06               CALL DELAY   ;in phase seq. table
+7288 : 05                     DCR B        ;DeACCN. phase start
+7289 : C2 82 72               JNZ BACK2	 
+728C : 0E 10                  MVI C,10H	   ;DeACCN. count
+728E : 06 08           BACK3: MVI B,08H
+7290 : CD AC 72           L1: CALL STPR
+7293 : CD 15 06               CALL DELAY
+7296 : 05                     DCR B
+7297 : C2 90 72               JNZ L1	   ;Increase delay to cause
+729A : 14                     INR D	       ;DeACCN.
+729B : 0D                     DCR C
+729C : C2 8E 72               JNZ BACK3    ;DeACCN. phase ends here.
+729F : 3E 00                  MVI A,00H    ;Output disable code to
+72A1 : D3 08                  OUT PORTA    ;stop motor
+72A3 : CD 75 20               CALL READ    ;Any key pressed?
+72A6 : FE 1B                  CPI 1BH      ;Is ESC key pressed
+72A8 : C2 D2 71               JNZ START    ;If yes begin rotation
+72AB : CF                     RST 1        ;Again return to command mode
+
+;STPR Routine
+;HL pointer is used for phase code table and direction location
+;It outputs phase code and adjest HL appropriatly.
+72AC : D5                     STPR: PUSH D
+72AD : 7E                     MOV A,M       ;Fetch phase code
+72AE : D3 08                  OUT PORTA
+72B0 : 3A A0 20               LDA 20A0H
+72B3 : FE 01                  CPI 01H       ;Jump to clockwise if zero
+72B5 : C2 C6 72               JNZ NEXT      ;flag not set
+72B8 : 23                     INX H         ;Other wise go for anti-
+72B9 : 7E                     MOV A,M       ;clock wise
+72BA : FE 00                  CPI 00H       ;Check for OFF code
+72BC : C2 C4 72               JNZ NEXT1     ;Jump if not end of table
+72BF : 16 FF                  MVI D,0FFH    ;Subtract 08.
+72C1 : 1E F8                  MVI E,0F8H
+72C3 : 19             REPEAT: DAD D
+72C4 : D1              NEXT1: POP D
+72C5 : C9                     RET
+72C6 : 2B               NEXT: DCX H        ;For clockwise.
+72C7 : 7E                     MOV A,M
+72C8 : FE 00                  CPI 00H      ;Check for end of table
+72CA : C2 C4 72               JNZ NEXT1    ;Jump to continue if not
+72CD : 16 00                  MVI D,00H    ;Else add 08 to begine.
+72CF : 1E 08                  MVI E,08H
+72D1 : C3 C3 72               JMP REPEAT
+;Phase code table for Half step drive.
+72D4 : 00 02 06 04 0C 08 TABLE: DB 00H,02H,06H,04H,0CH,08H,09H,01H,03H,00H
+       09 01 03 00 
+;Phase code table for FULL step drive.
+72DE : 00 06 06 0C 0C 09 TABLE1: DB 00H,06H,06H,0CH,0CH,09H,09H,03H,03H,00H
+       09 03 03 00 
+;Phase code table for Wave drive.
+72E8 : 00 02 02 04 04 08 TABLE2: DB 00H,02H,02H,04H,04H,08H,08H,01H,01H,00H
+       08 01 01 00 
+72F2 : 53 50 45 45 44 20  SPEED: DB 53H,50H,45H,45H,44H,20H,03H ; 'SPEED'
+       03 
+72F9 : 44 49 52 20 20 46    DIR: DB 44H,49H,52H,20H,20H,46H,2FH,52H,03H ;'DIR  F/R'
+       2F 52 03 
+7302 : 48 41 4C 46 2F 46  DRIVE: DB 48H,41H,4CH,46H,2FH,46H,55H,4CH,4CH,2FH,57H,41H,56H,45H,03H ; 'HALF/FULL/WAVE'
+       55 4C 4C 2F 57 41 
+       56 45 03 
+7311 : 20 46 03            MSG1: DB 20H,46H,03H ; F
+		      
+7314 : 20 52 03            MSG2: DB 20H,52H,03H ; R
+                     		      
+7317 : 20 48 03            MSG3: DB 20H,48H,03H ; H
+                   		      
+731A : 20 57 03            MSG4: DB 20H,57H,03H ; W

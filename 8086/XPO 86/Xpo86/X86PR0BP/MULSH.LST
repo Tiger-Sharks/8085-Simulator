@@ -1,0 +1,73 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000        SCPD EQU 0000H ;Scratch Pad Location.
+ = 1000        NUM1 EQU 1000H ;Address for Multiplicand.
+ = 1001        NUM2 EQU 1001H ;Address for multiplier.
+ ;This program gives multiplication by shift and method
+ ;User can store multiplicand at memory location  0000:1000H
+ ;and store multiplier at memory location 0000:1001H
+ ;see result at memory location 0000:1010H by
+ ;using substitute command.
+ 	 	 	 	
+ 0000	 	 	 	       MULS SEGMENT
+ 	 	 	 	       ASSUME CS:MULS,DS:MULS,ES:MULS
+ 0100	 	 	 	       ORG 100H                 ;Com format is 
+	 	 	 	recommanded.
+ 0100  EB 01 90	 	 	       START:JMP SKIP_DATA      ;Skip lookup da
+	 	 	 	ta bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .But while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	  
+ 	 	 	 	
+ 0103	 	 	 	     SKIP_DATA:
+ 0103  B8 10FF	 	 	                MOV AX,10FFH
+ 0106  8B E0	 	 	                MOV SP,AX       ;Init SP regist
+	 	 	 	er.
+ 0108  0E	 	 	                PUSH CS         ;Init DS regist
+	 	 	 	er.
+ 0109  1F	 	 	                POP DS
+ 010A  B8 0000	 	 	                MOV AX,SCPD
+ 010D  26: 8A 16 1000	 	                MOV DL,ES:NUM1     ;Get multipl
+	 	 	 	icand.
+ 0112  B6 00	 	 	                MOV DH,00H       ;Extend it to 
+	 	 	 	16-bit
+ 0114  26: 8A 1E 1001	 	                MOV BL,ES:NUM2     ;Get multipl
+	 	 	 	ier.
+ 0119  B9 0008	 	 	 	 	MOV CX,08	;Number of time
+	 	 	 	s shift operation is
+ 	 	 	 	                                ;to done.
+ 011C  03 C0	 	 	 	BACK:	ADD AX,AX	;Product=2*Prod
+	 	 	 	uct
+ 011E  D0 E3	 	 	 	 	SAL BL,1	;shift multipli
+
+	 	 	 	er  to the left by 1-bit
+ 0120  73 02	 	 	 	 	JNC AHEAD	;Is carry from 
+	 	 	 	multiplier.
+ 0122  03 C2	 	 	 	 	ADD AX,DX	;Yes,Product=Pr
+	 	 	 	oduct+multiplicand.
+ 0124	 	 	 	 	AHEAD:	
+ 0124  E2 F6	 	 	 	 	LOOP BACK
+ 0126  26: A3 1010	 	                MOV ES:[1010H],AX
+ 	 	 	 	                
+ 012A  CD A5	 	 	                INT 0A5H        ;Return to comm
+	 	 	 	and mode
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	                                ;If you are run
+	 	 	 	ning your
+ 012C	 	 	 	  MULS ENDS                     ;software on PC
+	 	 	 	 insert
+ 	 	 	 	  END START                     ;------->includ
+	 	 	 	e
+

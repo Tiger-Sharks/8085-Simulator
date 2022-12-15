@@ -1,0 +1,163 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	;Program to carry Three by Three matrix multipl
+	 	 	 	ication
+ 	 	 	 	;MATRIX 1 IS SCANNED ROW BY ROW, FOR EVERY ELEM
+	 	 	 	ENT IN A ROW IN FIRST MATRIX
+ 	 	 	 	;ONE COLUMN OF THE SECOND MATRIX IS PROCESSED. 
+	 	 	 	THIS PROCESS IS CONTINUED
+ 	 	 	 	;TILL ALL ROW OF FIRST MATRIX ARE SCANNED.
+ 	 	 	 	;THIS PROCEDURE IS PERFORMED USING A REPEATITIV
+	 	 	 	E CALL TO A PROCEDURE (ROUTINE)
+ 	 	 	 	;THAT PERFORMS THE ROW*COL MULTIPLICATION TO GE
+	 	 	 	T VALUE OF THE ELEMENT AT 
+ 	 	 	 	;CURRENT LOCATION.
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 1E 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ 0103  01 02 FD	 	 	AR1 DB 1,2,-3	 	;Matrix 1 Row 1
+ 0106  04 05 06	 	 	AR2 DB 4,5,6	 	;Matrix 1 Row 2
+ 0109  02 FF 03	 	 	AR3 DB 2,-1,3	 	;Matrix 1 Row 3
+ 	 	 	 	 	
+ 010C  02 04 FC	 	 	BC1 DB 2,4,-4	 	;Matrix 2 Row 1
+ 010F  03 FE 05	 	 	BC2 DB 3,-2,5	 	;Matrix 2 Row 2
+ 0112  01 05 02	 	 	BC3 DB 1,5,2	 	;Matrix 3 Row 3
+ 	 	 	 	 	
+ 0115     09 [	 	 	CO DB 9 DUP(?)
+                ??	 	
+                    ]	 	
+ 	 	 	 	
+ 011E  ??	 	 	J2 DB ?	 	 	 	;Counters
+ 011F  ??	 	 	J1 DB ?
+ 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 0120	 	 	 	SKIP_DATA:
+ 0120  B8 10FF	 	 	 	MOV AX,10FFH
+ 0123  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 0125  B8 0000	 	 	 	MOV AX,0000H
+ 0128  8E D0	 	 	 	MOV SS,AX
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 012A  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 012C  0E	 	 	 	PUSH CS
+ 012D  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 012E  90	 	 	 	NOP
+ 012F  90	 	 	 	NOP
+ 0130  90	 	 	 	NOP
+ 0131  BD 0000	 	 	 	MOV BP,00H
+ 0134  C6 06 011E R 03	 	 	MOV J2,3
+ 0139  8D 36 0103 R	 	 	LEA SI,AR1
+ 	 	 	 	 	
+ 013D  B9 0003	 	 	 	MOV CX,3
+ 	 	 	 	 	
+ 0140	 	 	 	LOOP1:
+ 0140  8D 3E 010C R	 	 	LEA DI,BC1
+ 0144  B8 0003	 	 	    MOV AX,3
+ 0147  2B C1	 	 	    SUB AX,CX
+ 0149  57	 	 	    PUSH DI
+ 014A  03 F8	 	 	    ADD DI,AX
+ 014C  E8 0166 R	 	 	CALL MATMUL	 	;PERFORM MULTIP
+	 	 	 	LICATION OF ROW*COLUMN TO GET CURRENT ELEMENT.
+ 014F  5F	 	 	 	POP DI
+ 0150  3E: 88 96 0115 R	 	 	MOV DS:CO[BP],DL
+ 0155  45	 	 	 	INC BP
+ 	 	 	 	 	
+ 0156  E2 E8	 	 	 	LOOP LOOP1	 	;PROCESS THE NE
+	 	 	 	XT ROW.
+ 	 	 	 	 	
+ 0158  B9 0003	 	 	 	MOV CX,3
+ 015B  83 C6 03	 	 	 	ADD SI,3
+ 015E  FE 0E 011E R	 	 	DEC J2
+ 0162  75 DC	 	 	 	JNE LOOP1
+ 	 	 	 	
+ 0164  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	 	
+ 	 	 	 	;----------END OF MAIN PROGRAM----------
+ 	 	 	 	
+ 0166	 	 	 	 	MATMUL PROC NEAR
+ 	 	 	 	 	
+ 0166  51	 	 	 	PUSH CX
+ 0167  56	 	 	 	PUSH SI
+ 	 	 	 	 	
+ 0168  B9 0003	 	 	 	MOV CX,3
+ 016B  B2 00	 	 	 	MOV DL,0
+ 	 	 	 	 	
+ 016D	 	 	 	AGAIN:
+ 016D  8A 04	 	 	 	MOV AL,BYTE PTR[SI]
+ 016F  F6 2D	 	 	 	IMUL BYTE PTR [DI]
+ 0171  02 D0	 	 	 	ADD DL,AL
+ 0173  83 C7 03	 	 	 	ADD DI,3
+ 0176  46	 	 	 	INC SI
+ 0177  E2 F4	 	 	 	LOOP AGAIN
+ 0179  5E	 	 	 	POP SI
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 017A  59	 	 	 	POP CX
+ 017B  C3	 	 	 	RET
+ 	 	 	 	 	
+ 017C	 	 	 	 	MATMUL ENDP
+ 	 	 	 	 	
+ 017C	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	017C	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+AGAIN. . . . . . . . . . . . . .	L NEAR 	016D	COMSEG
+AR1. . . . . . . . . . . . . . .	L BYTE 	0103	COMSEG
+AR2. . . . . . . . . . . . . . .	L BYTE 	0106	COMSEG
+AR3. . . . . . . . . . . . . . .	L BYTE 	0109	COMSEG
+BC1. . . . . . . . . . . . . . .	L BYTE 	010C	COMSEG
+BC2. . . . . . . . . . . . . . .	L BYTE 	010F	COMSEG
+BC3. . . . . . . . . . . . . . .	L BYTE 	0112	COMSEG
+CO . . . . . . . . . . . . . . .	L BYTE 	0115	COMSEG	Length =0009
+J1 . . . . . . . . . . . . . . .	L BYTE 	011F	COMSEG
+J2 . . . . . . . . . . . . . . .	L BYTE 	011E	COMSEG
+LOOP1. . . . . . . . . . . . . .	L NEAR 	0140	COMSEG
+MATMUL . . . . . . . . . . . . .	N PROC	0166	COMSEG	Length =0016
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0120	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50056 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

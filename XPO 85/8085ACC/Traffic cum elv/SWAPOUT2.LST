@@ -1,0 +1,48 @@
+ 0000                   CPU "8085.TBL"
+ 0000                   HOF "INT8"
+ 75C3                   ORG 75C3H
+ 0008 =                 PORTA: EQU 08H
+ 0009 =                 PORTB: EQU 09H
+ 000B =                 CONTW: EQU 0BH
+ 0013 =                 CMDWDP: EQU 0013H
+ 2072 =                 TEST: EQU 2072H
+ 75C3 3E90      BACK:   MVI A,90H ;Set port A as input and port B as output port
+ 75C5 D30B              OUT CONTW
+ 75C7 2608              MVI H,08H ;Load counts for 8 bit loop
+ 75C9 0E01              MVI C,01H ;Rotate right counter
+ 75CB 1601              MVI D,01H ;Data to mask sussesive bits
+ 75CD 1E00              MVI E,00H ;Save result after each turn
+ 75CF DB08              IN PORTA  ;Read the data from pore A
+ 75D1 47                MOV B,A
+ 75D2 78        NEXTBIT:MOV A,B
+ 75D3 A2                ANA D    ;Mask the bit
+ 75D4 E5                PUSH H   ;Make resistor usable
+ 75D5 61                MOV H,C  ;Load number of rotations
+ 75D6 0F        ROTATE: RRC      ;rotate right
+ 75D7 25                DCR H
+ 75D8 C2D675            JNZ ROTATE
+ 75DB 0C                INR C    ;Increament number of rotations
+ 75DC 0C                INR C    ;by two
+ 75DD 6F                MOV L,A
+ 75DE 7A                MOV A,D  ;Rotate masking bit to next
+ 75DF 07                RLC
+ 75E0 57                MOV D,A
+ 75E1 7B                MOV A,E  ;Save that bit to corrosponding
+ 75E2 B5                ORA L    ;swapped position
+ 75E3 5F                MOV E,A
+ 75E4 E1                POP H
+ 75E5 25                DCR H    ;Check for 8 times operation
+ 75E6 C2D275            JNZ NEXTBIT
+ 75E9 7B                MOV A,E
+ 75EA D309              OUT PORTB ;Out the swapped data to port B
+ 75EC CD7220            CALL TEST
+ 75EF D21300            JNC CMDWDP
+ 75F2 C3C375            JMP BACK
+ 0000                   END
+0007  A                    0000  B                    75C3  BACK          
+0001  C                    0013  CMDWDP               000B  CONTW         
+0002  D                    0003  E                    0004  H             
+0005  L                    0006  M                    75D2  NEXTBIT       
+0008  PORTA                0009  PORTB                75D6  ROTATE        
+2072  TEST                 
+

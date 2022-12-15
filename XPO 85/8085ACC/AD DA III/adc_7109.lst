@@ -1,0 +1,120 @@
+ AS V1.42 Beta [Bld 56] - source file adc_7109.asm - page 1 - 12/16/2010 18:36:58
+
+
+       1/       0 :                     ;*******************************************************************************
+       2/       0 :                     ;Header: 		Sample program for B
+       3/       0 :                     
+       4/       0 :                     ;Monitor utilities used in this program
+       5/       0 :                         cpu     8085
+       6/       0 :                     
+       7/       0 :                     ;Addresses of 8255 control register, ports etc.
+       8/       0 : =8H                 PORTA			equ		08H	; This is address of 8255 PORTA
+       9/       0 : =9H                 PORTB			equ		09H	; This is address of 8255 PORTB
+      10/       0 : =AH                 PORTc			equ		0AH	; This is address of 8255 PORTC
+      11/       0 : =BH                 CW8255        	equ		0BH	; This is address of 8255 control word
+      12/       0 :                     ;~~~~~~~~~~~~~~~~~~~~~~Start of main program~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      13/       0 :                     
+      14/    7000 :                     						ORG 7000H
+      15/    7000 : 31 00 21            START:		lxi SP,2100H; init stack pointer.
+      16/    7003 : CD 8A 04            			call 048AH
+      17/    7006 : 3E 93               			 mvi A,	93H ; 8255 SET IN I/O MODE	
+      18/    7008 : D3 0B               			 out 0BH
+      19/    700A : 3E E0               	loop3:   mvi A, 0E0H
+      20/    700C : D3 0A               			 out 0AH
+      21/    700E : DB 0A               	loop2:	 in 0AH
+      22/    7010 : E6 01               			 ani 01H
+      23/    7012 : CA 0E 70            			 jz loop2
+      24/    7015 : DB 0A               	loop1:	 in 0AH
+      25/    7017 : E6 01               			 ani 01H
+      26/    7019 : C2 15 70            			 jnz loop1
+      27/    701C : DB 0A               			 in 0AH
+      28/    701E : E6 60               			 ani 60H
+      29/    7020 : D3 0A               			 out 0AH
+      30/    7022 : DB 09               			 in 09H
+      31/    7024 : 5F                  			 mov E,A
+      32/    7025 : DB 0A               			 in 0AH
+      33/    7027 : F6 10               			 ori 10H
+      34/    7029 : D3 0A               			 out 0AH
+      35/    702B : 00                  			 NOP
+      36/    702C : DB 09               			 in 09H
+      37/    702E : E6 3F               			 ani 3FH
+      38/    7030 : 57                  			 mov D,A
+      39/    7031 : E6 10               			 ani 10H
+      40/    7033 : C2 5A 70            			 jnz loop4
+      41/    7036 : CD 97 04            			 call 0497H
+      42/    7039 : 7A                  			 mov A,D
+      43/    703A : E6 20               			 ani 20H
+      44/    703C : CA 47 70            			 jz skp1
+      45/    703F : 3E 2B               			 mvi A,"+"
+      46/    7041 : CD 78 20            			 call 2078H
+      47/    7044 : C3 4C 70            			 jmp skp
+      48/    7047 : 3E 2D               	skp1: 	mvi A, "-"
+      49/    7049 : CD 78 20            			call 2078H
+      50/    704C : 06 03               	skp:	mvi B, 03H
+      51/    704E : CD 6C 03            			call 036CH
+      52/    7051 : CD 72 20            	loop5:  call 2072H
+      53/    7054 : DA 0A 70            			jc loop3
+      54/    7057 : C3 13 00            			jmp 0013H
+      55/    705A : CD 97 04            	loop4:	call 0497H
+      56/    705D : 3E 4F               			mvi A, 4FH
+      57/    705F : CD 78 20            			call 2078H
+      58/    7062 : 3E 52               			mvi A,52H
+      59/    7064 : CD 78 20            			call 2078H
+      60/    7067 : 3E 20               			mvi A,20H
+ AS V1.42 Beta [Bld 56] - source file adc_7109.asm - page 2 - 12/16/2010 18:36:58
+
+
+      61/    7069 : CD 78 20            			call 2078H
+      62/    706C : CD 78 20            			call 2078H
+      63/    706F : C3 51 70            			jmp loop5
+      64/    7072 :                     			
+      65/    7072 :                     	
+      66/    7072 :                     		
+      67/    7072 :                     				
+      68/    7072 :                     
+      69/    7072 :                     
+ AS V1.42 Beta [Bld 56] - source file adc_7109.asm - page 3 - 12/16/2010 18:36:58
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *CW8255 :                         B - |
+*DATE :                  12/16/2010 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - |  LOOP1 :                       7015 C |
+ LOOP2 :                       700E C |  LOOP3 :                       700A C |
+ LOOP4 :                       705A C |  LOOP5 :                       7051 C |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*PORTA :                          8 - | *PORTB :                          9 - |
+*PORTC :                          A - | *RELAXED :                        0 - |
+ SKP :                         704C C |  SKP1 :                        7047 C |
+*START :                       7000 C | *TIME :                    18:36:58 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     40 symbols
+     33 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file adc_7109.asm - page 4 - 12/16/2010 18:36:58
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     69 lines source file
+      2 passes
+      0 errors
+      0 warnings

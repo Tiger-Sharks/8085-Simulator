@@ -1,0 +1,165 @@
+ 0000           cpu "8085.tbl"
+ 0000           hof"int8"
+S0000           CRLF:EQU 048ah
+S0000           cronly:equ0497h
+S0000           cr55:equ0bh
+S0000           porta:equ08h
+S0000           portb:equ09h
+S0000           portc:equ0ah
+S0000           nmout:equ036ch
+S0000           test:equ2072h
+S0000           read:equ2075h
+S0000           jump:equ72c0h
+S0000           cmdmod:equ0013h
+S0000           outmsg:equ03d8h
+S0000           nmin:equ0405h
+S0000           hitemp:equ0ea5ch
+S0000           lotemp:equ0ea5dh
+S0000           tempset:equ0ea5eh
+S0000           tempread:equ0ea5fh
+                
+ 7700           org 7700h
+ 7700 310021    lxi sp,2100h
+ 7703 CD0000    call crlf
+ 7706 210078    lxi h,outmsg1
+ 7709 CD0000    call outmsg
+ 770C 116400    lxi d,0064h
+ 770F 0602      mvi b,02h
+ 7711 0E0A      mvi c,0ah
+ 7713 CD0000    call nmin
+ 7716 CD0000    call crlf
+ 7719 7B        mov a,e
+ 771A D630      sui 30h
+ 771C 5F        mov e,a
+U771D D20000    jnc msg2
+ 7720 3E0F      mvi a,0fh
+ 7722 116200    lxi d,0062h
+ 7725 0602      mvi b,02h
+ 7727 0E0A      mvi c,0ah
+ 7729 CD0000    call nmin
+ 772C CD0000    call crlf
+ 772F E1        pop h
+ 7730 7D        mov a,l
+ 7731 320000    sta hitemp
+ 7734 7B        mov a,e
+ 7735 320000    sta lotemp
+ 7738 3E03      dsply:mvi a,03h
+ 773A 320000    sta jump
+ 773D C36077    jmp display
+ 7740 3A0000    expt3:lda tempread
+ 7743 57        mov d,a
+ 7744 3A0000    lda hitemp
+ 7747 BA        cmp d
+ 7748 D25177    jnc lower
+Y774B           set 30:mvi a,0ffh
+ 774B 320000    sta tempset
+ 774E C33877    jmp dsply
+ 7751 3A0000    lower:lda lotemp
+ 7754 BA        cmp d
+ 7755 DA3877    jc dsply
+ 7758 3E00      mvi a,00h
+ 775A 320000    sta tempset
+ 775D C33877    jmp dsply
+ 7760 3E81      display:mvi a,81h
+ 7762 D300      out cr55
+ 7764 3E00      mvi a,00h
+ 7766 D300      out portb
+ 7768 3E09      mvi a,09h
+ 776A D300      out cr55
+ 776C 3E08      mvi a,08h
+ 776E D300      out cr55
+ 7770 3E83      mvi a,83h
+S7772           out
+ 7772 3A0000    lda tempset
+ 7775 D300      out porta
+ 7777 3E0D      start:mvi a,0dh
+ 7779 D300      out cr55
+ 777B 3E0C      mvi a,0ch
+ 777D D300      out cr55
+ 777F DB00      back:in portc
+ 7781 E602      ani 02h
+ 7783 C27F77    jnz back
+ 7786 DB00      back1:in portc
+ 7788 E602      ani 02h
+ 778A CA8677    jz back1
+ 778D 3E0B      mvi a,0bh
+ 778F D300      out cr55
+ 7791 DB09      in 09h
+ 7793 5F        mov e,a
+ 7794 3E0A      mvi a,0ah
+ 7796 D300      out cr55
+ 7798 C5        push b
+ 7799 40        mov b,00h
+ 779A 7B        mov a,e
+ 779B FE04      cpi 04h
+ 779D DADC77    jc dsply30
+ 77A0 2E00      mvi l,00h
+ 77A2 0E0A      l4: mvi c,0ah
+ 77A4 D604      div:sui 04h
+ 77A6 FE04      cpi 04h
+ 77A8 DAB677    jc n3
+ 77AB 0D        dcr c
+ 77AC C2B377    jnz n5
+ 77AF 2C        inr l
+ 77B0 C3A277    jmp l4
+ 77B3 C3A477    n5:jmp div
+ 77B6 3E0A      n3:mvi a,0ah
+ 77B8 91        sub c
+ 77B9 4F        mov c,a
+ 77BA 7D        mov a,l
+U77BB E600      ani ofh
+ 77BD 07        rlc
+ 77BE 07        rlc
+ 77BF 07        rlc
+ 77C0 07        rlc
+ 77C1 E6F0      ani 0f0h
+ 77C3 81        add c
+ 77C4 FE50      cpi 50h
+ 77C6 DAD077    jc n2
+ 77C9 0602      mvi b,02h
+ 77CB 80        add b
+ 77CC 27        daa
+ 77CD C3DD77    jmp display1
+ 77D0 FE25      n2:cpi 25h
+ 77D2 DADD77    jc display1
+ 77D5 0601      mvi b,01h
+ 77D7 80        add b
+ 77D8 27        daa
+ 77D9 C3DD77    jmp display1
+ 77DC 78        dsply30:mov a,00h
+ 77DD C630      display1:adi 30h
+ 77DF 27        daa
+ 77E0 320000    sta tempread
+ 77E3 5F        mov e,a
+ 77E4 0602      mvi b,02h
+ 77E6 CD0000    call cronly
+ 77E9 CD0000    call nmout
+ 77EC C1        pop b
+ 77ED CD0000    call test
+ 77F0 D2FB77    jnc cd
+ 77F3 3A0000    lda jump
+ 77F6 FE02      cpi 02h
+ 77F8 CA4077    jz expt3
+ 77FB C30000    cd:jmp cmdmod
+P77FE 53        outmsg1:dfb 53h ;"set pt"
+E77FF 00        dfb 45h 54h 20h 50h 54h 03h
+P7800 30        outmsg1:dfb 48 ;"hitemp"
+E7801 00        dfb 49h 54h 45h 4dh 50h 03h
+ 7802 4C        outmsg3: dfb 4ch ;"lotemp"
+E7803 00        dfb 4ch 54h 45h 4dh 50h 03h
+ 0000           end
+0007  A                    0000  B                    777F  BACK          
+7786  BACK1                0001  C                    77FB  CD            
+0000  CMDMOD               0000  CR55                 0000  CRLF          
+0000  CRONLY               0002  D                    7760  DISPLAY       
+77DD  DISPLAY1             77A4  DIV                  7738  DSPLY         
+77DC  DSPLY30              0003  E                    7740  EXPT3         
+0004  H                    0000  HITEMP               0000  JUMP          
+0005  L                    77A2  L4                   0000  LOTEMP        
+7751  LOWER                0006  M                    77D0  N2            
+77B6  N3                   77B3  N5                   0000  NMIN          
+0000  NMOUT                0000  OUTMSG               7800  OUTMSG1       
+7802  OUTMSG3              0000  PORTA                0000  PORTB         
+0000  PORTC                0000  READ                 7777  START         
+0000  TEMPREAD             0000  TEMPSET              0000  TEST          
+

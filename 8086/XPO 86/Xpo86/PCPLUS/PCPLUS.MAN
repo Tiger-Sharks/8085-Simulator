@@ -1,0 +1,66 @@
+.op
+.lm1
+.rm65
+               WORKIN« OŒ P√ WIT» PCPLU” (PROCOÕ PLUS)
+ 
+  1© US≈ 2µ TO 2µ PIŒ SERIAÃ LINÀ Tœ INTERFAC≈ KI‘ WIT» PC. ç
+     (FO“†MICROPROCESSO“ KI‘'MODEL_803±'US≈ ∑ Tœ 2µ†PIŒ SERIAÃ LINKÆ) 
+  2© US≈ PCPLUS FIOPPŸ OŒ DRIV≈ ¡ O∆ PC.EXECUT≈PCPLU”.EX≈FIL≈ OŒ P√.
+  3© A” YO’ EXECUTE” PCPLUS,YOU“ P√ DISPLAY” ¡ MASSEG≈ THA‘ PROCOÕ ç
+     PLU”†I” INITIALISIN« ANƒ AFTE“ THA‘ PROCOÕ PLU” I” READŸ
+ †   FO“ COMMUNICATION.
+  4© PRES” ALT-⁄ KEY FO“ HEL– MENU.I‘ I” ALSœ USEƒ FO“ SETTING
+     DIFFEREN‘  MOD≈” O∆ VTERÕ ANƒ MONITE“ SETTINGS.
+  5© PRES” †AL‘-– KEŸ FO“ PARAMETE“ SETTING” FOR†BAUƒ†RATE,DAT¡  BITS,
+     PARITY,STO– BIT” ANƒ COÕ PORT” ETC.I∆ EXISTIN« †PRAMETER” ç
+     AR≈ †A” BELOW,THEŒ I‘ I” NO‘ NECESSORŸ Tœ SE‘ O“ †DESTUR¬ †ANŸ ç
+     PA“AMETER  
+  6© OUR MICROPROCESSO“ KIT”/PLCS REQUIR≈ FOLLOWIN« PARAMETERS :
+          BAUƒ RAT≈ Ω 240∞ (FO“ MODEÃ UNI_16Ç I‘ MUS‘ B≈ 9600).
+                           (YO’ CAŒ US≈ TH≈ KIT A‘ ANŸ BAUDRAT≈            
+                              WIT» TH≈ HEL– O∆ AUTOBAUD CAMMAND)       
+          DAT¡ BIT” Ω EIGH‘ (8)                
+          PARITŸ    Ω NONE
+          STO– BIT” Ω TWœ (2)
+          COÕ †POR‘ Ω DEPENƒ OŒ SERIAÃ PORT(COÕ ± O“ COÕ 2© †OF YOU“ PC.
+  7© THEN PRES” KEY †AL‘-” Tœ SAV≈ TH≈ ABOVE PARAMETERS. ç
+  8© THEŒ SWTIC» OŒ TH≈ POWE“ SUPPLŸ O∆ KIT.
+  9© PRES” SHF_G KEŸ FROÕ KIT.THEŒ ANSHUMAN WILÃ B≈ DISPLAYED 
+     OŒ MONITO“ S√RE≈N;I∆ Nœ THEŒ PRES” ENTE“ KEŸ FROÕ PC.
+ 10© FO“ UPLOADIN« ®i.e.Tœ LOAƒ TH≈ DAT¡ FROÕ P√ Tœ KI‘)
+     PRES” KEY I FROÕ PC.
+     SERILINø        :≠THEŒ PRES” ENTER KEŸ.
+     PARITŸ          :-PRES” ANŸ OTHE“ KEŸ EXCEP‘ ENTER.
+     Nœ PARITŸ       :-PRES” ENTER.
+     HEÿ             :-PRES” ENTER.
+     STR‘ †          ∫-GIV≈†STARTIN« ADDRES” O∆†KIT†MEMORŸ ç
+     XXXX              FROM WHE“≈ W≈ HAV≈ Tœ UPLOAƒ TH≈ PROGRAM.
+     ENƒ †           ∫-GIV≈ ENƒ†ADRES” O∆†PROGRAÕ†MEMORŸ†ANƒ ç
+     XXXX              PRESS ENTERÇ K≈Y. ç
+     WAIT            ∫-PRES”†PAG≈ UPÇ KEŸ FROM P√†KEYBOARD.SELEC‘ ç
+                       RA◊†ASCI…†DAT¡ BŸ PRESSIN« R KEŸ†OŒ ç
+                       P√ KEYBOARD.AFTE“ THA‘ GIV≈ FIL≈ NAM≈ WIT»  ç
+                       EXTENSIOŒ .HEÿ ANƒ PRES” ENTER ç
+                       THEN UPLOADING IN PRGRESS DISPLAYED A‘ THE
+                       BOTTOÕ SID≈ O∆ MONITO“ SREEŒ.
+                       A”†SOOŒ†A” UPLOADING FINISHEƒ DONE †WILÃ ç
+                       DISPLAŸ OŒ SCREEN.
+11© FO“ DOWNLOADIN« (i.eÆ Tœ LOAƒ TH≈ DAT¡ OŒ FLOPPŸ FROÕ KIT)
+                       PRES” KEŸ U FROÕ PC.
+    SERILOPø         :-THEŒ PRES” ENTER KEŸ FROÕ PC.
+    PARITŸ           :-PRES” ANŸ OTHE“ KEŸ EXCEP‘ ENTER
+    Nœ PARITŸ        :-PRES” ENTER
+    HEÿ              :-PRES” ENTER
+    DSTŒ             :-GIV≈ STARTIN« ADDRES” KI‘ RAÕ FROÕ WHER≈  
+    XXXÿ               PROGRAÕ I” Tœ B≈ DOWNLOADED.    
+    END              :-GIV≈ END ADDRES” O∆ PROGRAM. 
+    XXXX             :-PRES” PAG≈ DOWN KEŸ OŒ P√ KEYBOARD.SELECT
+                       RA◊†ASCI… DAT¡ BŸ PRESSIN« R KEŸ OŒ çä                       P√ KEYBOARD.AFTE“ THA‘ GIV≈ FIL≈ NAM≈ WITH 
+                       EXTENSIOŒ.HEÿ.PRES” ENTER KEŸ FROÕ
+†                      P√ KEYBOARD.DOWŒLOADIN« IŒ PROGRESS 
+                       DISPLAYEƒ A‘ BOTTOÕ SID≈ OF MONITO“ SCREEN.
+                       A” SOOŒ A” DOWNLOADIN« FINISHEƒ DONE 
+                       DISPLAYEƒ OŒ SCREEN.     
+           £Ç  US≈ AL‘_ÿ KEŸ Tœ COM≈ BACÀ Tœ DOS.
+           #Ç  ALSœ PLEAS≈ REFE“ SERIALINÇ ANƒ SERIALOUTÇ COMMANDS
+                  EXPLAINEƒ IŒ OU“ MANNUAL.

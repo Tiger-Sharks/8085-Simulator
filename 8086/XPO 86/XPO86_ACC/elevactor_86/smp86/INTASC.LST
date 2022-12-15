@@ -1,0 +1,87 @@
+
+;*****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+;    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+;    THE SAME FROM 013B:0100[0000:14B0] AND EXECUTE. 
+
+;*******CONVERTING A LOWER CASE STRING TO UPPER CASE
+;	--------------------------------------------
+
+;S	DB      20 DUP (?)  LOCATED AT 0100:012A [=0000:112A] IN SCPD
+;			    ENTER HEX NOS BETWEEN 41-7A U/LOWER CASE.
+NUM	DW	?	    ;2 BYTE INTEGER PLEASE ENTER AT 0100:0103
+			    ;[=0000:1103]
+STR	DB	4 DUP (?)	;FOUR BYTE AREA TO HOLD ASCI FORM
+				;[=0000:1105,6,7,8]
+;		CONVERTING AN INTEGER TO ASCII  FORM
+;		------------------------------------
+102B:0100 EB07          JMP	0109      
+102B:0102 90            NOP	          
+102B:0103 0000          ADD	[BX+SI],AL
+102B:0105 0000          ADD	[BX+SI],AL
+102B:0107 0000          ADD	[BX+SI],AL
+102B:0109 B8FF10        MOV	AX,10FF   ;INIT OF SP FOR KIT          
+102B:010C 8BE0          MOV	SP,AX     ;MOV AX,AX 		
+102B:010E 0E            PUSH	CS        ;INIT FOR DS                 
+102B:010F 1F            POP	DS        ;                            
+102B:0110 90            NOP	          ;                            
+102B:0111 90            NOP	          ;                            
+102B:0112 90            NOP	          ;                            
+102B:0113 B80001        MOV	AX,0100   ;                            
+102B:0116 8EC0          MOV	ES,AX     ;IN KIT LOAD EXTRA SEGMENT         
+102B:0118 26            ES:	          ;GET INTEGEER TO AX               
+102B:0119 A10301        MOV	AX,[0103] ;DI POINTS TO START  OF ASCII
+102B:011C BF0501        MOV	DI,0105   
+;---------------------------------------------------------------------
+;INTASC CONVERTS THE FOUR DIGIT HEX NUMBER IN AX TO FOUR ASCII DIGITS
+;IN THE MEMORY AREA POINTED TO BY DI. THE MOST SIGNIFICANT DIGIT IS
+;STORED IN THE LOWEST ADDRESSED MEMORY LOCATION (@DI).
+;
+;	ENTRY :
+;		AX  = HEX NUMBER
+;		DI = POINTER TO ASCII STRING AREA
+;	EXIT :
+;		@DI TO @DI+3 CONTAINS FOUR ASCII DIGITS.
+;
+;	ALL REGISTERS PRESERVED. FLAGS CLOBBERED.
+;--------------------------------------------------------------------
+102B:011F 51            PUSH	CX        
+102B:0120 57            PUSH	DI        ;SAVE DI WE WILL CHANGE IT 
+102B:0121 B90400        MOV	CX,0004   ;KEEP TRACK OF DIGIT COUNT      
+102B:0124 51            PUSH	CX        ;SAVE HEX DIGIT COUNT                
+102B:0125 B104          MOV	CL,04     ;NUMBER OF BITS PER DIG.
+					 ;ROTATE COUNT
+102B:0127 D3C0          ROL	AX,CL     ;ROTATE AX LEFT BY 4 BITS SO
+					  ;NEXT DIG
+					  ;COMES TO RIGHT NIBBLE OF AL         
+102B:0129 59            POP	CX        ;RESTORE HEX DIGIT COUNT             
+102B:012A 50            PUSH	AX        ;SAVE ROTATED HEX NUMBER             
+102B:012B 240F          AND	AL,0F     ;RETAIN OLY LOWER NIBBLE             
+102B:012D E80B00        CALL	013B      ;CONVERT TO ASCII IN AL              
+102B:0130 26            ES:	          ;STORE NEXT ASCII CODE               
+102B:0131 8805          MOV	[DI],AL   ;RESTORE ROTGATED HEX NUMBER         
+102B:0133 58            POP	AX        ;BUMP POINTER                        
+102B:0134 47            INC	DI        ;REPEAT FOR ALL 4 HEX DIGITS      
+102B:0135 E2ED          LOOP	0124      ;RESTORE SAVED REGISTERS             
+102B:0137 5F            POP	DI        ;@DI TO @DI+3 CONTAIN 4 ASCI
+102B:0138 59            POP	CX        ;ALL REGISTERS PRESERVED.            
+102B:0139 CDA5          INT	A5        
+;---------------------------------------------------------------------
+;HEXASC  CONVERTS THE HEX DIGIT IN THE LOWER NIBBLE O FL TO ITS ASCII
+;REPRESENTATION IN  AL . ON ENTRY THE UPPER NIBBLE MUST BE 0. RESULTS
+;ARE UNPREDICTABLE IF IT IS NOT !
+;---------------------------------------------------------------------
+102B:013B 3C09          CMP	AL,09     ;IS THE HEX NUMBER 10 TO 15?  
+102B:013D 7703          JA	0142      ;YES                          
+102B:013F 0430          ADD	AL,30     ;NO, + ASCI BIAS FOR 0 TO 9
+102B:0141 C3            RET	          ;AND EXIT                     
+102B:0142 0437          ADD	AL,37     ;ADD HEX BIAS                 
+102B:0144 C3            RET	          ;AND EXIT		      
+
+
+
+
+
+
+
+
+

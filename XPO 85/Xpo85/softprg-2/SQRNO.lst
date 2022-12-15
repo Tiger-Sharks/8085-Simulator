@@ -1,0 +1,76 @@
+ AS V1.42 Beta [Bld 56] - source file SQRNO.ASM - page 1 - 2/13/2008 19:00:51
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     	
+       3/       0 :                     	;Program finds square of a number by using addition of successive
+       4/       0 :                     	;odd numbers method. The number itself is used a loop counter, 
+       5/       0 :                     	;successive odd numbers are added till this loop counter zeroes.
+       6/       0 :                     	;The number to square is stored at location 2100h
+       7/       0 :                     	;The squared answer is stored at location 2101h
+       8/       0 :                     	
+       9/       0 :                     	;e.g. To find square of the number 3, we will add 1,3 and 5 (The first
+      10/       0 :                     	;three odd integers) to get an answer of 9.
+      11/       0 :                     	
+      12/    6635 :                     	org 6635h			;Four bytes blank after previous program
+      13/    6635 :                     	start:
+      14/    6635 : 3A 00 21            		lda 2100h		;Get the number to accumulator
+      15/    6638 : B7                  		ora a			;Check if number is zero
+      16/    6639 : CA 47 66            		jz done			;If number is zero no point in entering the loop.
+      17/    663C :                     		
+      18/    663C : 4F                  		mov c,a			;Move number to C.This is our loop counter.
+      19/    663D : AF                  		xra a			;Initial value of square = 0.
+      20/    663E : 06 01               		mvi b,01h		;B register is our odd number accumulator
+      21/    6640 :                     		
+      22/    6640 :                     	add_next:
+      23/    6640 : 80                  		add b
+      24/    6641 : 04                  		inr b
+      25/    6642 : 04                  		inr b
+      26/    6643 : 0D                  		dcr c
+      27/    6644 : C2 40 66            		jnz add_next
+      28/    6647 :                     	done:
+      29/    6647 : 32 01 21            		sta 2101h
+      30/    664A : CF                  		rst 1
+      31/    664B :                     		
+      32/    664B :                     ;Last address used by the program 1A00h == 6656
+ AS V1.42 Beta [Bld 56] - source file SQRNO.ASM - page 2 - 2/13/2008 19:00:51
+
+
+  symbol table (* = unused):
+  ------------------------
+
+ ADD_NEXT :                    6640 C | *ARCHITECTURE :  i386-unknown-win32 - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   2/13/2008 - |  DONE :                        6647 C |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6635 C |
+*TIME :                    19:00:51 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     31 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file SQRNO.ASM - page 3 - 2/13/2008 19:00:51
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     32 lines source file
+      2 passes
+      0 errors
+      0 warnings

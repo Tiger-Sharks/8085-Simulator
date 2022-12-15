@@ -1,0 +1,108 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-25-:8    
+
+
+ 	 	 	 	
+ 	 	 	 	;This programme demonstrates 8251 in Asynchrono
+	 	 	 	us 
+ 	 	 	 	;Receiver Mode of operation using polling.
+ 	 	 	 	
+ 0000	 	 	 	X86P511A  SEGMENT
+ 	 	 	 	 	ASSUME CS:X86P511A, DS:X86P511A ,ES:X86
+	 	 	 	P511A
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  B8 10FF	 	 	STRT:MOV AX,10FFH	 	;Initof SP for 
+	 	 	 	Kit
+ 0103  8B E0	 	 	 	 MOV SP,AX	 	 	;On PC
+ 0105  0E	 	 	     PUSH CS	 	 	;Init for DS
+ 0106  1F	 	 	 	 POP DS
+ 	 	 	 	 	
+ 0107  90	 	 	 	 NOP
+ 0108  90	 	 	 	 NOP
+ 0109  90	 	 	 	 NOP
+ 010A  8D 36 0150 R	 	LEA SI,DATA1  ;Byte to be receive
+ 	 	 	 	                    ;stored at address point by
+	 	 	 	 SI register
+ 010E  B0 00	 	 	     MOV  AL,00H	; Dummy code.
+ 0110  BA 9002	 	 	     MOV  DX,9002H ;point at ctrl word address
+ 0113  EE	 	 	OUT  DX,AL
+ 0114  B9 0002	 	 	MOV CX,02H
+ 0117  E2 FE	 	 	D01:LOOP D01
+ 0119  EE	 	 	OUT DX,AL
+ 011A  B9 0002	 	 	MOV CX,02H
+ 011D  E2 FE	 	 	D02:LOOP D02
+ 011F  EE	 	 	OUT DX,AL
+ 0120  B9 0002	 	 	MOV CX,02H
+ 0123  E2 FE	 	 	D03:LOOP D03
+ 0125  B0 40	 	 	MOV  AL,40H
+ 0127  EE	 	 	OUT  DX,AL	; Reset code
+ 0128  B9 0002	 	 	MOV CX,02H
+ 012B  E2 FE	 	 	D04:LOOP D04
+ 012D  B0 4E	 	 	MOV  AL,4EH ;
+ 012F  EE	 	 	OUT  DX,AL	; Mode word, Stop Bits=1, 
+ 	 	 	 	 	 	    ; Character Length=8 Bits
+ 0130  B9 0002	 	 	MOV CX,02H
+ 0133  E2 FE	 	 	D05:LOOP D05
+ 	 	 	 	 	 	 	
+ 0135  B0 24	 	 	MOV  AL,24H
+ 0137  EE	 	 	OUT  DX,AL	 ; Command Word
+ 	 	 	 	 	 	      ;rxE enable=1 
+ 	 	 	 	 	 	      ; RTS=1
+ 	 	 	 	 	 	 	  
+ 0138  B9 0005	 	 	MOV CX,05H   ;No. of bytes to be transfer
+ 013B	 	 	 	LOOP2:
+ 013B  BA 9002	 	 	MOV  DX,9002H;point at ctrl word address
+ 013E  EC	 	 	IN   AL,DX	; Check for receiver ready.
+ 013F  24 02	 	 	AND  AL,02H	; If no then remain in loop and
+	 	 	 	 
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-25-:8    
+
+
+ 	 	 	 	 	 	; wait.	 	
+ 0141  3C 02	 	 	CMP  AL,02H	
+ 0143  75 F6	 	 	JNZ  LOOP2
+ 0145  BA 9000	 	 	MOV  DX,9000H	;point to data address	
+ 0148  EC	 	 	IN   AL,DX	; Receive the data from
+ 	 	 	 	           	; receiver output.
+ 0149  88 04	 	 	MOV [SI],AL
+ 014B  46	 	 	INC SI
+ 014C  E2 ED	 	 	LOOP LOOP2
+ 014E  CD A5	 	 	INT 0A5H
+ 0150     05 [	 	 	DATA1:DB 5 DUP(?)   ;Pointer for look up table
+                ??	 	
+                    ]	 	
+ 	 	 	 	
+ 0155	 	 	 	X86P511A  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-25-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P511A . . . . . . . . . . . .	0155	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+D01. . . . . . . . . . . . . . .	L NEAR 	0117	X86P511A
+D02. . . . . . . . . . . . . . .	L NEAR 	011D	X86P511A
+D03. . . . . . . . . . . . . . .	L NEAR 	0123	X86P511A
+D04. . . . . . . . . . . . . . .	L NEAR 	012B	X86P511A
+D05. . . . . . . . . . . . . . .	L NEAR 	0133	X86P511A
+DATA1. . . . . . . . . . . . . .	L NEAR 	0150	X86P511A
+LOOP2. . . . . . . . . . . . . .	L NEAR 	013B	X86P511A
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P511A
+
+50088 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

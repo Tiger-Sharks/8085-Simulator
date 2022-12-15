@@ -1,0 +1,78 @@
+ AS V1.42 Beta [Bld 56] - source file FIB.ASM - page 1 - 2/13/2008 19:01:17
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Program generates Fibonacci series. The series is stored
+       4/       0 :                     ; at location from 2101h. The number of data points to generate is
+       5/       0 :                     ; stored at location 2100h
+       6/       0 :                     ;  for e.g.fibonacci series for 8 data points is given below
+       7/       0 :                     ;  Fibb. ser.(8)=0,1,1,2,3,5,8,d  
+       8/    6805 :                     	org 6805h		;Five bytes blank after previous program
+       9/    6805 :                     	start:
+      10/    6805 : 21 00 21            		lxi h,2100h
+      11/    6808 : 4E                  		mov c,m		;C is the number of data points to generate.
+      12/    6809 :                     		
+      13/    6809 : 23                  		inx h		;Point to starting address of storage
+      14/    680A : 3E 00               		mvi a,00h	;First data point of fibonacci series
+      15/    680C : 77                  		mov m,a		;Store the first element
+      16/    680D : 23                  		inx h
+      17/    680E : 3E 01               		mvi a,01h
+      18/    6810 : 77                  		mov m,a		;Store the second element
+      19/    6811 :                     		
+      20/    6811 :                     		
+      21/    6811 : 0D                  		dcr c
+      22/    6812 : 0D                  		dcr c
+      23/    6813 :                     		
+      24/    6813 :                     	store_next:
+      25/    6813 : 2B                  	dcx h
+      26/    6814 : 7E                  		mov a,m
+      27/    6815 : 23                  		inx h
+      28/    6816 : 86                  		add m	
+      29/    6817 : 23                           inx h	;Add num to accumulator to get next number
+      30/    6818 : 77                  		mov m,a		;Next number stored
+      31/    6819 : 0D                  		dcr c
+      32/    681A : C2 13 68            		jnz store_next
+      33/    681D : CF                  		rst 1
+      34/    681E :                     		
+      35/    681E :                     ;Last address used by the program 1AADh == 6829
+ AS V1.42 Beta [Bld 56] - source file FIB.ASM - page 2 - 2/13/2008 19:01:17
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6805 C |
+ STORE_NEXT :                  6813 C | *TIME :                    19:01:17 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     30 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file FIB.ASM - page 3 - 2/13/2008 19:01:17
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     35 lines source file
+      1 pass
+      0 errors
+      0 warnings

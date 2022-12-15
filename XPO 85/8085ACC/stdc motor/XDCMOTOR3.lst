@@ -1,0 +1,197 @@
+                                ;programm for speed control of dc motor
+ 0000                           CPU "8085.TBL"
+ 0000                           HOF "INT8"
+ 048A =                         CRLF:EQU 048AH
+ 001B =                         ESC:EQU 1BH
+ 000C =                         CMDMOD:EQU 000CH
+ 03D8 =                         OUTMSG:EQU 03D8H
+ 75B1 =                          DIRFR:EQU 75B1H
+ 0615 =                          DELAY:EQU 0615H
+ 0405 =                           NMIN:EQU 0405H
+ 2075 =                           READ:EQU 2075H
+                
+ 74C0                           ORG 74C0H
+ 74C0 310021                    LXI SP,2100H
+ 74C3 3E80                      MVI A,80H         ;Set all ports of 8255 as OP ports
+ 74C5 D30B                      OUT 0BH
+ 74C7 CD8A04             BACK2: CALL CRLF         ; Clear display
+ 74CA 214975                    LXI H,DIR         ;Initialise the mem. ptr to display i.e DIR F/D
+ 74CD CDD803                    CALL OUTMSG       ;Display DIR F/R message
+ 74D0 CD7520           RDAGAIN: CALL READ         ;Read selection Key  i.e F or R
+ 74D3 47                        MOV B,A           ;Is forward direction selected?
+ 74D4 FE46                      CPI 46H           ;If not jump to check reverse
+ 74D6 C2E174                    JNZ RVD           ;
+ 74D9 3E01                      MVI A,01H         ;If Yes set PC0 to 1
+ 74DB 32B175                    STA DIRFR         ;store at DIRFR
+ 74DE C3F874                    JMP DISPLY        ;and jump to display SPEED
+ 74E1 78                   RVD: MOV A,B           ;
+ 74E2 FE52                      CPI 52H           ;Is reverse direction selected?
+ 74E4 CAF374                    JZ NEXT           ;If yes goto NEXT
+ 74E7 FE1B                      CPI ESC           ;Is ESC pressed
+ 74E9 C2D074                    JNZ RDAGAIN       ;If not ESC then goto read key again
+ 74EC 3E80                STOP: MVI A,80H         ;if yes initialise 8255 and goto
+ 74EE D30B                      OUT 0BH           ;command. This is necessary to stop
+ 74F0 C30C00                    JMP CMDMOD        ;motor if it is running.
+ 74F3 3E02                NEXT: MVI A,02H         ;Set PC1 for reverse direction
+ 74F5 32B175                    STA DIRFR         ;and store at DIRFR
+ 74F8 215275            DISPLY: LXI H,SPEED       ;Initialise mem.ptr to display pointer
+ 74FB CD8A04                    CALL CRLF         ;Clear display
+ 74FE CDD803                    CALL OUTMSG       ;Display SPEED message
+ 7501 0602                      MVI B,02H         ;Load B for read two digit
+ 7503 0E0A                      MVI C,0AH         ;Load C for read decimal nos.
+ 7505 CD0504            GETDEC: CALL NMIN         ;Call routine to read two digits from
+                                                  ;user. (only last two digits are accepted)
+ 7508 7B                        MOV A,E           ;get received byte in accumulator.
+ 7509 DA0575                    JC GETDEC         ;if received key is not decimal
+                                                  ;number then goto read decimal number.
+ 750C FE50                      CPI 50H           ;If speed is less than 50
+ 750E DA1B75                    JC INVERT         ;Jump to invert routine
+ 7511 3AB175                    LDA DIRFR         ;If more than 50 then set PC3
+ 7514 F608                      ORI 08H           ;i.e. direction bit and out
+ 7516 D30A                      OUT 0AH           ;PORT C of lower 8255.
+ 7518 C32075                    JMP WAVE          ;
+ 751B 3AB175            INVERT: LDA DIRFR         ;Get DIRFR byte in acc
+ 751E D30A                      OUT 0AH           ;
+ 7520 3E36                WAVE: MVI A,36H         ;Initialise counter0 in mode 3
+ 7522 D31B                      OUT 1BH           ;and counter2 in mode 2 of 8253
+ 7524 3E94                      MVI A,94H         ;
+ 7526 D31B                      OUT 1BH           ;
+ 7528 215975                    LXI H,TABLE       ;Initialise mem.ptr. to lookup table
+ 752B 7E                  BACK: MOV A,M           ;Compair for speed
+ 752C BB                        CMP E             ;If no.is greater than table value
+ 752D CA3A75                    JZ L5             ;or equal to table value then
+ 7530 DA3A75                    JC L5             ;Jump to load counts
+ 7533 23                        INX H             ;If not increament mem.ptr to
+ 7534 23                        INX H             ;for next comparision.
+ 7535 23                        INX H             ;
+ 7536 23                        INX H             ;
+ 7537 C32B75                    JMP BACK          ;
+ 753A 23                    L5: INX H             ;increament mem.ptr to next location
+ 753B 7E                        MOV A,M           ;Load lower counts to counter0
+ 753C D318                      OUT 18H           ;
+ 753E 23                        INX H             ;increament mem.ptr. to next location
+ 753F 7E                        MOV A,M           ;Load higher counts to counter0
+ 7540 D318                      OUT 18H           ;
+ 7542 23                        INX H             ;increament mem.ptr to next location
+ 7543 7E                        MOV A,M           ;Load lower counts to counter2
+ 7544 D31A                      OUT 1AH           ;
+ 7546 C3C774                    JMP BACK2         ;
+ 7549 44                   DIR: DFB 44H           ;ASCII CODE FOR D
+ 754A 49                        DFB 49H           ;"I"
+ 754B 52                        DFB 52H           ;"R"
+ 754C 20                        DFB 20H           ;"SPACE"
+ 754D 20                        DFB 20H           ;"SPACE"
+ 754E 46                        DFB 46H           ;"F"
+ 754F 2F                        DFB 2FH           ;"/"
+ 7550 52                        DFB 52H           ;"R"
+ 7551 03                        DFB 03H           ;ETX
+ 7552 53                 SPEED: DFB 53H           ;"S"
+ 7553 50                        DFB 50H           ;"P"
+ 7554 45                        DFB 45H           ;"E"
+ 7555 45                        DFB 45H           ;"E"
+ 7556 44                        DFB 44H           ;"D"
+ 7557 20                        DFB 20H           ;"SPACE"
+ 7558 03                        DFB 03H           ;ETX
+                
+ 7559 98                 TABLE: DFB 98H           ;Lookup table to select the speed of motor
+ 755A 9B                        DFB 9BH           ;depending upon the percentage PWM value
+ 755B 00                        DFB 00H           ;entered by user.
+ 755C 30                        DFB 30H
+ 755D 96                         DFB 96H
+ 755E FA                        DFB 0FAH
+ 755F 00                        DFB 00H
+ 7560 1C                        DFB 1CH
+ 7561 94                         DFB 94H
+ 7562 77                        DFB 77H
+ 7563 01                        DFB 01H
+ 7564 13                        DFB 13H
+ 7565 92                         DFB 92H
+ 7566 F4                        DFB 0F4H
+ 7567 01                        DFB 01H
+ 7568 0E                        DFB 0EH
+ 7569 89                         DFB 89H
+ 756A 80                        DFB 80H
+ 756B 02                        DFB 02H
+ 756C 0B                        DFB 0BH
+ 756D 86                         DFB 86H
+ 756E E8                        DFB 0E8H
+ 756F 03                        DFB 03H
+ 7570 07                        DFB 07H
+ 7571 83                         DFB 83H
+ 7572 65                        DFB 65H
+ 7573 04                        DFB 04H
+ 7574 06                        DFB 06H
+ 7575 80                         DFB 80H
+ 7576 E2                        DFB 0E2H
+ 7577 04                        DFB 04H
+ 7578 05                        DFB 05H
+ 7579 75                         DFB 75H
+ 757A D0                        DFB 0D0H
+ 757B 06                        DFB 06H
+ 757C 04                        DFB 04H
+ 757D 66                         DFB 66H
+ 757E D0                        DFB 0D0H
+ 757F 08                        DFB 08H
+ 7580 03                        DFB 03H
+ 7581 50                         DFB 50H
+ 7582 B8                        DFB 0B8H
+ 7583 0B                        DFB 0BH
+ 7584 02                        DFB 02H
+ 7585 34                         DFB 34H
+ 7586 D0                        DFB 0D0H
+ 7587 08                        DFB 08H
+ 7588 03                        DFB 03H
+ 7589 25                         DFB 25H
+ 758A D0                        DFB 0D0H
+ 758B 06                        DFB 06H
+ 758C 04                        DFB 04H
+ 758D 20                         DFB 20H
+ 758E E2                        DFB 0E2H
+ 758F 04                        DFB 04H
+ 7590 05                        DFB 05H
+ 7591 17                         DFB 17H
+ 7592 65                        DFB 65H
+ 7593 04                        DFB 04H
+ 7594 06                        DFB 06H
+ 7595 14                         DFB 14H
+ 7596 E8                        DFB 0E8H
+ 7597 03                        DFB 03H
+ 7598 07                        DFB 07H
+ 7599 11                         DFB 11H
+ 759A 80                        DFB 80H
+ 759B 02                        DFB 02H
+ 759C 0B                        DFB 0BH
+ 759D 08                         DFB 08H
+ 759E F4                        DFB 0F4H
+ 759F 01                        DFB 01H
+ 75A0 0E                        DFB 0EH
+ 75A1 06                         DFB 06H
+ 75A2 77                         DFB 77H
+ 75A3 01                        DFB 01H
+ 75A4 13                        DFB 13H
+ 75A5 04                         DFB 04H
+ 75A6 FA                        DFB 0FAH
+ 75A7 00                        DFB 00H
+ 75A8 1C                        DFB 1CH
+ 75A9 02                         DFB 02H
+ 75AA 9B                        DFB 9BH
+ 75AB 00                        DFB 00H
+ 75AC 30                        DFB 30H
+ 75AD 00                         DFB 00H
+ 75AE 9B                        DFB 9BH
+ 75AF 00                        DFB 00H
+ 75B0 50                        DFB 50H
+                
+                
+                	END
+0007  A                    0000  B                    752B  BACK          
+74C7  BACK2                0001  C                    000C  CMDMOD        
+048A  CRLF                 0002  D                    0615  DELAY         
+7549  DIR                  75B1  DIRFR                74F8  DISPLY        
+0003  E                    001B  ESC                  7505  GETDEC        
+0004  H                    751B  INVERT               0005  L             
+753A  L5                   0006  M                    74F3  NEXT          
+0405  NMIN                 03D8  OUTMSG               74D0  RDAGAIN       
+2075  READ                 74E1  RVD                  7552  SPEED         
+74EC  STOP                 7559  TABLE                7520  WAVE          
+

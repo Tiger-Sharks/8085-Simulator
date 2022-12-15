@@ -1,0 +1,131 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	08-02-:0    
+
+
+ 	 	 	 	;8 bit ADC 0809 (SUCCESIVE APPROX. METHOD), 100
+	 	 	 	 microsec.
+ 	 	 	 	;convertion time is used to convert voltage sig
+	 	 	 	nal 
+ 	 	 	 	;simulated by on board pot. It provided varying
+	 	 	 	 voltage 
+ 	 	 	 	;0 to 5v,connected to channel no.1. Processor i
+	 	 	 	nterface 
+ 	 	 	 	;is provided via 26 pin FRC.
+ 0000	 	 	 	             ADC SEGMENT
+ 	 	 	 	             ASSUME CS:ADC
+ = 8807	 	 	 	                CR55 EQU 8807H
+ = 8803	 	 	 	                PORTB EQU 8803H
+ = 8805	 	 	 	                PORTC EQU 8805H
+ 0100	 	 	 	                 ORG 100H
+ 0100  B8 0000	 	 	         STRT: MOV AX,0000H
+ 0103  8E C0	 	 	               MOV ES,AX                       
+	 	 	 	       
+ 0105  8E D0	 	 	               MOV SS,AX                       
+	 	 	 	       
+ 0107  B8 11F0	 	 	               MOV AX,11F0H  ;Init .SP
+ 010A  8B E0	 	 	               MOV SP,AX                       
+	 	 	 	       
+ 010C  0E	 	 	               PUSH CS       ;Set CS=DS        
+	 	 	 	                  
+ 010D  1F	 	 	               POP DS                          
+	 	 	 	       
+ 010E  BA 8807	 	 	               MOV DX,CR55  ;Init port A,B
+ 0111  B0 81	 	 	               MOV AL,81H    ;C(upper) as OP
+ 0113  EE	 	 	               OUT DX,AL    ;C(lower) as IP    
+	 	 	 	                      
+ 0114  BA 8803	 	 	               MOV DX,PORTB
+ 0117  B0 00	 	 	               MOV AL,00H
+ 0119  EE	 	 	               OUT DX,AL                       
+	 	 	 	       
+ 011A  BA 8807	 	 	               MOV DX,CR55
+ 011D  B0 09	 	 	               MOV AL,09H    ;Set PC4(ALE) bit
+ 011F  EE	 	 	               OUT DX,AL    ;high              
+	 	 	 	            
+ 0120  B0 08	 	 	               MOV AL,08H    ;Set PC4 bit to
+ 0122  EE	 	 	               OUT DX,AL    ;latch             
+	 	 	 	             
+ 0123  B0 83	 	 	               MOV AL,83H    ;Set portB as IP
+ 0125  EE	 	 	               OUT DX,AL    ;rest same as befor
+	 	 	 	e                          
+ 0126  CD AC	 	 	               INT 0ACH
+ 0128  BA 8807	 	 	         COVN: MOV DX,CR55  ;Set PC6(start of
+ 012B  B0 0D	 	 	               MOV AL,0DH    ;convertion)
+ 012D  EE	 	 	               OUT DX,AL                       
+	 	 	 	       
+ 012E  B0 0C	 	 	               MOV AL,0CH
+ 0130  EE	 	 	               OUT DX,AL                       
+	 	 	 	       
+ 0131  BA 8805	 	 	               MOV DX,PORTC
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	08-02-:0    
+
+
+ 0134  EC	 	 	          BACK:IN AL,DX    ;Check PC1(EOC) low 
+	 	 	 	                         
+ 0135  24 02	 	 	               AND AL,02H    ;to insure convert
+	 	 	 	ion
+ 0137  75 FB	 	 	               JNZ BACK                        
+	 	 	 	       
+ 0139  EC	 	 	       COVNCHK:IN AL,DX    ;Convertion really  
+	 	 	 	                        
+ 013A  24 02	 	 	               AND AL,02H    ;Completed
+ 013C  74 FB	 	 	               JZ COVNCHK  ;Yes, then set      
+	 	 	 	                    
+ 013E  B0 0B	 	 	               MOV AL,0BH    ;PC5(OE) to read
+ 0140  BA 8807	 	 	               MOV DX,CR55
+ 0143  EE	 	 	               OUT DX,AL                       
+	 	 	 	       
+ 0144  BA 8803	 	 	               MOV DX,PORTB ;Read digital data
+ 0147  EC	 	 	               IN AL,DX                        
+	 	 	 	      
+ 0148  8A C8	 	 	               MOV CL,AL                       
+	 	 	 	       
+ 014A  BA 8807	 	 	               MOV DX,CR55
+ 014D  B0 0A	 	 	               MOV AL,0AH
+ 014F  EE	 	 	               OUT DX,AL                       
+	 	 	 	       
+ 0150  CD AB	 	 	               INT 0ABH
+ 0152  B0 02	 	 	               MOV AL,02H
+ 0154  8B D1	 	 	               MOV DX,CX                       
+	 	 	 	       
+ 0156  90	 	 	               NOP	                       
+	 	 	 	            
+ 0157  B6 00	 	 	               MOV DH,00H
+ 0159  CD AE	 	 	               INT 0AEH
+ 015B  B4 0B	 	 	               MOV AH,0BH
+ 015D  CD A1	 	 	               INT 0A1H
+ 015F  24 FF	 	 	               AND AL,0FFH
+ 0161  74 C5	 	 	               JZ COVN   ;Start next sample    
+	 	 	 	                        
+ 0163  CD A3	 	 	               INT 0A3H     ;Return to monitor
+ 0165	 	 	 	 	       ADC ENDS
+ 	 	 	 	               END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	08-02-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+ADC. . . . . . . . . . . . . . .	0165	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BACK . . . . . . . . . . . . . .	L NEAR 	0134	ADC
+COVN . . . . . . . . . . . . . .	L NEAR 	0128	ADC
+COVNCHK. . . . . . . . . . . . .	L NEAR 	0139	ADC
+CR55 . . . . . . . . . . . . . .	Number	8807	
+PORTB. . . . . . . . . . . . . .	Number	8803	
+PORTC. . . . . . . . . . . . . .	Number	8805	
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	ADC
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

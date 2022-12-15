@@ -1,0 +1,12 @@
+ANSHUMAN SEGMENT
+ASSUME CS:ANSHUMAN
+       DS:ANSHUMAN
+       ES:ANSHUMAN
+       ORG 0100H
+       MOV AX,5555H
+       MOV BX,5555H
+       ADD AX,BX
+       INT 0A5H
+       ANSHUMAN ENDS
+       END
+

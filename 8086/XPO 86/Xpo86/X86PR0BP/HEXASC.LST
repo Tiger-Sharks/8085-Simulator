@@ -1,0 +1,65 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000	      SCPD EQU 0000H     ;Scrath Pad Segment.
+ = 1000	      NUM  EQU 1000H     ;Address for Number.
+;This program gives hexadecimal to ascii convertion.
+;User can load hexadecimal number at memory location
+;0000:1000H and ascii code will store at memory location
+;0000:1010H.
+ 	 	 	 	
+ 0000	 	 	 	        HEX SEGMENT
+ 	 	 	 	        ASSUME CS:HEX,DS:HEX
+ 	 	 	 	        ASSUME ES:HEX
+ 0100	 	 	 	        ORG 100H                  ;Com format i
+	 	 	 	s recommanded.
+ 0100  EB 01 90	 	 	 START:JMP SKIP_DATA              ;Skip lookup 
+	 	 	 	data bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	 
+ 	 	 	 	
+ 0103	 	 	 	 SKIP_DATA:
+ 0103  B8 10FF	 	 	            MOV AX,10FFH
+ 0106  8B E0	 	 	            MOV SP,AX          ;Init SP registe
+	 	 	 	r.
+ 0108  0E	 	 	            PUSH CS            ;Init DS registe
+	 	 	 	r .
+ 0109  1F	 	 	            POP DS
+ 010A  B8 0000	 	 	            MOV AX,SCPD        ;To specify SCPD
+	 	 	 	 location on kit.
+ 010D  8E C0	 	 	            MOV ES,AX
+ 010F  26: A0 1000	 	            MOV AL,ES:NUM      ;Get hexadecimal
+	 	 	 	 number.
+ 0113  3C 0A	 	 	            CMP AL,0AH         ;Is data 10 or m
+	 	 	 	ore ?
+ 0115  72 02	 	 	            JC ASCZ            ;
+ 0117  04 00	 	 	            ADD AL,0           ;Yes add offset 
+	 	 	 	to LETTERS.
+ 0119	 	 	 	     ASCZ:
+ 0119  04 30	 	 	            ADD AL,30H         ;Add offset for 
+	 	 	 	ASCII.
+ 011B  26: A3 1010	 	            MOV ES:[1010H],AX
+ 011F  CD A5	 	 	            INT 0A5H           ;Return to comma
+
+	 	 	 	nd mode.
+ 	 	 	 	             
+ 	 	 	 	                               ;If you are runn
+	 	 	 	ing your
+ 	 	 	 	                               ;software on PC 
+	 	 	 	insert
+ 	 	 	 	                               ;------->include
+	 	 	 	.
+ 0121	 	 	 	    HEX ENDS
+ 	 	 	 	    END START
+

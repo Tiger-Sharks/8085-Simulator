@@ -1,0 +1,62 @@
+ AS V1.42 Beta [Bld 56] - source file CPY16BYTES.ASM - page 1 - 2/13/2008 19:01:38
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     	
+       3/       0 :                     ;Copy 16 bytes of data from location 2100h to location 2110h
+       4/       0 :                     
+       5/    6735 :                     	org 6735h			;Four bytes blank after previous program
+       6/    6735 :                     	start:
+       7/    6735 : 21 00 21            		lxi h,2100h		;Load source start address
+       8/    6738 : 0E 10               		mvi c,10h		;Load byte counter
+       9/    673A : 11 10 21            		lxi d,2110h		;Load destination start address
+      10/    673D :                     	copy_next:
+      11/    673D : 7E                  		mov a,m			;Get from source
+      12/    673E : 12                  		stax d			;Copy to destination
+      13/    673F : 13                  		inx d
+      14/    6740 : 23                  		inx h
+      15/    6741 : 0D                  		dcr c
+      16/    6742 : C2 3D 67            		jnz copy_next
+      17/    6745 : CF                  		rst 1
+      18/    6746 :                     		
+      19/    6746 :                     ;Last address used by the program 1A5Fh == 6751
+ AS V1.42 Beta [Bld 56] - source file CPY16BYTES.ASM - page 2 - 2/13/2008 19:01:38
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - |  COPY_NEXT :                   673D C |
+*DATE :                   2/13/2008 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*START :                       6735 C | *TIME :                    19:01:38 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     30 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file CPY16BYTES.ASM - page 3 - 2/13/2008 19:01:38
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     19 lines source file
+      1 pass
+      0 errors
+      0 warnings

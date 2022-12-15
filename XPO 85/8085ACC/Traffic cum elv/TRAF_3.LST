@@ -1,0 +1,140 @@
+                
+                 ;PROGRAM FOR TRAFFIC LIGHT CONTROLLER
+                
+ 0000                   CPU "8085.TBL"
+ 0000                   HOF "INT8"
+                
+ 0615 =         DELAY:  EQU 0615H 
+                
+ 75F5                   ORG 75F5H
+ 75F5 310021            LXI SP,2100H       ;INITIALISE STACK POINTER
+ 75F8 3E80              MVI A,80H          ;CLEAR ALL PORTS 
+ 75FA D30B              OUT 0BH            ;SET ALL PORTS AS OUTPUT PORTS
+ 75FC 3E61              MVI A,61H         ;TURN ALL THE RED SIGNALS ON
+ 75FE D308              OUT 08H
+ 7600 3E68              MVI A,68H
+ 7602 D309              OUT 09H
+ 7604 3E86              MVI A,86H
+ 7606 D30A              OUT 0AH
+ 7608 3E60      START:  MVI A,60H          ;TURN OFF PA0  AND PB5
+ 760A D308              OUT 08H
+ 760C 3E48              MVI A,48H
+ 760E D309              OUT 09H
+ 7610 3E64              MVI A,64H          ;TURN ON PA2 AND PB4
+ 7612 D308              OUT 08H
+ 7614 3E58              MVI A,58H
+ 7616 D309              OUT 09H
+ 7618 CDE776            CALL DELAY1        ;TIME TO KEEP GREEN SIGNAL ON
+ 761B 3E60              MVI A,60H          ;TURN OF PA2 AND PB4
+ 761D D308              OUT 08H
+ 761F 3E48              MVI A,48H
+ 7621 D309              OUT 09H
+ 7623 3E62              MVI A,62H         ;TURN ON PA1
+ 7625 D308              OUT 08H
+ 7627 CDF776            CALL DELAY2        ;TIME TO KEEP YELLOW SIGNAL ON
+ 762A 3E60              MVI A,60H        ;TURN OFF PA1
+ 762C D308              OUT 08H
+ 762E 3E61              MVI A,61H        ;TURN ON PA0  AND PB5
+ 7630 D308              OUT 08H
+ 7632 3E68              MVI A,68H          ;TURN ON 3G AND 9G
+ 7634 D309              OUT 09H
+ 7636 CDF776            CALL DELAY2
+ 7639 3E41              MVI A,41H          ;TURN OFF PA5 AND PC7
+ 763B D308              OUT 08H
+ 763D 3E06              MVI A,06H
+ 763F D30A              OUT 0AH
+ 7641 3E49              MVI A,49H
+ 7643 D308              OUT 08H
+ 7645 3E26              MVI A,26H
+ 7647 D30A              OUT 0AH
+ 7649 CDE776            CALL DELAY1        ;TIME TO KEEP GREEN SIGNAL ON
+ 764C 3E41              MVI A,41H          ;TURN OFF PA5 AND PC5
+ 764E D308              OUT 08H
+ 7650 3E06              MVI A,06H
+ 7652 D30A              OUT 0AH
+ 7654 3E51              MVI A,51H          ;TURN ON PA4 AND PC6
+ 7656 D308              OUT 08H
+ 7658 3E46              MVI A,46H
+ 765A D30A              OUT 0AH
+ 765C CDF776            CALL DELAY2        ;TIME TO KEEP YELLOW SIGNAL ON
+ 765F 3E41              MVI A,41H          ;TURN OFF PA4 AND PC6
+ 7661 D308              OUT 08H
+ 7663 3E06              MVI A,06H
+ 7665 D30A              OUT 0AH
+ 7667 3E61              MVI A,61H          ;TURN ON PA5 AND PC7
+ 7669 D308              OUT 08H
+ 766B 3E86              MVI A,86H
+ 766D D30A              OUT 0AH
+ 766F CDF776            CALL DELAY2
+ 7672 3E60              MVI A,60H          ;TURN OFF PB3 AND PC2
+ 7674 D309              OUT 09H
+ 7676 3E82              MVI A,82H
+ 7678 D30A              OUT 0AH
+ 767A 3E62              MVI A,62H          ;TURN ON PB1 AND PC4
+ 767C D309              OUT 09H
+ 767E 3E92              MVI A,92H
+ 7680 D30A              OUT 0AH
+ 7682 CDE776            CALL DELAY1        ;TIME TO KEEP GREEN SIGNAL ON
+ 7685 3E60              MVI A,60H         ;TURN OFF PB1 AND PC4
+ 7687 D309              OUT 09H
+ 7689 3E82              MVI A,82H
+ 768B D30A              OUT 0AH
+ 768D 3E64              MVI A,64H         ;TURN ON PB2 AND PC3
+ 768F D309              OUT 09H
+ 7691 3E8A              MVI A,8AH
+ 7693 D30A              OUT 0AH
+ 7695 CDF776            CALL DELAY2        ;TIME TO KEEP YELLOW SIGNAL ON
+ 7698 3E60              MVI A,60H          ;TURN OFF PB2 AND PC3
+ 769A D309              OUT 09H
+ 769C 3E82              MVI A,82H
+ 769E D304              OUT 04H
+ 76A0 3E68              MVI A,68H          ;TURN ON PB3 AND PC2
+ 76A2 D309              OUT 09H
+ 76A4 3E86              MVI A,86H
+ 76A6 D30A              OUT 0AH
+ 76A8 CDF776            CALL DELAY2
+ 76AB 3E21              MVI A,21H          ;TURN OFF PA6 AND PB6
+ 76AD D308              OUT 08H
+ 76AF 3E28              MVI A,28H
+ 76B1 D309              OUT 09H
+ 76B3 3E29              MVI A,29H          ;TURN ON PB0 AND PC0
+ 76B5 D309              OUT 09H
+ 76B7 3E87              MVI A,87H
+ 76B9 D30A              OUT 0AH
+ 76BB CDE776            CALL DELAY1        ;TIME TO KEEP GREEN SIGNAL ON
+ 76BE 3E21              MVI A,21H          ;TURN OFF PB0 AND PC0
+ 76C0 D309              OUT 09H
+ 76C2 3E86              MVI A,86H
+ 76C4 D30A              OUT 0AH
+ 76C6 3EA1              MVI A,0A1H         ;TURN ON PA7 ANDPB7
+ 76C8 D308              OUT 08H
+ 76CA 3EA8              MVI A,0A8H
+ 76CC D309              OUT 09H
+ 76CE CDF776            CALL DELAY2        ;TIME TO KEEP YELLOW SIGNAL ON
+ 76D1 3E21              MVI A,21H          ;TURN OFF PA7 AND PB7
+ 76D3 D308              OUT 08H
+ 76D5 3E28              MVI A,28H
+ 76D7 D309              OUT 09H
+ 76D9 3E61              MVI A,61H          ;TURN ON PA6 AND PB6
+ 76DB D308              OUT 08H
+ 76DD 3E68              MVI A,68H
+ 76DF D309              OUT 09H
+ 76E1 CDF776            CALL DELAY2
+ 76E4 C30876            JMP START 
+                           
+                          	          
+ 76E7 11FFFF    DELAY1: LXI D,0FFFFH      ;DELAY COUNT
+ 76EA CD1506            CALL DELAY
+ 76ED CD1506            CALL DELAY
+ 76F0 CD1506            CALL DELAY
+ 76F3 CD1506            CALL DELAY
+ 76F6 C9                RET
+ 76F7 11FFFF    DELAY2: LXI D,0FFFFH
+ 76FA CD1506            CALL DELAY
+ 76FD C9                RET
+ 0000                   END
+0007  A                    0000  B                    0001  C             
+0002  D                    0615  DELAY                76E7  DELAY1        
+76F7  DELAY2               0003  E                    0004  H             
+0005  L                    0006  M                    7608  START         
+

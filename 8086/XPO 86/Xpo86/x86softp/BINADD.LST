@@ -1,0 +1,143 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- 16 BIT BINARY ADDITION.	 	 	 	 	08-24-99    
+
+
+ 	 	 	 	        PAGE 70
+ 	 	 	 	
+ 	 	 	 	  TITLE -- 16 BIT BINARY ADDITION.
+ 	 	 	 	
+ 	 	 	 	;THIS PROG. ADDS TWO 16 BIT BINARY NOS.
+ 	 	 	 	;FIRST NO.IS AT ADDRESS 000H:[1000H,1001H]
+ 	 	 	 	;& SECOND NO. IS AT 0000H:[1010H TO 1011H]
+ 	 	 	 	;THE RESULT WILL BE STOREDB TO DESTINATION
+ 	 	 	 	;ADDR 0000H:[1050 H TO 1052 H].
+ 	 	 	 	; [1001 H] [1000 H] FIRST NO.
+ 	 	 	 	;+
+ 	 	 	 	; [1011 H] [1010 H] SECOND NO.
+ 	 	 	 	;------------------------------
+ 	 	 	 	; [1051 H] [1050 H]  RESULT
+ 	 	 	 	; [1052 H] CARRY
+ 	 	 	 	;
+ 	 	 	 	;REG.USED/DESTROYED :- AX,CX,SI,DI ETC.
+ 	 	 	 	;MEM. LOCATIONS MODIFIED :- 1050 H TO 1052 H.
+ 	 	 	 	;
+ 	 	 	 	;COMMON SCRATCH PAD AREA ALLOTED :-
+ 	 	 	 	;SEG.=0000H, ADDR.=1000H ONWARDS.
+ 	 	 	 	;ie 0000:1000 H ONWARDS.
+ 	 	 	 	; 
+ 	 	 	 	; INPUT TO THE PROG. :-
+ 	 	 	 	;  SEG 0000H
+ 	 	 	 	;  ADDR        DATA
+ 	 	 	 	; [1000 H] -- LOWER BYTE OF FIRST NO.
+ 	 	 	 	; [1001 H] -- HIGHER BYTE OF FIRST NO.
+ 	 	 	 	;
+ 	 	 	 	; [1010 H] -- LOWER BYTE OF SECOND NO.
+ 	 	 	 	; [1011 H] -- HIGHER BYTE OF SECOND NO.
+ 	 	 	 	;
+ 	 	 	 	; OUTPUT OF THE PROG. :-
+ 	 	 	 	;   SEG 0000H
+ 	 	 	 	;   ADDR        DATA
+ 	 	 	 	; [1050 H] -- LOWER BYTE OF RESULT.
+ 	 	 	 	; [1051 H] -- HIGHER BYTE OF RESULT.
+ 	 	 	 	; [1052 H] -- IF CARRY THEN 01 H ELSE 00
+ 	 	 	 	
+ 0000	 	 	 	        BINADD  SEGMENT
+ 	 	 	 	        ASSUME CS:BINADD, DS:BINADD
+ 	 	 	 	        ASSUME ES:BINADD
+ 	 	 	 	; 'ASSUME' IS AN ASSEMBLER DIRECTIVE. IT HAS
+ 	 	 	 	; NOTHING TO DO WITH 8086. IT IS ONLY USED
+ 	 	 	 	; TO TELL THE ASSEMBLER (MASM) WHERE THE
+ 	 	 	 	; CODE, DATA, STACK ETC. IS LOCATED.
+ 	 	 	 	; IT IS ONLY A FORMALITY FOR MASM.
+ 	 	 	 	
+ = 0000	 	 	 	SCPD     EQU 0000H ; SCRATCH PAD SEGMENT.
+ = 1000	 	 	 	ADR_1NO  EQU 1000H ; ADDRESS OF 1st NO.
+ = 1010	 	 	 	ADR_2NO  EQU 1010H ; ADDRESS OF 2nd NO.
+ = 1050	 	 	 	ADR_RSLT EQU 1050H ; ADDRESS OF RESULT
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H       ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100	 	 	 	STRT:
+ 0100  EB 01 90	 	 	JMP SKIP_DATA  ;SKIP LOOK UP/DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP TO SEPARATE
+ 	 	 	 	;STACK OF YOUR PROGRAME FROM MONITORS, DS AS
+ 	 	 	 	;SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON
+ 	 	 	 	;BY MONITOR. YOU CAN OFCOURSE CHANGE IT BY
+ 	 	 	 	;ADDING A FEW MORE MOVES. BUT WHILE WORKING ON
+ 	 	 	 	;PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE
+ 	 	 	 	;THEY ARE SET BY DOS LOADER,SO MANAGE THESE
+ 	 	 	 	;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- 16 BIT BINARY ADDITION.	 	 	 	 	08-24-99    
+
+
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV AX,10FFH    ; INIT OF SP FOR KIT
+ 0106  8B E0	 	 	MOV  SP,AX      ; <-- MOV AX,AX  ON PC
+ 0108  0E	 	 	PUSH CS         ; INIT FOR DS
+ 0109  1F	 	 	POP DS          ;
+ 010A  90	 	 	NOP             ; TO LOAD KIT INTERRUPTS
+ 010B  90	 	 	NOP             ; (A0-BF) IN PC
+ 010C  90	 	 	NOP             ; REPLACE THE 3 NOPS
+ 	 	 	 	; CALL LDINPC   ; WITH THIS CALL.
+ 010D  B8 0000	 	 	MOV AX,SCPD     ; TO SPECIFY SCPD LOCn ON KIT.
+ 0110  90	 	 	NOP             ; <-- MOV AX,CS  ON PC
+ 0111  8E C0	 	 	MOV ES,AX       ;
+ 0113  BE 1000	 	 	MOV SI,ADR_1NO  ; ADDR. OF 1st NO. IN SI.
+ 0116  BF 1010	 	 	MOV DI,ADR_2NO  ; ADDR. OF 2nd NO. IN DX.
+ 0119  F8	 	 	CLC             ; CLEAR CARRY
+ 011A  26: 8A 04	 	MOV AL,ES:[SI]  ; TAKE FIRST BYTE OF NO.1
+ 011D  26: 12 05	 	ADC AL,ES:[DI]  ; ADD TO FIRST BYTE OF NO.2
+ 0120  8A C8	 	 	MOV CL,AL       ; LOWER BYTE OF RESULT IN CL
+ 0122  47	 	 	INC DI          ;
+ 0123  46	 	 	INC SI          ; POINTERS TO HIGHER BYTES.
+ 0124  26: 8A 04	 	MOV AL,ES:[SI]  ; TAKE SECOND BYTE OF NO.1
+ 0127  26: 12 05	 	ADC AL,ES:[DI]  ; ADD TO SECOND BYTE OF NO.2
+ 012A  8A E8	 	 	MOV CH,AL       ; HIGHER BYTE OF RESULT IN CH
+ 012C  BF 1050	 	 	MOV DI,ADR_RSLT ; ADDR OF RESULT IN DI
+ 012F  26: 88 0D	 	MOV ES:[DI],CL  ; STORE RESULT AT GIVEN ADDR
+ 0132  47	 	 	INC DI          ;
+ 0133  26: 88 2D	 	MOV ES:[DI],CH  ;
+ 0136  47	 	 	INC DI          ; ADDR OF RESULT CARRY IN DI
+ 0137  B0 00	 	 	MOV AL,00H      ;
+ 0139  26: 88 05	 	MOV ES:[DI],AL  ;
+ 013C  26: 10 05	 	ADC ES:[DI],AL  ; CARRY = [1052 H]
+ 013F  CD A3	 	 	INT 0A3H        ; GOTO COMMAND = MODE ON KIT.
+ 	 	 	 	                ; ON PC RETURN TO DOS.
+ 	 	 	 	                ; IF YOU ARE RUNNING YOUR
+ 	 	 	 	                ; SOFTWARE ON PC INSERT HERE
+ 	 	 	 	                ; INCLUDE KIT_INTS.ASM
+ 	 	 	 	                ; *******************
+ 	 	 	 	                                
+ 0141	 	 	 	BINADD ENDS     ; READ FOR MORE INFO TITLE OF
+ 	 	 	 	        END STRT ; KIT_INTS.ASM
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- 16 BIT BINARY ADDITION.	 	 	 	 	08-24-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+BINADD . . . . . . . . . . . . .	0141	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ADR_1NO. . . . . . . . . . . . .	Number	1000	
+ADR_2NO. . . . . . . . . . . . .	Number	1010	
+ADR_RSLT . . . . . . . . . . . .	Number	1050	
+SCPD . . . . . . . . . . . . . .	Number	0000	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	BINADD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	BINADD
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

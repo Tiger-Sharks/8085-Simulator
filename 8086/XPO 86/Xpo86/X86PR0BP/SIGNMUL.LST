@@ -1,0 +1,64 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000      SCPD EQU 0000H ;Scratch Pad location.
+ = 1000      NUM1 EQU 1000H ;Address of Multiplicand.
+ = 1001      NUM2 EQU 1001H ;Address of Multiplier.
+ ;This program gives sigened multiplication.
+ ;User can store the multiplicand at memory location
+ ;0000:1000H and multiplier at memory location 0000:1001H.
+ ;User can also see result at memory location 0000:1010H
+ ;by using substitute command.
+ 0000	 	 	 	        SIGN SEGMENT
+ 	 	 	 	         ASSUME CS:SIGN,DS:SIGN
+ 	 	 	 	         ASSUME ES:SIGN
+ 0100	 	 	 	             ORG 100H            ;Com format is
+	 	 	 	 recommanded.
+ 0100  EB 01 90	 	 	        START:JMP SKIP_DATA      ;Skip lookup d
+	 	 	 	ata bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	 
+ 	 	 	 	
+ 0103	 	 	 	      SKIP_DATA:
+ 0103  B8 10FF	 	 	                MOV AX,10FFH
+ 0106  8B E0	 	 	                MOV SP,AX       ;Init SP regist
+	 	 	 	er.
+ 0108  0E	 	 	                PUSH CS         ;Init DS regist
+	 	 	 	er.
+ 0109  1F	 	 	                POP DS
+ 	 	 	 	              
+ 010A  B8 0000	 	 	                MOV AX,SCPD    ;To specify SCPD
+	 	 	 	 for kit.
+ 010D  8E C0	 	 	                MOV ES,AX
+ 010F  26: A0 1000	 	                MOV AL,ES:NUM1    ;Put NUM1 to 
+	 	 	 	AL.
+ 0113  26: 8A 0E 1001	 	                MOV CL,ES:NUM2   ;Put NUM2 to C
+	 	 	 	L.
+ 0118  F6 E9	 	 	 	 	IMUL CL	 	;Perform signed
+	 	 	 	 multiplication.
+ 011A  26: A3 1010	 	                MOV ES:[1010H],AX   ;Store the 
+	 	 	 	result.
+ 011E  CD A5	 	 	                INT 0A5H        ;Return to comm
+
+
+	 	 	 	and mode
+ 	 	 	 	                                ;If you are run
+	 	 	 	ning your
+ 0120	 	 	 	   SIGN ENDS                    ;software on PC
+	 	 	 	 insert
+ 	 	 	 	   END START                    ;------->includ
+	 	 	 	e
+
+
+

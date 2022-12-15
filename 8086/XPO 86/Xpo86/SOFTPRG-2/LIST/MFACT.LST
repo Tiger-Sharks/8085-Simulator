@@ -1,0 +1,128 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	;Program to carry out factorial calculation by 
+	 	 	 	recursion.
+ 	 	 	 	;The final answer for the program is popped out
+	 	 	 	 in AX register. Since
+ 	 	 	 	;this register is only 16bits, the largest fact
+	 	 	 	orial that can be
+ 	 	 	 	;calculated is for 8 (40320 == 9D80H)
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 01 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ = 0006	 	 	 	NUMBER EQU 6
+ 	 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV AX,10FFH	 	;Initof SP for 
+	 	 	 	Kit
+ 0106  8B E0	 	 	 	MOV SP,AX	 	 	;On PC
+ 	 	 	 	
+ 0108  0E	 	 	 	PUSH CS	 	 	;Init for DS
+ 0109  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 010A  90	 	 	 	NOP
+ 010B  90	 	 	 	NOP
+ 010C  90	 	 	 	NOP
+ 	 	 	 	 	
+ 	 	 	 	;--------END OF SEGMENT REGISTER INITIALIZATION
+	 	 	 	S-----
+ 	 	 	 	
+ 010D  83 EC 04	 	 	 	SUB SP,0004H  
+ 0110  8B EC	 	 	 	MOV BP,SP  	
+ 0112  B8 0006	 	 	 	MOV AX,NUMBER
+ 0115  50	 	 	 	PUSH AX
+ 0116  E8 011D R	 	 	CALL FACT	 	;START RECURSIV
+	 	 	 	E FACTORIAL CALCULATION
+ 0119  58	 	 	 	POP AX
+ 011A  58	 	 	    POP AX
+ 011B  CD A5	 	 	 	INT 0A5H	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+	 	 	 	 	;RETURN TO COMMAND MODE
+ 	 	 	 	 	
+ 	 	 	 	;-------------END OF MAIN PROGRAM
+ 	 	 	 	 	
+ 011D	 	 	 	 	FACT PROC NEAR
+ 011D  9C	 	 	 	PUSHF
+ 011E  50	 	 	 	PUSH AX
+ 011F  52	 	 	 	PUSH DX
+ 0120  55	 	 	 	PUSH BP 
+ 0121  8B EC	 	 	 	MOV BP,SP  	
+ 0123  8B 46 0A	 	 	 	MOV AX,[BP+10]
+ 0126  3D 0001	 	 	 	CMP AX,0001H
+ 0129  75 0D	 	 	 	JNE PROCEED
+ 012B  C7 46 0C 0001	 	 	MOV WORD PTR [BP+12],01H
+ 0130  C7 46 0E 0000	 	 	MOV WORD PTR [BP+14],00H
+ 0135  EB 1A 90	 	 	 	JMP DONE
+ 	 	 	 	 	
+ 0138	 	 	 	PROCEED:
+ 0138  83 EC 04	 	 	 	SUB SP,0004H
+ 013B  48	 	 	 	DEC AX
+ 013C  50	 	 	 	PUSH AX
+ 013D  8B EC	 	 	 	MOV BP,SP	 	
+ 013F  E8 011D R	 	 	CALL FACT
+ 	 	 	 	
+ 0142  8B 46 02	 	 	 	MOV AX,[BP+2]
+ 0145  F7 66 10	 	 	 	MUL WORD PTR [BP+16]
+ 0148  89 46 12	 	 	 	MOV [BP+18],AX
+ 014B  89 56 14	 	 	 	MOV [BP+20],DX
+ 014E  83 C4 06	 	 	 	ADD SP,0006H
+ 0151	 	 	 	DONE:
+ 0151  5D	 	 	 	POP BP
+ 0152  5A	 	 	 	POP DX
+ 0153  58	 	 	 	POP AX
+ 0154  9D	 	 	 	POPF
+ 0155  C3	 	 	 	RET
+ 0156	 	 	 	 	FACT ENDP
+ 0156	 	 	 	 	COMSEG ENDS	
+ 	 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0156	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DONE . . . . . . . . . . . . . .	L NEAR 	0151	COMSEG
+FACT . . . . . . . . . . . . . .	N PROC	011D	COMSEG	Length =0039
+NUMBER . . . . . . . . . . . . .	Number	0006	
+PROCEED. . . . . . . . . . . . .	L NEAR 	0138	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50096 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

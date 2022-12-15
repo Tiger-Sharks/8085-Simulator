@@ -1,0 +1,32 @@
+                
+                ;TITLE : BCD TO HEX CONVERSION.
+                
+                
+ 0000                              CPU"8085.TBL"   ;CPU USED IS 8085.
+ 0000                              HOF"INT8"       ;INTELHEX 8 BIT FORMAT IS USED.
+                
+                
+ 20C0 =                        RESULT:  EQU 20C0H
+ 64B0                               ORG 64B0H
+                
+ 64B0 21BF64                        LXI H,BCDATA
+ 64B3 7E                            MOV A,M
+ 64B4 87                            ADD A
+ 64B5 47                            MOV B,A
+ 64B6 87                            ADD A
+ 64B7 87                            ADD A
+ 64B8 80                            ADD B
+ 64B9 23                            INX H
+ 64BA 86                            ADD M
+ 64BB 32C020                        STA RESULT
+ 64BE CF                            RST 1
+ 64BF 02                   BCDATA:  DFB 02H
+ 64C0 09                            DFB 09H
+                
+                
+                	END
+0007  A                    0000  B                    64BF  BCDATA        
+0001  C                    0002  D                    0003  E             
+0004  H                    0005  L                    0006  M             
+20C0  RESULT               
+

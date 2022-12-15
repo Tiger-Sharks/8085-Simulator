@@ -1,0 +1,232 @@
+ AS V1.42 Beta [Bld 56] - source file X85stpr3.ASM - page 1 - 7/1/2008 12:45:13
+
+
+       1/       0 :                     ;Stepper motor interface has been provided through 8255 via 26 pin
+       2/       0 :                     ;FRC cable.Motor can be rotated clockwise or anticlock wise direction 
+       3/       0 :                     ;depending on the content of the location of sequense. Acceleration-
+       4/       0 :                     ;Deacceleration process is also implemented.'STEPR' is a subroutine 
+       5/       0 :                     ;which actually outputs the phase seq. code to the stepper using lookup table.
+       6/       0 :                     ;Enter the speed from 1000h to ffffh, do not enter speed below 1000h
+       7/       0 :                     
+       8/       0 :                                  CPU 8085
+       9/       0 : =8H                 	   PORTA: EQU 08H
+      10/       0 : =BH                         CR55: EQU 0BH
+      11/       0 : =2075H                      READ: EQU 2075H
+      12/       0 : =615H               	   DELAY: EQU 0615H
+      13/       0 : =48AH               	    CRLF: EQU 048AH
+      14/       0 : =3D8H               	  OUTMSG: EQU 03D8H
+      15/       0 : =CH                 	  CMDMOD: EQU 000CH
+      16/       0 : =405H               	    NMIN: EQU 0405H 
+      17/       0 : =1BH                         ESC: EQU 1BH
+      18/    71D2 :                                   ORG 71D2H
+      19/    71D2 : 31 00 21                   START: LXI SP,2100H ;Init. stack pointer
+      20/    71D5 : 3E 80                             MVI A,80H    ;Init. 8255 ports
+      21/    71D7 : D3 0B                             OUT CR55     ;A,B,C as OP ports
+      22/    71D9 : 3E 00                             MVI A,00H	  ;OP disable code to 
+      23/    71DB : D3 08                             OUT PORTA    ;stop motor
+      24/    71DD : 21 F2 72            	          LXI H,SPEED
+      25/    71E0 : CD 8A 04            			  CALL CRLF
+      26/    71E3 : CD D8 03            			  CALL OUTMSG
+      27/    71E6 : 06 04               			  MVI B,04H
+      28/    71E8 : 0E 10               			  MVI C,10H
+      29/    71EA : CD 05 04            			  CALL NMIN
+      30/    71ED : CD 8A 04            	  DISPLY: CALL CRLF ;CLEAR DISPLAY
+      31/    71F0 : 21 F9 72            		      LXI H,DIR
+      32/    71F3 : CD D8 03            			  CALL OUTMSG ;display message for dir
+      33/    71F6 : CD 75 20            	 RDAGAIN: CALL READ
+      34/    71F9 : 47                  	          MOV B,A
+      35/    71FA : FE 46               			  CPI 46H ;check for forward dir
+      36/    71FC : C2 0D 72            			  JNZ RVD ; if not go to reverse dir
+      37/    71FF : 3E 01               			  MVI A,01H ; forward dir
+      38/    7201 : 32 A0 20            			  STA 20A0H
+      39/    7204 : 21 11 73            			  LXI H,MSG1
+      40/    7207 : CD D8 03            			  CALL OUTMSG ;display F for forward dir
+      41/    720A : C3 26 72            			  JMP MSG
+      42/    720D : 47                  		 RVD: MOV B,A
+      43/    720E : FE 52               		      CPI 52H ;check for reverse dir 
+      44/    7210 : CA 1B 72            			  JZ SKIP1
+      45/    7213 : FE 1B               			  CPI ESC  ; is ESC key is pressed
+      46/    7215 : C2 F6 71                          JNZ RDAGAIN ;if not read again
+      47/    7218 : C3 0C 00            			  JMP CMDMOD
+      48/    721B : 3E 00               	   SKIP1: MVI A,00H
+      49/    721D : 32 A0 20            		      STA 20A0H
+      50/    7220 : 21 14 73            			  LXI H,MSG2   ;display R for reverse dir
+      51/    7223 : CD D8 03            			  CALL OUTMSG
+      52/    7226 : CD 8A 04            		 MSG: CALL CRLF
+      53/    7229 : 21 02 73            			  LXI H,DRIVE
+      54/    722C : CD D8 03            			  CALL OUTMSG  ;display message for drive selection
+      55/    722F : CD 75 20            		  HF: CALL READ
+      56/    7232 : 47                  			  MOV B,A
+      57/    7233 : FE 46               			  CPI 46H       ;check for full step drive
+      58/    7235 : C2 44 72            			  JNZ HALF     ;if not go to half step drive
+      59/    7238 : 21 11 73            			  LXI H,MSG1
+      60/    723B : CD D8 03            			  CALL OUTMSG  ;display F for full step drive
+ AS V1.42 Beta [Bld 56] - source file X85stpr3.ASM - page 2 - 7/1/2008 12:45:13
+
+
+      61/    723E : 21 DE 72            			  LXI H,TABLE1
+      62/    7241 : C3 6D 72            			  JMP SKIP2
+      63/    7244 : 47                  		HALF: MOV B,A
+      64/    7245 : FE 48               		      CPI 48H       ;is half step drive
+      65/    7247 : C2 56 72            			  JNZ SKIP     ;if not go to wave drive
+      66/    724A : 21 17 73            			  LXI H,MSG3    ;display H for half step drive
+      67/    724D : CD D8 03            			  CALL OUTMSG
+      68/    7250 : 21 D4 72            			  LXI H,TABLE ;PTR for phase seq.
+      69/    7253 : C3 6D 72            			  JMP SKIP2
+      70/    7256 : 47                  		SKIP: MOV B,A
+      71/    7257 : FE 57               			  CPI 57H     ;check for wave drive
+      72/    7259 : CA 64 72            			  JZ SKIP3
+      73/    725C : FE 1B               			  CPI ESC
+      74/    725E : C2 2F 72            			  JNZ HF
+      75/    7261 : C3 0C 00            			  JMP CMDMOD
+      76/    7264 : 21 1A 73            	   SKIP3: LXI H,MSG4
+      77/    7267 : CD D8 03            			  CALL OUTMSG
+      78/    726A : 21 E8 72            	          LXI H,TABLE2
+      79/    726D : 0E 10                      SKIP2: MVI C,10H    ;To set 0.25 sec. step
+      80/    726F : 06 08                      BACK1: MVI B,08H    ;ACLR-DCLR loop count
+      81/    7271 : CD AC 72                    BACK: CALL STPR     ;Half step drive
+      82/    7274 : CD 15 06                          CALL DELAY    ;Output one seq. code
+      83/    7277 : 05                                DCR	B         ;Min speed, Max speed
+      84/    7278 : C2 71 72                          JNZ	BACK	 
+      85/    727B : 15                                DCR	D	  ;Decrease delay to ACCN.
+      86/    727C : 0D                                DCR	C	  ;Count doun for ACCN. phase
+      87/    727D : C2 6F 72                          JNZ	BACK1	  ;At count 0 Max. speed
+      88/    7280 : 06 11                             MVI	B,11H	  ;Fix duration step count
+      89/    7282 : CD AC 72                   BACK2: CALL STPR	  ;HL apropriate points
+      90/    7285 : CD 15 06                          CALL DELAY	  ;in phase seq. table
+      91/    7288 : 05                                DCR	B         ;DeACCN. phase start
+      92/    7289 : C2 82 72                          JNZ	BACK2	 
+      93/    728C : 0E 10                             MVI	C,10H	  ;DeACCN. count
+      94/    728E : 06 08                      BACK3: MVI	B,08H
+      95/    7290 : CD AC 72                      L1: CALL STPR
+      96/    7293 : CD 15 06                          CALL DELAY
+      97/    7296 : 05                                DCR	B
+      98/    7297 : C2 90 72                          JNZ	L1	  ;Increase delay to cause
+      99/    729A : 14                                INR	D	  ;DeACCN.
+     100/    729B : 0D                                DCR	C
+     101/    729C : C2 8E 72                          JNZ BACK3      ;DeACCN. phase ends here.
+     102/    729F : 3E 00                             MVI A,00H     ;Output disable code to
+     103/    72A1 : D3 08                             OUT PORTA     ;stop motor
+     104/    72A3 : CD 75 20                          CALL READ     ;Any key pressed?
+     105/    72A6 : FE 1B                             CPI 1BH       ;Is ESC key pressed
+     106/    72A8 : C2 D2 71                          JNZ START     ;If yes begin rotation
+     107/    72AB : CF                                RST 1         ;Again return to command mode
+     108/    72AC :                      
+     109/    72AC :                     ;STPR Routine
+     110/    72AC :                     ;HL pointer is used for phase code table and direction location
+     111/    72AC :                     ;It outputs phase code and adjest HL appropriatly.
+     112/    72AC : D5                          STPR: PUSH D
+     113/    72AD : 7E                                MOV A,M       ;Fetch phase code
+     114/    72AE : D3 08                             OUT PORTA
+     115/    72B0 : 3A A0 20                          LDA 20A0H
+     116/    72B3 : FE 01                             CPI 01H       ;Jump to clockwise if zero
+     117/    72B5 : C2 C6 72                          JNZ NEXT      ;flag not set
+     118/    72B8 : 23                                INX H         ;Other wise go for anti-
+     119/    72B9 : 7E                                MOV A,M       ;clock wise
+     120/    72BA : FE 00                             CPI 00H       ;Check for OFF code
+ AS V1.42 Beta [Bld 56] - source file X85stpr3.ASM - page 3 - 7/1/2008 12:45:13
+
+
+     121/    72BC : C2 C4 72                          JNZ NEXT1     ;Jump if not end of table
+     122/    72BF : 16 FF                             MVI D,0FFH    ;Subtract 08.
+     123/    72C1 : 1E F8                             MVI E,0F8H
+     124/    72C3 : 19                       REPEAT: DAD D
+     125/    72C4 : D1                         NEXT1: POP D
+     126/    72C5 : C9                                RET
+     127/    72C6 : 2B                          NEXT: DCX H        ;For clockwise.
+     128/    72C7 : 7E                                MOV A,M
+     129/    72C8 : FE 00                             CPI 00H      ;Check for end of table
+     130/    72CA : C2 C4 72                          JNZ NEXT1    ;Jump to continue if not
+     131/    72CD : 16 00                             MVI D,00H    ;Else add 08 to begine.
+     132/    72CF : 1E 08                             MVI E,08H
+     133/    72D1 : C3 C3 72                          JMP REPEAT
+     134/    72D4 :                     ;Phase code table for Half step drive.
+     135/    72D4 : 00 02 06 04 0C 08          TABLE: DB 00H,02H,06H,04H,0CH,08H,09H,01H,03H,00H
+                    09 01 03 00 
+     136/    72DE :                                   
+     137/    72DE :                     ;Phase code table for FULL step drive.
+     138/    72DE : 00 06 06 0C 0C 09   	  TABLE1: DB 00H,06H,06H,0CH,0CH,09H,09H,03H,03H,00H
+                    09 03 03 00 
+     139/    72E8 :                     		      
+     140/    72E8 :                     ;Phase code table for Wave drive.
+     141/    72E8 : 00 02 02 04 04 08   	  TABLE2: DB 00H,02H,02H,04H,04H,08H,08H,01H,01H,00H
+                    08 01 01 00 
+     142/    72F2 :                     					
+     143/    72F2 : 53 50 45 45 44 20          SPEED: DB 53H,50H,45H,45H,44H,20H,03H ; 'SPEED'
+                    03 
+     144/    72F9 :                                	
+     145/    72F9 : 44 49 52 20 20 46   		 DIR: DB 44H,49H,52H,20H,20H,46H,2FH,52H,03H ;'DIR  F/R'
+                    2F 52 03 
+     146/    7302 :                     ; code to display message'HALF/FULL/WAVE'	      
+     147/    7302 : 48 41 4C 46 2F 46   	   DRIVE: DB 48H,41H,4CH,46H,2FH,46H,55H,4CH,4CH,2FH,57H,41H,56H,45H,03H 
+                    55 4C 4C 2F 57 41 
+                    56 45 03 
+     148/    7311 :                     		      			
+     149/    7311 : 20 46 03            		MSG1: DB 20H,46H,03H ; F
+     150/    7314 :                     		      
+     151/    7314 : 20 52 03            		MSG2: DB 20H,52H,03H ; R
+     152/    7317 :                     		      
+     153/    7317 : 20 48 03            		MSG3: DB 20H,48H,03H ; H
+     154/    731A :                     		      
+     155/    731A : 20 57 03            		MSG4: DB 20H,57H,03H ; W
+     156/    731D :                     		      
+     157/    731D :                     
+ AS V1.42 Beta [Bld 56] - source file X85stpr3.ASM - page 4 - 7/1/2008 12:45:13
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - |  BACK :                        7271 C |
+ BACK1 :                       726F C |  BACK2 :                       7282 C |
+ BACK3 :                       728E C | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+ CMDMOD :                         C - | *CONSTPI :        3.141592653589793 - |
+ CR55 :                           B - |  CRLF :                         48A - |
+*DATE :                    7/1/2008 - |  DELAY :                        615 - |
+ DIR :                         72F9 C | *DISPLY :                      71ED C |
+ DRIVE :                       7302 C |  ESC :                           1B - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+ HALF :                        7244 C | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - |  HF :                          722F C |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - |  L1 :                          7290 C |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+ MSG :                         7226 C |  MSG1 :                        7311 C |
+ MSG2 :                        7314 C |  MSG3 :                        7317 C |
+ MSG4 :                        731A C | *NESTMAX :                      100 - |
+ NEXT :                        72C6 C |  NEXT1 :                       72C4 C |
+ NMIN :                         405 - |  OUTMSG :                       3D8 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+ PORTA :                          8 - |  RDAGAIN :                     71F6 C |
+ READ :                        2075 - | *RELAXED :                        0 - |
+ REPEAT :                      72C3 C |  RVD :                         720D C |
+ SKIP :                        7256 C |  SKIP1 :                       721B C |
+ SKIP2 :                       726D C |  SKIP3 :                       7264 C |
+ SPEED :                       72F2 C |  START :                       71D2 C |
+ STPR :                        72AC C |  TABLE :                       72D4 C |
+ TABLE1 :                      72DE C |  TABLE2 :                      72E8 C |
+*TIME :                    12:45:13 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     67 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file X85stpr3.ASM - page 5 - 7/1/2008 12:45:13
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.05 seconds assembly time
+
+    157 lines source file
+      2 passes
+      0 errors
+      0 warnings

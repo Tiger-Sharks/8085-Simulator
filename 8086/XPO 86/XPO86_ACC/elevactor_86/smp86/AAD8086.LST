@@ -1,0 +1,70 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- AAD 	 	 	 	 	 	 	 	10-03-98    
+
+
+1	 	 	 	 	
+2	 	 	 	 	 	PAGE,80
+3	 	 	 	 	        TITLE-- AAD ;INSTRUCTION - BCD 
+	 	 	 	- BINERY CONVERT BEFOR DIVISION.
+4	 0000	 	 	 	AAD     SEGMENT
+5	 	 	 	 	        ASSUME CS:AAD, DS:AAD, ES:AAD
+6	 0100	 	 	 	        ORG 100H                ;COM FO
+	 	 	 	RMAT IS RECOMMENDED.
+7	 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA	 	
+ 	 	 	 	 	;SKIP LOOK UP/ DATA BASES IF ANY
+8	 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO 
+	 	 	 	SEPARATE STACK OF YOUR PROGRAME FROM
+9	 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE 
+	 	 	 	SET TO 0000 AT POWER ON BY MONITOR.
+10	 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A
+	 	 	 	 FEW MORE MOVE`S.
+11	 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUC
+	 	 	 	H SEGMENT REGISTERS SINCE THEY ARE
+12	 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INST
+	 	 	 	RUCTIONS AS SHOWN IN COMMENT FIELD.  
+13	 0103  B8 11FF	 	 	SKIP_DATA: MOV AX,11FFH                
+	 	 	 	  ;INIT OF SP FOR KIT
+14	 0106  8B E0	 	 	 	MOV SP,AX	 	
+ 	 	 	 	 	;MOV AX,AX   ON PC
+15	 0108  B8 0607	 	 	        MOV AX,0607H            ;LOAD A
+	 	 	 	X WITH UNPACKED BCD (67 DEC).
+16	 010B  B5 09	 	 	        MOV CH,09H              ;LOAD C
+	 	 	 	X WITH UNPACKED BCD (09 DEC).
+17	 010D  D5 0A	 	 	        AAD                     ;BCD TO
+	 	 	 	 BINERY CONVERTOR USE BEFORE DIV INST.
+18	 	 	 	 	                                ;BIN CO
+	 	 	 	NVERTION IS NECESSARY FOR DIV INST.
+19	 010F  8B D8	 	 	        MOV BX,AX               ;COPY A
+	 	 	 	X THAT IS BIN CONVERTED DATA IN BX REG.
+20	 0111  F6 F5	 	 	        DIV CH                  ;DIVIDE
+	 	 	 	 AX BY UNPACKED BCD IN CH
+21	 	 	 	 	                                ;AL=QUO
+	 	 	 	TIENT,AH=REMENDER
+22	 0113  CD A5	 	 	        INT 0A5H                 ;RETUR
+	 	 	 	N TO COMMAND MODE AFTER SAVING REGISTORS.
+23	 0115	 	 	 	AAD     ENDS
+24	 	 	 	 	        END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- AAD 	 	 	 	 	 	 	 	10-03-98    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+AAD. . . . . . . . . . . . . . .	0115	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	AAD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	AAD
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

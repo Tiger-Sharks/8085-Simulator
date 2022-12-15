@@ -1,0 +1,292 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- DCMT	 	 	 	 	 	 	 	02-26-:4    
+
+
+1	 	 	 	 	
+2	 	 	 	 	 	PAGE,70
+3	 	 	 	 	 	TITLE-- DCMT
+4	 	 	 	 	
+5	 0000	 	 	 	DCMT     SEGMENT
+6	 	 	 	 	 	ASSUME CS:DCMT, DS:DC
+	 	 	 	MT,ES:DCMT,SS:DCMT
+7	 0100	 	 	 	 	ORG 100H   ;COM FORMA
+	 	 	 	T
+8	 0100  EB 01 90	 	 	STRT:   JMP SKIP_DATA
+9	 	 	 	 	;SKIP LOOK UP/ DATA BASES IF 
+	 	 	 	ANY  (MODIFIED ON 26/2/04)
+10	 	 	 	 	;ON KIT YOU NEED TO DO INIT F
+	 	 	 	OR SP
+11	 	 	 	 	;[TO SEPARATE STACK OF YOUR P
+	 	 	 	ROGRAME FROM
+12	 	 	 	 	;MONITORS],DS AS SHOWN BELOW.
+	 	 	 	SS,ES ARE SET
+13	 	 	 	 	;TO 0000 AT POWER ON BY MONIT
+	 	 	 	OR.
+14	 	 	 	 	;YOU CAN OFCOURSE CHANGE IT B
+	 	 	 	Y ADDING A
+15	 	 	 	 	;FEW MORE MOVE`S.
+16	 	 	 	 	;BUT WHILE WORKING ON PC YOU 
+	 	 	 	CAN`T TOUCH
+17	 	 	 	 	;SEGMENT REGISTERS SINCE THEY
+	 	 	 	 ARE
+18	 	 	 	 	;SET BY DOS LOADER,SO MANAGE 
+	 	 	 	THESE
+19	 	 	 	 	;INSTRUCTIONS AS SHOWN IN COM
+	 	 	 	MENT FIELD.
+20	 0103  B8 11FF	 	 	SKIP_DATA:MOV AX,11FFH  ;INIT
+	 	 	 	 OF SP FOR KIT
+21	 0106  8B E0	 	 	STRT1: MOV SP,AX       ;MOV A
+	 	 	 	X,AX   ON PC
+22	 0108  0E	 	 	       PUSH CS         ;THIS 
+	 	 	 	IS THE BEST WAY TO LOAD DS
+23	 0109  1F	 	 	       POP DS          ;WITH 
+	 	 	 	SEGMENT VALUE.
+24	 010A  90	 	 	       NOP             ;LOAD 
+	 	 	 	KIT INT S (A0-BF) IN PC USING
+25	 010B  90	 	 	       NOP             ;CALL 
+	 	 	 	LDINPC
+26	 010C  90	 	 	       NOP             ;PLACE
+	 	 	 	 ABOVE CALL IN PLACE OF 3 NOP`S
+27	 010D  B0 80	 	 	       MOV AL,80H      ;SET A
+	 	 	 	LL PORTS
+28	 010F  BA 8006	 	 	       MOV DX,8006H    ;OF LO
+	 	 	 	WER 8255 AS
+29	 0112  EE	 	 	       OUT DX,AL       ;OUTPU
+	 	 	 	T PORTS
+30	 0113  CD AC	 	 	START: INT 0ACH
+31	 0115  BB 01C9 R	 	       MOV BX,OFFSET DIR;Init
+	 	 	 	ialise the mem. ptr to display
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-2
+-- DCMT	 	 	 	 	 	 	 	02-26
+	 	 	 	-:4    
+
+
+32	 0118  CD AF	 	 	       INT 0AFH       ;DIR me
+	 	 	 	ssage
+33	 011A  B4 08	 	 	       MOV AH,08H     ;Read t
+	 	 	 	he key
+34	 011C  CD A1	 	 	       INT 0A1H
+35	 011E  8A D8	 	 	       MOV BL,AL
+36	 0120  B1 46	 	 	       MOV CL,46H     ;Is it 
+	 	 	 	for farward direction
+37	 0122  3A C1	 	 	       CMP AL,CL
+38	 0124  75 0A	 	 	       JNE RVD        ;If not
+	 	 	 	 jump to rev.
+39	 0126  B0 01	 	 	       MOV AL,01H     ;If yes
+	 	 	 	 set PC0.
+40	 0128  BF 0230 R	 	       MOV DI,OFFSET DIRFR
+41	 012B  88 05	 	 	       MOV [DI],AL    ;Stor i
+	 	 	 	t atDIRFR
+42	 012D  EB 1C 90	 	 	       JMP DISPLAY
+43	 0130  8A C3	 	 	  RVD: MOV AL,BL      ;Is it 
+	 	 	 	for rev dir.
+44	 0132  B1 52	 	 	       MOV CL,52H
+45	 0134  3A C1	 	 	       CMP AL,CL
+46	 0136  74 0C	 	 	       JE L1         ;If yes 
+	 	 	 	jump for PC0 set.
+47	 0138  3C 1B	 	 	       CMP AL,1BH    ;Is it E
+	 	 	 	SC
+48	 013A  75 D7	 	 	       JNE START     ;If not 
+	 	 	 	display direction.
+49	 013C  B0 80	 	 	       MOV AL,80H    ;If ESC 
+	 	 	 	jump to command mode
+50	 013E  BA 8006	 	 	       MOV DX,8006H  ;Reset 8
+	 	 	 	255
+51	 0141  EE	 	 	       OUT DX,AL
+52	 0142  CD A3	 	 	       INT 0A3H
+53	 0144  B0 02	 	 	    L1:MOV AL,02H   ;Set the 
+	 	 	 	PC1 bit
+54	 0146  BF 0230 R	 	       MOV DI,OFFSET DIRFR;sa
+	 	 	 	ve at DIRFR
+55	 0149  88 05	 	 	       MOV [DI],AL
+56	 014B  CD AC	 	 	DISPLAY:INT 0ACH
+57	 014D  BB 01D1 R	 	       MOV BX,OFFSET SPEED ;D
+	 	 	 	isplay SPEED
+58	 0150  CD AF	 	 	       INT 0AFH    ;Ask to en
+	 	 	 	ter the
+59	 0152  B0 02	 	 	       MOV AL,02H  ;2 Digit
+60	 0154  B4 0A	 	 	       MOV AH,0AH  ;Decimal n
+	 	 	 	o.
+61	 0156  CD AD	 	 	       INT 0ADH
+62	 0158  25 4000	 	 	       AND AX,4000H;Do not ac
+	 	 	 	csept
+63	 015B  3D 4000	 	 	       CMP AX,4000H;wrong ent
+	 	 	 	ry.
+64	 015E  75 EB	 	 	       JNE DISPLAY
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-3
+-- DCMT	 	 	 	 	 	 	 	02-26
+	 	 	 	-:4    
+
+
+65	 0160  52	 	 	       PUSH DX     ;Save the 
+	 	 	 	no.
+66	 0161  8A C2	 	 	       MOV AL,DL
+67	 0163  B1 50	 	 	       MOV CL,50H  ;compair f
+	 	 	 	or 50%
+68	 0165  3A C1	 	 	       CMP AL,CL   ;If not th
+	 	 	 	en invert
+69	 0167  72 11	 	 	       JC INVERT   ;the wave
+70	 0169  BF 0230 R	 	       MOV DI,OFFSET DIRFR
+71	 016C  8B 1D	 	 	       MOV BX,[DI] ;If equal 
+	 	 	 	then
+72	 016E  80 CB 08	 	 	       OR BL,08H   ;set the P
+	 	 	 	C3 bit
+73	 0171  8A C3	 	 	       MOV AL,BL   ;Out data 
+	 	 	 	to
+74	 0173  BA 8004	 	 	       MOV DX,8004H;port C
+75	 0176  EE	 	 	       OUT DX,AL
+76	 0177  EB 0C 90	 	 	       JMP WAVE
+77	 017A  BF 0230 R	 	 INVERT:MOV DI,OFFSET DIRFR
+78	 017D  8B 1D	 	 	       MOV BX,[DI];Invert the
+	 	 	 	 wave
+79	 017F  8A C3	 	 	       MOV AL,BL
+80	 0181  BA 8004	 	 	       MOV DX,8004H;out data 
+	 	 	 	to
+81	 0184  EE	 	 	       OUT DX,AL   ;port C
+82	 0185  B0 36	 	 	  WAVE:MOV AL,36H  ;Initialis
+	 	 	 	e the 8253
+83	 0187  BA 8C07	 	 	       MOV DX,8C07H;counter0 
+	 	 	 	in mode 3
+84	 018A  EE	 	 	       OUT DX,AL   ;and count
+	 	 	 	er2 in mode2
+85	 018B  5A	 	 	       POP DX
+86	 018C  B0 00	 	 	       MOV AL,00H
+87	 018E  3A C2	 	 	       CMP AL,DL
+88	 0190  75 05	 	 	       JNE MOD2
+89	 0192  B0 90	 	 	       MOV AL,90H
+90	 0194  EB 03 90	 	 	       JMP MOD1
+91	 0197  B0 94	 	 	MOD2:  MOV AL,94H
+92	 0199  52	 	 	MOD1:  PUSH DX
+93	 019A  BA 8C07	 	 	       MOV DX,8C07H
+94	 019D  EE	 	 	       OUT DX,AL
+95	 019E  BB 01D8 R	 	       MOV BX,OFFSET TABLE
+96	 01A1  5A	 	 	       POP DX
+97	 01A2  2E: 8A 07	 	  BACK:MOV AL,CS:[BX]
+98	 01A5  3A C2	 	 	       CMP AL,DL  ;Compair th
+	 	 	 	e no for
+99	 01A7  72 08	 	 	       JC NEXT    ;speed with
+	 	 	 	 the data
+100	 01A9  74 06	 	 	       JZ NEXT    ;in lookup 
+	 	 	 	table and
+101	 01AB  43	 	 	       INC BX     ;load the c
+	 	 	 	ounts to
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-4
+-- DCMT	 	 	 	 	 	 	 	02-26
+	 	 	 	-:4    
+
+
+102	 01AC  43	 	 	       INC BX     ;counters o
+	 	 	 	f 8253
+103	 01AD  43	 	 	       INC BX
+104	 01AE  43	 	 	       INC BX
+105	 01AF  EB F1	 	 	       JMP BACK
+106	 01B1  43	 	 	  NEXT:INC BX
+107	 01B2  2E: 8A 07	 	       MOV AL,CS:[BX];Load hi
+	 	 	 	gher
+108	 01B5  BA 8C01	 	 	       MOV DX,8C01H;bytes to 
+	 	 	 	counter0
+109	 01B8  EE	 	 	       OUT DX,AL
+110	 01B9  43	 	 	       INC BX
+111	 01BA  2E: 8A 07	 	       MOV AL,CS:[BX];Load lo
+	 	 	 	wer
+112	 01BD  EE	 	 	       OUT DX,AL;bytes to cou
+	 	 	 	nter0
+113	 01BE  43	 	 	       INC BX
+114	 01BF  2E: 8A 07	 	       MOV AL,CS:[BX]
+115	 01C2  BA 8C05	 	 	       MOV DX,8C05H;Load lowe
+	 	 	 	r bytes
+116	 01C5  EE	 	 	       OUT DX,AL;to counter2
+117	 01C6  E9 0113 R	 	       JMP START
+118	 01C9  44 49 52 20 46 2F	DIR:DB 44H,49H,52H,20H,46H,2F
+	 	 	 	H,52H,03H
+119	       52 03	 	 	
+120	 01D1  53 50 45 45 44 20	SPEED:DB 53H,50H,45H,45H,44H,
+	 	 	 	20H,03H
+121	       03	 	 	
+122	 01D8  98 9B 00 30 96 FA	TABLE:DB 98H,9BH,00H,30H,96H,
+	 	 	 	0FAH,00H,1CH,94H,77H,01H
+123	       00 1C 94 77 01	 	
+124	 01E3  13 92 F4 01 0E 89	DB 13H,92H,0F4H,01H,0EH,89H,8
+	 	 	 	0H,02H,0BH
+125	       80 02 0B	 	 	
+126	 01EC  86 E8 03 07 83 65	DB 86H,0E8H,03H,07H,83H,65H,0
+	 	 	 	4H,06H,80H
+127	       04 06 80	 	 	
+128	 01F5  E2 04 05 75 D0 06	DB 0E2H,04H,05H,75H,0D0H,06H,
+	 	 	 	04H,66H,0D0H
+129	       04 66 D0	 	 	
+130	 01FE  08 03 50 B8 0B 02	DB 08H,03H,50H,0B8H,0BH,02H,3
+	 	 	 	4H,0D0H,08H,03H
+131	       34 D0 08 03	 	
+132	 0208  25 D0 06 04 20 E2	DB 25H,0D0H,06H,04H,20H,0E2H,
+	 	 	 	04H,05H,17H,65H,04H
+133	       04 05 17 65 04	 	
+134	 0213  06 14 E8 03 07 11	DB 06H,14H,0E8H,03H,07H,11H,8
+	 	 	 	0H,02H,0BH,08H
+135	       80 02 0B 08	 	
+136	 021D  F4 01 0E 06 77 01	DB 0F4H,01H,0EH,06H,77H,01H,1
+	 	 	 	3H,04H,0FAH,00H,1CH
+137	       13 04 FA 00 1C	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-5
+-- DCMT	 	 	 	 	 	 	 	02-26
+	 	 	 	-:4    
+
+
+138	 0228  02 9B 00 30 00 9B	DB 02H,9BH,00H,30H,00H,9BH,00
+	 	 	 	H,50H
+139	       00 50	 	 	
+140	 0230     01 [	 	 	DIRFR DB 1 DUP(?)
+141	                ??	 	
+142	                    ]	 	
+143	 	 	 	 	
+144	 	 	 	 	;IF YOU ARE RUNNING YOUR SOFT
+	 	 	 	WARE ON PC INSERT HERE -->INCLUDE KIT
+	 	 	 	_INTS.ASM
+145	 0231	 	 	 	DCMT     ENDS                
+	 	 	 	    ;READ FOR MORE INFO TITLE OF KIT_
+	 	 	 	INTS.ASM
+146	 	 	 	 	 	 END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	Symbols-1
+-- DCMT	 	 	 	 	 	 	 	02-26
+	 	 	 	-:4    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+DCMT . . . . . . . . . . . . . .	0231	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BACK . . . . . . . . . . . . . .	L NEAR 	01A2	DCMT
+DIR. . . . . . . . . . . . . . .	L NEAR 	01C9	DCMT
+DIRFR. . . . . . . . . . . . . .	L BYTE 	0230	DCMT
+DISPLAY. . . . . . . . . . . . .	L NEAR 	014B	DCMT
+INVERT . . . . . . . . . . . . .	L NEAR 	017A	DCMT
+L1 . . . . . . . . . . . . . . .	L NEAR 	0144	DCMT
+MOD1 . . . . . . . . . . . . . .	L NEAR 	0199	DCMT
+MOD2 . . . . . . . . . . . . . .	L NEAR 	0197	DCMT
+NEXT . . . . . . . . . . . . . .	L NEAR 	01B1	DCMT
+RVD. . . . . . . . . . . . . . .	L NEAR 	0130	DCMT
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	DCMT
+SPEED. . . . . . . . . . . . . .	L NEAR 	01D1	DCMT
+START. . . . . . . . . . . . . .	L NEAR 	0113	DCMT
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	DCMT
+STRT1. . . . . . . . . . . . . .	L NEAR 	0106	DCMT
+TABLE. . . . . . . . . . . . . .	L NEAR 	01D8	DCMT
+WAVE . . . . . . . . . . . . . .	L NEAR 	0185	DCMT
+
+49892 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

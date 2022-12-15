@@ -1,0 +1,134 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8279 PERIWARE.	 	 	 	 	 	12-02-99    
+
+
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;LIST 5 (D)
+ 	 	 	 	
+ 	 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	 	TITLE--USING 8279 PERIW
+	 	 	 	ARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 13A1:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;In the left entry mode the characters are ente
+	 	 	 	red like the characters  on the
+ 	 	 	 	;typewriter. The first character is written to 
+	 	 	 	the leftmost display  the next 
+ 	 	 	 	;character entered is displayed to the right of
+	 	 	 	 the first one and  this 
+ 	 	 	 	;continues for next characters. The 17th charac
+	 	 	 	ter is again displayed  on the  
+ 	 	 	 	;leftmost display because it is a 16 character 
+	 	 	 	left entry mode.
+ 	 	 	 	
+ 0000	 	 	 	X86P795D  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P795D, DS:X86P795D ,ES:X86
+	 	 	 	P795D
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH  ;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX     ;On PC
+ 0108  0E	 	 	PUSH CS	   ;Init for DS
+ 0109  58	 	 	POP  AX	   ;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	   ;(A0-BF) 
+ 010C  90	 	 	NOP	 	   ;In PC using
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8279 PERIWARE.	 	 	 	 	 	12-02-99    
+
+
+ 010D  90	 	 	NOP	 	   ;CALL in place
+ 010E  90	 	 	NOP	 	   ;of 3 NOP`S
+ 	 	 	 	
+ 010F	 	 	 	START:	
+ 010F  B0 08	 	 	 	MOV  AL,08H	; C/W for 8-8 bit 
+ 0111  BA 01E2	 	 	 	MOV  DX,01E2H   ; character right entry
+	 	 	 	.
+ 0114  EE	 	 	 	OUT  DX,AL    
+ 0115  B0 DF	 	 	 	MOV  AL,0DFH
+ 0117  EE	 	 	 	OUT  DX,AL	; Issue clear command.
+ 0118  B0 90	 	 	 	MOV  AL,90H     ; Set Auto Increment 
+ 011A  EE	 	 	 	OUT  DX,AL	; mode to write
+ 	 	 	 	 	 	 	; Display RAM.
+ 011B  B1 0F	 	 	 	MOV  CL,0FH	; Set counter for look 
+	 	 	 	up 
+ 	 	 	 	 	 	 	; table.
+ 011D  E8 0122 R	 	 	CALL DISPLAY    ; Call display routine.
+ 0120  EB ED	 	 	 	JMP  START
+ 	 	 	 	
+ 0122	 	 	 	DISPLAY PROC NEAR
+ 	 	 	 	 	
+ 0122  BB 0131 R	 	MOV  BX,OFFSET DATA ; Set memory ptr. to look 
+ 0125	 	 	 	NEXT:	 	   ; up table starting address.
+ 0125  8A 07	 	 	MOV  AL,[BX]       ; Move  data byte to 
+ 	 	 	 	 	 	   ; ACC.
+ 0127  BA 01E0	 	 	MOV  DX,01E0H
+ 012A  EE	 	 	OUT  DX,AL	   ; Out first data byte to dis
+	 	 	 	play.
+ 012B  43	 	 	INC  BX	           ; increment the look up 
+ 	 	 	 	 	 	   ; table ptr.
+ 012C  FE C9	 	 	DEC  CL 	   ; Decrement the counter.
+ 012E  79 F5	 	 	JNS  NEXT
+ 0130  C3	 	 	RET	 	   ; Return to main program
+ 	 	 	 	
+ 0131	 	 	 	DISPLAY ENDP
+ 	 	 	 	
+ 0131  C0 F9 A4 B0 99 92	DATA: DB  0C0H,0F9H,0A4H,0B0H,99H,92H,82H,0F8H,
+	 	 	 	80H,90H
+       82 F8 80 90	 	
+ 013B  88 83 C6 A1 86 8E	      DB  88H,83H,0C6H,0A1H,86H,8EH
+ 	 	 	 	
+ 0141	 	 	 	X86P795D  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8279 PERIWARE.	 	 	 	 	 	12-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P795D . . . . . . . . . . . .	0141	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DATA . . . . . . . . . . . . . .	L NEAR 	0131	X86P795D
+DISPLAY. . . . . . . . . . . . .	N PROC	0122	X86P795D	Length 
+	 	 	 	=000F
+NEXT . . . . . . . . . . . . . .	L NEAR 	0125	X86P795D
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P795D
+START. . . . . . . . . . . . . .	L NEAR 	010F	X86P795D
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P795D
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

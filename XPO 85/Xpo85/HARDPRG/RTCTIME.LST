@@ -1,0 +1,35 @@
+                
+ 0000           		CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 036C =         NMOUT:  EQU 036CH
+ 015D =         WR79:   EQU 015DH
+ 0497 =         CRONLY: EQU 0497H
+ 6290                   ORG 6290H
+ 6290 CD8A04            CALL CRLF    ;CLEAR/REFRESH THE DISPLAY
+ 6293 DB44       START: IN 44H       ;READ HOURS FROM I/P PORT 44H
+ 6295 5F                MOV E,A      ;HOURS ARE DIRECTLY IN BCDS
+ 6296 0602              MVI B,02H    ;DISPLAY HOURS (TWO DIGITS)
+ 6298 CD6C03            CALL NMOUT   ;ON DISPLAY
+ 629B 3E20              MVI A,20H    ;DISPLAY BLANK SPACE
+ 629D CD5D01            CALL WR79    ;ON THE DISPLAY
+ 62A0 DB43              IN 43H       ;READ MINUTES FROM I/P PORT 43H
+ 62A2 5F                MOV E,A      ;IN BCD FORMAT
+ 62A3 0602              MVI B,02H    ;DISPLAY MINUTES (TWO DIGITS)
+ 62A5 CD6C03            CALL NMOUT   ;IN BCD FORMAT
+ 62A8 3E20              MVI A,20H    ;DISPLAY BLANK SPACE
+ 62AA CD5D01            CALL WR79    ;ON THE DISPLAY
+ 62AD DB42              IN 42H       ;READ SECONDS FROM I/P PORT 42H
+ 62AF 5F                MOV E,A      ;IN BCD FORMATS
+ 62B0 0602              MVI B,02H    ;DISPLAY SECONDS (TWO DIGITS)
+ 62B2 CD6C03            CALL NMOUT   ;ON THE DISPLAY
+ 62B5 CD9704            CALL CRONLY  ;BRING CURSER AT START POSITION
+ 62B8 C39362            JMP START    ;JUMP TO START.
+                
+                	END
+0007  A                    0000  B                    0001  C             
+048A  CRLF                 0497  CRONLY               0002  D             
+0003  E                    0004  H                    0005  L             
+0006  M                    036C  NMOUT                6293  START         
+015D  WR79                 
+

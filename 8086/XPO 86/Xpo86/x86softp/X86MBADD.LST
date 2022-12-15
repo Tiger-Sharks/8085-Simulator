@@ -1,0 +1,113 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- DECIMAL COUNTER	 	 	 	 	 	08-20-99    
+
+
+ 	 	 	 	 	
+ 	 	 	 	 	PAGE 80
+ 	 	 	 	 	TITLE-- DECIMAL COUNTER
+ 	 	 	 	
+ 	 	 	 	;*****FOLLOWING LISTING IS W.R.T. BATTERY BACKE
+	 	 	 	D RAM AT 10000H BUT THIS
+ 	 	 	 	;     PROGRAMME CAN WORK IN SCRATCH PAD RAM LOC
+	 	 	 	ATED AT 00000H .PL. ENTER
+ 	 	 	 	;     THE SAME FROM 012B:0100 AND EXECUTE.
+ 	 	 	 	;
+ 	 	 	 	;***MULTY BYTE ADDITION-THIS EXAMPLE SHOWS THE 
+	 	 	 	ADDITION OF TWO VARIABLES.
+ 	 	 	 	;   EACH IS A VERY LONG INTEGER STORED IN 8 BYT
+	 	 	 	ES AT 0100:0000 AND
+ 	 	 	 	;   0100:0010 IN SCRATCH PAD RAM [PL.ENTER CONT
+	 	 	 	ENTS BY HAND.],CONTENTS 
+ 	 	 	 	;   OF FIRST ARE ADDED TO SECOND VARIABLE.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86MBADD   SEGMENT
+ 	 	 	 	
+ 	 	 	 	          ASSUME CS:X86MBADD, DS:X86MBADD ,ES:X
+	 	 	 	86MBADD
+ 0100	 	 	 	          ORG 100H                        ;COM 
+	 	 	 	FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT:    JMP SKIP_DATA                   ;SKIP 
+	 	 	 	LOOK UP/ DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103  B8 10FF	 	 	SKIP_DATA:MOV     AX,10FFH  ;INIT OF SP FOR KIT
+ 0106  8B C0	 	 	          MOV     AX,AX     ;MOV AX,AX   ON PC
+ 0108  0E	 	 	          PUSH    CS        ;INIT FOR DS
+ 0109  1F	 	 	          POP     DS  
+ 	 	 	 	                            ;LOAD KIT INTS (A0-
+	 	 	 	BF) IN PC USING
+ 010A  90	 	 	          NOP               ;
+ 010B  90	 	 	          NOP               ;PLACE CALL IN PLAC
+	 	 	 	E OF 3 NOP`S
+ 010C  90	 	 	          NOP               ;
+ 	 	 	 	
+ 010D  B8 0100	 	 	          MOV	AX,0100H                       
+	 	 	 	     
+ 0110  8E C0	 	 	          MOV	ES,AX                          
+	 	 	 	    
+ 0112  B9 0008	 	 	          MOV	CX,0008H   ;NO OF BYTES IN EACH
+	 	 	 	 
+ 	 	 	 	 	 	 	 	     ;VARIABLE
+ 0115  BE 0000	 	 	          MOV	SI,0000H   ;OFFSET OF FIRST VAR
+	 	 	 	IABL
+ 0118  BF 0010	 	 	          MOV	DI,0010H   ;OFFSET OF SECOND
+ 011B  F8	 	 	          CLC	           ;CLEAR CARRY FOR STA
+	 	 	 	RTER
+ 011C  26: 8A 04	 	NEXT:     MOV	AL,ES:[SI]   ;GET NEXT SOURCE B
+	 	 	 	YTE
+ 011F  26: 10 05	 	          ADC	ES:[DI],AL   ;ADD TO DESTINATIO
+	 	 	 	N BYTE
+ 0122  46	 	 	          INC	SI                             
+	 	 	 	    
+ 0123  47	 	 	          INC	DI                             
+	 	 	 	    
+ 0124  E2 F6	 	 	          LOOP	NEXT       ;LOOP TILL CX=0     
+	 	 	 	   
+ 0126  CD A5	 	 	          INT	0A5H       ;RETURN TO COMAND= A
+	 	 	 	FTER
+ 	 	 	 	 	 	 	 	     ;SAVING RE
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- DECIMAL COUNTER	 	 	 	 	 	08-20-99    
+
+
+	 	 	 	GISTERS.   
+ 	 	 	 	
+ 0128	 	 	 	X86MBADD  ENDS
+ 	 	 	 	    END   STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- DECIMAL COUNTER	 	 	 	 	 	08-20-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86MBADD . . . . . . . . . . . .	0128	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+NEXT . . . . . . . . . . . . . .	L NEAR 	011C	X86MBADD
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86MBADD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86MBADD
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

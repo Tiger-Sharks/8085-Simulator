@@ -1,0 +1,54 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000      SCPD EQU 0000H ;Scratch Pad memory segment.
+ = 1000      NUM  EQU 1000H ;Given number
+;This program gives square of a given number.
+;Number is stored at memory location 0000:1000H
+;Result will be stored at memory location 0000:1010H
+ 0000	 	 	 	                SQR SEGMENT
+ 	 	 	 	             ASSUME CS:SQR,DS:SQR
+ 	 	 	 	             ASSUME ES:SQR
+ 0100	 	 	 	              ORG 100H      ;Com format is reco
+	 	 	 	mmended
+ 0100  EB 01 90	 	 	     START:JMP SKIP_DATA     ;skip look up/data
+	 	 	 	 bases if any
+ 	 	 	 	 ;On kit you need to do initialise for SP(to se
+	 	 	 	parete stack
+ 	 	 	 	 ;of your programme from monitor),DS as shown b
+	 	 	 	elow.SS,ES are
+ 	 	 	 	 ;set to 0000H at power on by monitor. You can 
+	 	 	 	of course change
+ 	 	 	 	 ;it by adding a few more MOVEs.But while worki
+	 	 	 	ng on PC you can't
+ 	 	 	 	 ;touch segment register since they are by DOS 
+	 	 	 	loader,so manage
+ 	 	 	 	 ;these instruction as shown in comment field.
+ 	 	 	 	 
+ 0103	 	 	 	     SKIP_DATA:
+ 0103  B8 10FF	 	 	               MOV AX,10FFH    ;Init sp registe
+	 	 	 	r for kit
+ 0106  8B E0	 	 	               MOV SP,AX
+ 0108  0E	 	 	               PUSH CS         ;Init for DS reg
+	 	 	 	ister.
+ 0109  1F	 	 	               POP DS
+ 010A  B8 0000	 	 	               MOV AX,SCPD     ;Data from SCPD 
+	 	 	 	location.
+ 010D  8E C0	 	 	               MOV ES,AX
+ 010F  BA 0001	 	 	               MOV DX,01H      ;Number to add
+ 0112  26: 8B 0E 1000	 	               MOV CX,ES:NUM   ;Count in regist
+	 	 	 	er CX
+ 0117  BB 0000	 	 	               MOV BX,00H      ;Initial sum=0
+ 011A	 	 	 	 	AGAIN:
+ 011A  03 DA	 	 	               ADD BX,DX       ;Add integer
+ 011C  83 C2 02	 	 	               ADD DX,02H      ;Get next odd nu
+	 	 	 	mber
+ 011F  E2 F9	 	 	               LOOP AGAIN
+ 0121  26: 89 1E 1010	 	               MOV ES:[1010H],BX
+ 0126  CD A5	 	 	               INT 0A5H         ;Return to comm
+	 	 	 	and mode
+ 	 	 	 	      
+ 0128	 	 	 	            SQR ENDS
+ 	 	 	 	            END START
+

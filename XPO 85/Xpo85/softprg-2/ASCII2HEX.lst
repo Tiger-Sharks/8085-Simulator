@@ -1,0 +1,65 @@
+ AS V1.42 Beta [Bld 56] - source file ASCII2HEX.ASM - page 1 - 2/13/2008 19:01:44
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Convert ascii representation of a decimal number stored at 2100h to
+       4/       0 :                     ; its hex equivalent (Subtract 30h).Store the hexadecimal
+       5/       0 :                     ; equivalent to location 2101h
+       6/       0 :                     
+       7/    6855 :                     	org 6855h		;Four bytes blank after previous program
+       8/    6855 :                     	start:
+       9/    6855 : 06 FF               		mvi b,0ffh	;Error indicator
+      10/    6857 : 3A 00 21            		lda 2100h	;Get number to accumulator
+      11/    685A : D6 30               		sui 30h
+      12/    685C : DA 65 68            		jc done 	;Number was not in ascii converted form
+      13/    685F :                     		
+      14/    685F : FE 0A               		cpi 0ah		;Carry is produced if accumulator < 0ah
+      15/    6861 : D2 65 68            		jnc done
+      16/    6864 : 47                  		mov b,a
+      17/    6865 :                     	done:
+      18/    6865 : 78                  		mov a,b
+      19/    6866 : 32 01 21            		sta 2101h
+      20/    6869 : CF                  		rst 1
+      21/    686A :                     
+      22/    686A :                     ;Last address used by the program 1ADBh == 6875
+ AS V1.42 Beta [Bld 56] - source file ASCII2HEX.ASM - page 2 - 2/13/2008 19:01:44
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+ DONE :                        6865 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*START :                       6855 C | *TIME :                    19:01:44 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     30 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file ASCII2HEX.ASM - page 3 - 2/13/2008 19:01:44
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+     22 lines source file
+      2 passes
+      0 errors
+      0 warnings

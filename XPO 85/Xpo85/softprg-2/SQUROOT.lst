@@ -1,0 +1,77 @@
+ AS V1.42 Beta [Bld 56] - source file SQUROOT.ASM - page 1 - 2/13/2008 19:00:44
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     	
+       3/       0 :                     	;Program to find square root of a given number by subtraction of
+       4/       0 :                     	;successive odd integers method.
+       5/       0 :                     	;The number is stored at location 2100h
+       6/       0 :                     	;The result is stored at location 2101h
+       7/       0 :                     	;This method is useful only to find integer square roots or 
+       8/       0 :                     	;to find approximate values of fractional square roots.
+       9/       0 :                     	;So square root of 9 would be found accurately with this method
+      10/       0 :                     	;but not so in case of (say) square root of 8.
+      11/       0 :                     	
+      12/    6660 :                     	org 6660h			;Three bytes blank after previous program.
+      13/    6660 :                     	start:
+      14/    6660 : 3A 00 21            		lda 2100h		;Get the number
+      15/    6663 : B7                  		ora a			;Check if number = 0
+      16/    6664 : CA 75 66            		jz done
+      17/    6667 :                     		
+      18/    6667 : 06 01               		mvi b,01h		;B is the odd number generator
+      19/    6669 : 0E 00               		mvi c,00h		;Initial square root = 0
+      20/    666B :                     	
+      21/    666B :                     	sub_next:
+      22/    666B : 90                  		sub b			;Number = Number - Next Odd integer
+      23/    666C : CA 75 66            		jz done
+      24/    666F : 04                  		inr b
+      25/    6670 : 04                  		inr b			;Get next odd integer to B
+      26/    6671 : 0C                  		inr c			;Increment the Square Root
+      27/    6672 : D2 6B 66            		jnc sub_next
+      28/    6675 :                     	done:
+      29/    6675 : 79                  		mov a,c
+      30/    6676 : 32 01 21            		sta 2101h
+      31/    6679 : CF                  		rst 1
+      32/    667A :                     
+      33/    667A :                     ;Last address used by the program 1A1Dh == 6685
+ AS V1.42 Beta [Bld 56] - source file SQUROOT.ASM - page 2 - 2/13/2008 19:00:44
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+ DONE :                        6675 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*START :                       6660 C |  SUB_NEXT :                    666B C |
+*TIME :                    19:00:44 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     31 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file SQUROOT.ASM - page 3 - 2/13/2008 19:00:44
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     33 lines source file
+      2 passes
+      0 errors
+      0 warnings

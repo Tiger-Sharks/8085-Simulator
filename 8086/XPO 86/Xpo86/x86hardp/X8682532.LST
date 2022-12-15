@@ -1,0 +1,96 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+ 	 	 	 	 	PAGE,80
+ 	 	 	 	       	TITLE-- 8253 SOUND GENERATOR.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X868253   	SEGMENT
+ 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X868253, DS:X868253 ,
+	 	 	 	ES:X868253
+ 0100	 	 	 	          	ORG 100H 	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	JMP 	SKIP_DATA   	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	; Initof SP for
+	 	 	 	 Kit
+ 0106  8B C0	 	 	        MOV     AX,AX     	; On PC
+ 0108  0E	 	 	        PUSH    CS        	; Init for DS
+ 0109  1F	 	 	        POP     DS  
+ 	 	 	 	                	; Load kit INTS (A0-BF)
+	 	 	 	 
+ 010A  90	 	 	        NOP             ; In PC using
+ 010B  90	 	 	        NOP             ; CALL in place of 3 NO
+	 	 	 	P`S
+ 010C  90	 	 	        NOP             ;
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	
+ 010D  B0 B6	 	 	START:  MOV 	AL,0B6H 	;Init the 8253 
+	 	 	 	in 
+ 010F  BA 8C07	 	 	        MOV 	DX,8C07H	;counter 2 mode
+	 	 	 	 3
+ 0112  EE	 	 	        OUT 	DX,AL	 	;
+ 0113  B0 00	 	 	        MOV 	AL,00H        	;Load LSB count
+	 	 	 	 of      
+ 0115  BA 8C05	 	 	        MOV 	DX,8C05H	;timer for 1KHz
+	 	 	 	 freq.
+ 0118  EE	 	 	        OUT 	DX,AL                          
+	 	 	 	                	 	;
+ 0119  B0 0F	 	 	        MOV 	AL,0FH        	;Load MSB count
+	 	 	 	 of 
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+ 011B  EE	 	 	        OUT 	DX,AL	 	;timer for 1KHZ
+	 	 	 	 freq. 
+ 011C  B9 FFFF	 	 	        MOV 	CX,0FFFFH     	; Delay Count  
+ 011F  CD AA	 	 	        INT 	0AAH          	; Delay 
+ 0121  EB EA	 	 	        JMP 	START	 	; Jump to start
+	 	 	 	.
+ 	 	 	 	 	 	
+ 0123	 	 	 	X868253   	ENDS
+ 	 	 	 	 	END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X868253. . . . . . . . . . . . .	0123	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X868253
+START. . . . . . . . . . . . . .	L NEAR 	010D	X868253
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X868253
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

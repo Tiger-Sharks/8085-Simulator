@@ -1,0 +1,31 @@
+		;PROGRAM FOR THE STEPPER MOTOR ROTATION CLOCKWISE
+        ;NOTE:TO MAKE ROTATION OF STEPPER MOTOR FASTER 
+		;MOVE VALUE IN CX REGISTER 4000H.
+		STEPPER SEGMENT
+		ASSUME CS:STEPPER
+		CR55 EQU 8006H
+		PORTA EQU 8000H
+		ORG 0100H
+   STRT:MOV CX,7500H ;COUNTER VALUE FOR DELAY ROUTINE
+		MOV AL,80H    ;Init.Port A,B of 8255
+		MOV DX,CR55   ;Port C as output port
+		OUT DX,AL
+		MOV AL,00H    
+		MOV DX,PORTA  
+		OUT DX,AL
+  AGAIN:MOV AL,06H  ;1st phase code
+        OUT DX,AL
+		INT 0AAH    ;delay routine
+		MOV AL,0CH  ;2nd phase code
+        OUT DX,AL   
+		INT 0AAH
+		MOV AL,09H  ;3rd phase code
+        OUT DX,AL
+		INT 0AAH
+		MOV AL,03H  ;4th phase code
+        OUT DX,AL
+		INT 0AAH
+		JMP AGAIN   ;begin rotation again
+        STEPPER ENDS
+        END STRT
+        

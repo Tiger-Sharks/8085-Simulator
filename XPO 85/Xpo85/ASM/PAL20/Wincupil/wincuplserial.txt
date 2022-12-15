@@ -1,0 +1,5 @@
+Please use the following serial number for WinCUPL: 60008009
+
+For information on the Atmel ProChip Designer software, please visit the ProChip Designer web page.
+
+For questions or clarifications, please submit your inquiry using the Technical Support form.

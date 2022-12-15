@@ -1,0 +1,62 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+ = 0000        SCPD EQU 0000H ;Scratch Pad location.
+ = 1000        NUM1 EQU 1000H ;First number.
+ = 1001        NUM2 EQU 1001H ;Second number.
+ ;This program gives BCD subtraction.
+ ;Numbers are at memory location 0000:1000H AND 0000:1001H
+ ;Result will be stored at memory location 0000:1010H.
+ 	 	 	 	
+ 0000	 	 	 	        BCDSUB SEGMENT
+ 	 	 	 	        ASSUME CS:BCDSUB,DS:BCDSUB
+ 	 	 	 	        ASSUME ES:BCDSUB
+ 0100	 	 	 	           ORG 100H           ;com format is re
+	 	 	 	commended
+ 0100  EB 01 90	 	 	 START:JMP SKIP_DATA          ;skip look up/dat
+	 	 	 	a
+ 	 	 	 	                              ;base if any.
+ 	 	 	 	 ;On kit you need to do initialise for SP(to se
+	 	 	 	perate of
+ 	 	 	 	 ;your programme form monitor),DS as shown belo
+	 	 	 	w.SS,ES are
+ 	 	 	 	 ;set to 0000H at power on by monitor.you can o
+	 	 	 	f course change
+ 	 	 	 	 ;it by adding a few more MOVEs .but while work
+	 	 	 	ing on PC can't
+ 	 	 	 	 ;touch segment resister since they are set by 
+	 	 	 	DOS loader
+ 	 	 	 	 ;so manage these instructions as shown comment
+	 	 	 	 field.
+ 	 	 	 	
+ 0103	 	 	 	     SKIP_DATA:
+ 0103  B8 10FF	 	 	                MOV AX,10FFH  ;
+ 0106  8B E0	 	 	                MOV SP,AX      ;Init SP registe
+	 	 	 	r
+ 0108  0E	 	 	                PUSH CS       ;Init DS register
+ 0109  1F	 	 	                POP DS
+ 010A  B8 0000	 	 	                MOV AX,SCPD  ;To specify SCPD l
+	 	 	 	ocation on kit.
+ 010D  8E C0	 	 	                MOV ES,AX
+ 010F  26: 8A 1E 1000	 	                MOV BL,ES:NUM1     ;Move 8-bit 
+	 	 	 	to BL
+ 0114  26: A0 1001	 	                MOV AL,ES:NUM2     ;and second 
+	 	 	 	to AL
+ 0118  2A C3	 	 	                SUB AL,BL       ;Perform substr
+	 	 	 	action
+ 011A  3F	 	 	                AAS             ;Adjust result 
+	 	 	 	after substraction
+ 011B  26: A2 1010	 	                MOV ES:[1010H],AL
+ 011F  CD A5	 	 	                INT 0A5H        ;Return to comm
+	 	 	 	and mode
+ 	 	 	 	
+ 	 	 	 	                                ;if you are run
+	 	 	 	ning your software
+
+
+ 	 	 	 	                                ;on PC insert -
+	 	 	 	--->include
+ 	 	 	 	
+ 0121	 	 	 	 BCDSUB ENDS
+ 	 	 	 	 END START
+

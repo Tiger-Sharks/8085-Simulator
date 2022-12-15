@@ -1,0 +1,108 @@
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-20-:4    
+
+
+1	 	 	 	 	;STAUTUS INDICATOR OPTO ISOLATED I/O RE
+	 	 	 	LAY CARD
+2	 	 	 	 	;Processor interface is provided via 26
+	 	 	 	 pin FRC.
+3	 0000	 	 	 	             STAT SEGMENT
+4	 	 	 	 	             ASSUME CS:STAT
+5	 = 8006	 	 	 	                CR55 EQU 8006H
+6	 = 8002	 	 	 	                PORTB EQU 8002H
+7	 = 8004	 	 	 	                PORTC EQU 8004H
+8	 = 8000	 	 	 	                PORTA EQU 8000H
+9	 	 	 	 	
+10	 0100	 	 	 	                 ORG 100H
+11	 0100  B8 0000	 	 	               MOV AX,0000H
+12	 0103  8E C0	 	 	               MOV ES,AX               
+	 	 	 	               
+13	 0105  8E D0	 	 	               MOV SS,AX               
+	 	 	 	               
+14	 0107  B8 11F0	 	 	               MOV AX,11F0H  ;Init .SP
+15	 010A  8B E0	 	 	               MOV SP,AX               
+	 	 	 	               
+16	 010C  0E	 	 	               PUSH CS       ;Set CS=DS
+	 	 	 	                          
+17	 010D  1F	 	 	               POP DS
+18	 	 	 	 	
+19	 010E  BA 8006	 	 	               MOV DX,CR55  ;Init port 
+	 	 	 	A,
+20	 0111  B0 83	 	 	               MOV AL,83H   ;C(upper) a
+	 	 	 	s OP
+21	 0113  EE	 	 	               OUT DX,AL    ;B,C(lower)
+	 	 	 	 as IP                          
+22	 	 	 	 	
+23	 0114  BA 8002	 	 	         STRT: MOV DX,PORTB ;read data 
+	 	 	 	from
+24	 0117  EC	 	 	               IN AL,DX     ;port B
+25	 0118  BA 8000	 	 	               MOV DX,PORTA 
+26	 011B  EE	 	 	               OUT DX,AL    ;O/P data t
+	 	 	 	o 
+27	 011C  8A D8	 	 	               MOV BL,AL    ;port A & C
+	 	 	 	L
+28	 	 	 	 	
+29	 011E  BA 8004	 	 	               MOV DX,PORTC ;read port 
+	 	 	 	C 
+30	 0121  EC	 	 	               IN AL,DX     ;lower
+31	 0122  8A F0	 	 	               MOV DH,AL
+32	 0124  80 E6 0F	 	 	               AND DH,0FH
+33	 0127  8A D3	 	 	               MOV DL,BL
+34	 0129  CD AB	 	 	               INT 0ABH    ;CRONLY
+35	 012B  B0 04	 	 	               MOV AL,04H
+36	 012D  CD AE	 	 	               INT 0AEH    ;display sta
+	 	 	 	tus
+37	 012F  8A C6	 	 	               MOV AL,DH
+38	 0131  B1 04	 	 	               MOV CL,04H
+39	 0133  D2 E0	 	 	               SAL AL,CL
+40	 0135  BA 8004	 	 	               MOV DX,PORTC ;o/p data t
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	02-20-:4    
+
+
+	 	 	 	o 
+41	 0138  EE	 	 	               OUT DX,AL    ;port C upp
+	 	 	 	er
+42	 0139  B4 0B	 	 	               MOV AH,0BH
+43	 013B  CD A1	 	 	               INT 0A1H     ;READ K/B
+44	 013D  3C 00	 	 	               CMP AL,00H   ;if key pre
+	 	 	 	ssed
+45	 013F  75 02	 	 	               JNZ EXIT     ;exit
+46	 0141  EB D1	 	 	               JMP STRT     ;else conti
+	 	 	 	nue
+47	 0143  CD A3	 	 	        EXIT:  INT 0A3H     ;COMMAND MO
+	 	 	 	DE
+48	 	 	 	 	                     
+49	 0145	 	 	 	        STAT ENDS
+50	 	 	 	 	               END STRT
+
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	02-20-:4    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+STAT . . . . . . . . . . . . . .	0145	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+CR55 . . . . . . . . . . . . . .	Number	8006	
+EXIT . . . . . . . . . . . . . .	L NEAR 	0143	STAT
+PORTA. . . . . . . . . . . . . .	Number	8000	
+PORTB. . . . . . . . . . . . . .	Number	8002	
+PORTC. . . . . . . . . . . . . .	Number	8004	
+STRT . . . . . . . . . . . . . .	L NEAR 	0114	STAT
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,52 @@
+
+;***FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+;   PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+;   THE SAME FROM 0135:0100[0000:01450] AND EXECUTE. 
+****TITLE -COUNTING 0F LOWER CASE z [7AH] IN GIVEN STRING
+;   CONSIDER THE FOLLOWING REASONABLY REALISTIC PROBLEM. SUPPOSE WE 
+;   HAVE A STRING 'S'LOCATED AT 0100:012E [0000:112E] OF LENGTH SAY 20.
+;   WE WANT TO FIND OUT HOW MANY LOWER CASE 'Z'S THERE ARE IN THIS
+;   STRING. THE PASCAL VERSION MIGHT LOOK SOMETHING LIKE THIS:;
+;
+;VAR
+;  s	    : string[20];
+;  i,count   : integer;
+;begin
+;	count  := 0;
+;    for i := 1 TO 20 do
+;        if (s[i] = 'z') then
+;            count := count +1;
+;END.
+;
+;			THE 8086 ASEMBLY TRANSLATION CAN BE:
+	
+;S	DB	20 DUP (?)	LOCATED AT 0100:012E FILL 7A BY HAND.
+;COUNT	DW	?		LOCATED AT 0100:0142
+
+1025:0100 B8FF10        MOV	AX,10FF             ;INIT OF SP FOR KIT
+1025:0103 8BE0          MOV	SP,AX                ;                       
+1025:0105 0E            PUSH	CS                                          
+1025:0106 1F            POP	DS                   ;INIT FOR DS            
+1025:0107 90            NOP	                     ;                      
+1025:0108 90            NOP	                                             
+1025:0109 90            NOP	                                            
+1025:010A B80001        MOV	AX,0100                                     
+1025:010D 8EC0          MOV	ES,AX                                       
+1025:010F 26            ES:	                                            
+1025:0110 C70642010000  MOV	WORD PTR [0142],0000 ;                       
+1025:0116 BE0000        MOV	SI,0000                                     
+1025:0119 26            ES:	                     	;COUNT := 0        
+1025:011A 80BC2E017A    CMP	BYTE PTR [SI+012E],7A;i SET IN SI
+1025:011F 7505          JNZ	0126                    ;S[I] = 'Z'?         
+1025:0121 26            ES:	                     ;NO                      
+1025:0122 FF064201      INC	WORD PTR [0142]     ;YES,COUNT:=COUNT+ 
+1025:0126 46            INC	SI                   ;BUMP POINTER      
+1025:0127 83FE13        CMP	SI,+13               ;I < 19?                 
+1025:012A 76ED          JBE	0119                 ;YES, REPEAT             
+1025:012C CDA5          INT	A5                   ;RETURN TO COMAND=
+
+
+
+
+
+

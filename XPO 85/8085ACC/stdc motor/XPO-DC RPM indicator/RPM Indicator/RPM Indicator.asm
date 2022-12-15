@@ -1,0 +1,172 @@
+;PWM generation trial program for 8253
+;Measurement range is from 10mSec per pulse to 2mSec per pulse
+; == 100Hz to 500Hz
+; So rps = 65536 - number of pulses
+; rpm = rps * 60 (Write a 16 x 8 multiplication routine)
+
+; For 1/8SEC use monitor utility DELAY (Address 0615H) load DE with 
+; 1131H (Error of 0.01mSec)
+
+; 1) Configure 8253 in mode 0 (Terminal count mode, load full count)
+; 2) Use monitor utility DELAY to generate a delay of 256mSec
+; 3) Latch counter and read back
+; 4) Calculate rps as (10000H - Counter Value)
+; 5) Calculate rpm as rps * 60
+; 6) Display
+
+; THE BCD TO DECIMAL CONVERSION IN BOTH CASES HAS BEEN DONE BY USING A RATHER
+; SIMPLISTIC METHOD OF A BCD UP COUNTER THAT COUNTS TILL A HEX DOWN COUNTER
+; REACHES 0. THE DISADVANTAGE OF THIS METHOD IS THAT THE AMOUNT OF TIME
+; NEEDED FOR CONVERSION IS PROPORTIONAL TO THE NUMBER THAT IS TO BE CONVERTED.
+; BUT HERE WE ARE NOT SHORT OF TIME AT ALL.
+
+    cpu 8085            
+    
+RPS_HI  EQU     2100H
+RPS_LO  EQU     2101H
+    ORG 7000h
+
+START:
+    MVI A,80H         ;Set all ports of 8255 as OP ports
+    OUT 0BH
+
+    MVI A,94H         ;COUNTER2 OF 8253 IN MODE2
+    OUT 1BH           ;
+    
+    MVI A,04H
+    OUT 1AH
+    
+    MVI A,02H
+    OUT 0AH           ;REVERSE DIRECTION SELECTED.
+;CONFIGURE THE REMAINING COUNTER (COUNTER 2) IN MODE 0 AND ENTER A 125mSEC DELAY
+;AT END OF THE DELAY LATCH THE COUNT VALUE, READ IT BACK AND UPLOAD IT.
+
+NEXT_MEASUREMENT:    
+;    LXI H,MSG1
+;    CALL 03D8H           ;DISPLAY "RPS: "
+        
+    MVI D,011H
+    MVI E,031H
+
+    MVI A,70H         ;COUNTER1 IN MODE 0 16 BIT LSB-MSB ORDER BINARY COUNT
+    OUT 1BH
+    MVI A,0FFH
+    OUT 19H
+    OUT 19H           ;COUNTER LOADED
+    CALL 0615H
+    
+    MVI A,40H         ;COUNTER LATCH
+    OUT 1BH           ;WRITE TO 8253 CONTROL REGISTER.
+    
+    IN 19H            ;READ IN LSB OF COUNTER
+    MOV L,A
+    IN 19H
+    MOV H,A           ;H:L CONTAIN THE COUNTER VALUE
+    
+    MVI D,0FFH
+    MVI E,0FFH
+    CALL 055BH        ;FFFF - (COUNT IN COUNTER REGISTER)
+
+    MOV A,H
+    STA RPS_HI
+    MOV A,L
+    STA RPS_LO      ;SAVE HL
+
+;    MVI B,00
+;    MVI C,00        ;B:C USED AS DECIMAL UP COUNTER. HL IS DECIMAL DOWNCOUNTER
+;    MVI A,00
+;BCD_CONVERT_RPS:
+;    MVI A,00
+;    CMP L
+;    JNZ CONTINUE_COUNTING_RPS
+;    CMP H
+;    JNZ CONTINUE_COUNTING_RPS
+;    JMP DONE_CONVERT_RPS
+;CONTINUE_COUNTING_RPS:    
+;    DCX H
+;    STC
+;    CMC             ;CLEAR CARRY
+;    MOV A,C
+;    ADI 01
+;    DAA
+;    MOV C,A
+;    MOV A,B
+;    ACI 00H 
+;    DAA
+;    MOV B,A
+;    JMP BCD_CONVERT_RPS
+
+;DONE_CONVERT_RPS:
+;    MOV D,B
+;    MOV E,C
+;    MVI B,04H
+;    CALL 036CH        ;NMOUT
+;    CALL 048AH        ;CRLF
+    
+    LDA RPS_HI
+    MOV D,A
+    LDA RPS_LO
+    MOV E,A             ;GET SAVED RPS
+    MVI H,00
+    MVI L,00
+
+;INSTEAD OF DOING A TRUE 16 X 8 MULTIPLY (WHICH WILL BE GENERALIZED) WE WILL
+;SIMPLY ADD THE RPS TO ITSELF 60 TIMES. THIS WILL STILL PRODUCE A RESULT THAT
+;IS LESS THAN 16 BIT BECAUSE:
+;AT THE HIGHEST SPEED THE MOTOR WILL PRODUCE 500 * 8 = 4000 PULSES PER SECOND
+;SINCE OUT MEASUREMENT INTERVAL IS 125mSEC AT HIGHEST SPEED THE COUNT IN
+;THE 8253 COUNTER WILL BE MAX 500 (9 BIT). MULTIPLYING BY 60 (6 BITS) WILL GIVE
+;A RESULT NOT EXCEESING 15 BITS AT MOST.
+    
+CALC_RPM:
+    MVI C,60
+    MVI A,00
+ADD_AGAIN:
+    DAD D
+    DCR C
+    CMP C
+    JNZ ADD_AGAIN   
+                    ;NOW HL CONTAINS THE RPM VALUE.
+    MVI B,00
+    MVI C,00        ;B:C USED AS DECIMAL UP COUNTER. HL IS DECIMAL DOWNCOUNTER
+    MVI A,00
+BCD_CONVERT_RPM:
+    MVI A,00
+    CMP L
+    JNZ CONTINUE_COUNTING_RPM
+    CMP H
+    JNZ CONTINUE_COUNTING_RPM
+    JMP DONE_CONVERT_RPM
+CONTINUE_COUNTING_RPM:    
+    DCX H
+    STC
+    CMC             ;CLEAR CARRY
+    MOV A,C
+    ADI 01
+    DAA
+    MOV C,A
+    MOV A,B
+    ACI 00H 
+    DAA
+    MOV B,A
+    JMP BCD_CONVERT_RPM
+    
+DONE_CONVERT_RPM:
+    MOV D,B
+    MOV E,C
+        
+    CALL 0497H         ;CR
+    LXI H,MSG2
+    CALL 03D8H         ;DISPLAY "RPM: "
+    
+    MVI B,04H
+    CALL 036CH         ;NMOUT
+
+    JMP NEXT_MEASUREMENT
+;------------------------------------------------------------------------------
+MSG1: DB 'R','P','S',':',' ',03H    
+MSG2: DB 'R','P','M',':',' ',03H
+
+
+    
+    END    

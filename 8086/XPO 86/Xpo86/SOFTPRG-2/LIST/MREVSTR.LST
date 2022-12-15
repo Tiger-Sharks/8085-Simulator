@@ -1,0 +1,156 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	; PROGRAM TO REVERSE A STORED STRING.
+ 	 	 	 	; THE PROGRAM GETS A STRING TO REVERSE FROM THE
+	 	 	 	 USER ON SERIAL PORT.
+ 	 	 	 	; THE STRING IS ECHOED BACK AS IT IS ENTERED. W
+	 	 	 	HEN USER PRESSES ENTER
+ 	 	 	 	; THE STRING RECEIVED TILL THAT POINT IS REVERS
+	 	 	 	ED AND ECHOED BACK.
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  E9 08D3 R	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ = 03E8	 	 	 	MAXM_STRING EQU 1000
+ 0103  03E8 [	 	 	STRINGTOREVERSE DB MAXM_STRING DUP(?)
+                ??	 	
+                    ]	 	
+ 	 	 	 	
+ 04EB  03E8 [	 	 	REVERSESTRING DB MAXM_STRING DUP(?)
+                ??	 	
+                    ]	 	
+ 	 	 	 	
+ 	 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 08D3	 	 	 	SKIP_DATA:
+ 08D3  B8 10FF	 	 	 	MOV AX,10FFH
+ 08D6  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 08D8  B8 0000	 	 	 	MOV AX,0000H
+ 08DB  8E D0	 	 	 	MOV SS,AX
+ 08DD  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 08DF  0E	 	 	 	PUSH CS
+ 08E0  1F	 	 	 	POP DS
+ 	 	 	 	 	 	
+ 08E1  90	 	 	 	NOP
+ 08E2  90	 	 	 	NOP
+ 08E3  90	 	 	 	NOP
+ 	 	 	 	 	
+ 08E4  B9 0000	 	 	 	MOV CX,00H	 	;NUMBER OF CHAR
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+	 	 	 	ACTERS RECEIVED.
+ 08E7  BE 0103 R	 	 	MOV SI,OFFSET STRINGTOREVERSE
+ 	 	 	 	 	
+ 08EA	 	 	 	READ_STRING:	
+ 08EA  B4 01	 	 	 	MOV AH,01H	 	;GET CHARACTER 
+	 	 	 	ON SERIAL PORT WITH ECHO BACK AND STORE 
+ 08EC  CD A2	 	 	 	INT 0A2H	 	;IT TO LOCATION
+	 	 	 	 POINTED TO BY SI.
+ 08EE  3C 0D	 	 	 	CMP AL,13	 	;CHECK IF RECEI
+	 	 	 	VED CHARACTER IS CR OR LF
+ 08F0  74 0A	 	 	 	JE STRING_DONE
+ 08F2  3C 0A	 	 	 	CMP AL,10
+ 08F4  74 06	 	 	 	JE STRING_DONE	;IF EITHER CHARACTER IS
+	 	 	 	 RECEIVED DECLARE COMPLETE STRING
+ 08F6  88 04	 	 	 	MOV [SI],AL	;HAS BEEN RECEIVED.
+ 08F8  41	 	 	 	INC CX	 	 	;INCREMENT NUMB
+	 	 	 	ER OF CHARACTERS RECEIVED.
+ 08F9  46	 	 	 	INC SI	 	 	;INCREMENT STOR
+	 	 	 	AGE POINTER
+ 08FA  EB EE	 	 	 	JMP READ_STRING
+ 08FC	 	 	 	STRING_DONE:	
+ 	 	 	 	 	
+ 08FC  83 F9 00	 	 	 	CMP CX,0	 	;IF USER PRESSE
+	 	 	 	D ENTER DIRECTLY, EXIT
+ 08FF  74 21	 	 	 	JE DONE
+ 	 	 	 	 	
+ 0901  51	 	 	 	PUSH CX
+ 0902  BB 0103 R	 	 	MOV BX,OFFSET STRINGTOREVERSE
+ 0905  BE 04EB R	 	 	MOV SI,OFFSET REVERSESTRING
+ 0908  03 F1	 	 	 	ADD SI,CX
+ 090A  4E	 	 	 	DEC SI	 	 	;REVERSE THE ST
+	 	 	 	RING USING BX AS THE SOURCE POINTER
+ 	 	 	 	 	 	 	 	 	;AND SI
+	 	 	 	 AS THE DESTINATION POINTER.
+ 090B	 	 	 	REVERSELOOP:
+ 090B  8A 07	 	 	 	MOV AL,[BX]	;BEGIN MOVING THE STRIN
+	 	 	 	G FROM END OF STRING TOWARDS START.
+ 090D  88 04	 	 	 	MOV [SI],AL
+ 090F  43	 	 	 	INC BX
+ 0910  4E	 	 	 	DEC SI
+ 0911  E2 F8	 	 	 	LOOP REVERSELOOP
+ 	 	 	 	 	
+ 0913  59	 	 	 	POP CX
+ 0914  BB 04EB R	 	 	MOV BX,OFFSET REVERSESTRING
+ 	 	 	 	 	
+ 0917  BE 04EB R	 	 	MOV SI,OFFSET REVERSESTRING
+ 091A  03 F1	 	 	 	ADD SI,CX
+ 091C  B0 03	 	 	 	MOV AL,03H
+ 091E  88 04	 	 	 	MOV [SI],AL
+ 	 	 	 	
+ 0920  CD AF	 	 	 	INT 0AFH	 	;UPLOAD THE STR
+	 	 	 	ING ON SERIAL PORT.
+ 	 	 	 	 	
+ 0922	 	 	 	DONE:
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 0922  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	 	
+ 	 	 	 	 	
+ 0924	 	 	 	COMSEG ENDS
+ 	 	 	 	END START	
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0924	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DONE . . . . . . . . . . . . . .	L NEAR 	0922	COMSEG
+MAXM_STRING. . . . . . . . . . .	Number	03E8	
+READ_STRING. . . . . . . . . . .	L NEAR 	08EA	COMSEG
+REVERSELOOP. . . . . . . . . . .	L NEAR 	090B	COMSEG
+REVERSESTRING. . . . . . . . . .	L BYTE 	04EB	COMSEG	Length =03E8
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	08D3	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+STRINGTOREVERSE. . . . . . . . .	L BYTE 	0103	COMSEG	Length =03E8
+STRING_DONE. . . . . . . . . . .	L NEAR 	08FC	COMSEG
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

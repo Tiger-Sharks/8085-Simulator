@@ -1,0 +1,70 @@
+ AS V1.42 Beta [Bld 56] - source file EX-OR.ASM - page 1 - 2/13/2008 19:01:19
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Program to perform ex-oring without using exor instruction.
+       4/       0 :                     ; This is done using the exor equivalence that 
+       5/       0 :                     ; A ^ B = !AB + A!B
+       6/       0 :                     ; The two bytes to be exored are stored at locations 2100h and 2101h	
+       7/       0 :                     ; The result is returned in location 2103h
+       8/       0 :                     	
+       9/    6835 :                     	org 6835h		;Five bytes blank after previous program.
+      10/    6835 :                     	start:
+      11/    6835 : 21 00 21            		lxi h,2100h
+      12/    6838 :                     		
+      13/    6838 : 7E                  		mov a,m
+      14/    6839 : 47                  		mov b,a
+      15/    683A : 23                  		inx h		;HL points to second data byte.
+      16/    683B : 2F                  		cma			;Compelement first data byte
+      17/    683C : A6                  		ana m		;!AB operation complete.
+      18/    683D : 4F                  		mov c,a		;Store result to C (c= !AB)
+      19/    683E : 7E                  		mov a,m		;Get secondn number
+      20/    683F : 2F                  		cma			;complement the number
+      21/    6840 : A0                  		ana b		;accumulator = A!B
+      22/    6841 : B1                  		ora c		;accumulator = !AB + A!B
+      23/    6842 : 23                  		inx h
+      24/    6843 : 77                  		mov m,a		;Store result to 2102h
+      25/    6844 : CF                  		rst 1
+      26/    6845 :                     
+      27/    6845 :                     ;Last address used by the program 1AC2h == 6850
+ AS V1.42 Beta [Bld 56] - source file EX-OR.ASM - page 2 - 2/13/2008 19:01:19
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6835 C |
+*TIME :                    19:01:19 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     29 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file EX-OR.ASM - page 3 - 2/13/2008 19:01:19
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     27 lines source file
+      1 pass
+      0 errors
+      0 warnings

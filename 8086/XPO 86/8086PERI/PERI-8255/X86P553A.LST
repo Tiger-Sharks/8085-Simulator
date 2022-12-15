@@ -1,0 +1,169 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+ 	 	 	 	;LIST 3 (A)
+ 	 	 	 	
+ 	 	 	 	;This program configures the 8255 in mode 2-Bid
+	 	 	 	irectional STROBed I/O.
+ 	 	 	 	;This program demonstrates STROBed input of por
+	 	 	 	t A in Mode 2.
+ 	 	 	 	;PC3 here acts as INTR, so it has to be connect
+	 	 	 	ed to RST 5.5 with patch cord.    
+ 	 	 	 	;PC4 here acts as STB and PC5 as IBF.
+ 	 	 	 	;Byte entered from port A is displayed on seven
+	 	 	 	 segments.
+ 	 	 	 	;Program returns to Command Mode.
+ 	 	 	 	
+ 	 	 	 	PAGE,80
+ 	 	 	 	TITLE--USING 8255 PERIWARE.
+ 	 	 	 	
+ 0000	 	 	 	X86P553A  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P553A, DS:X86P553A ,ES:X86
+	 	 	 	P553A
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/bases if a
+	 	 	 	ny
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	 	PUSH CS	;Init for DS
+ 0109  58	 	 	 	POP  AX	;Load kit INTS 
+ 010A  8E D8	 	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	 	NOP	;In PC using
+ 010D  90	 	 	 	NOP	;CALL in place
+ 010E  90	 	 	 	NOP	;of 3 NOP`S
+ 	 	 	 	
+ 010F  8B C8	 	 	        MOV CX,AX               ;code seg copy
+ 	 	 	 	
+ 0111  BE 0140 R	 	        MOV SI,OFFSET ISR       ;ISR addr to be
+	 	 	 	 store in SCPD NMI loc.
+ 0114  B0 90	 	 	 	MOV AL,90H	 	;INT Type 90-97
+	 	 	 	 Through 8259 PIC
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+ 0116  CD BE	 	 	 	INT 0BEH	 	;Store in inter
+	 	 	 	upt area 
+ 	 	 	 	
+ 0118  B0 1B	 	 	        MOV AL,1BH              ;CSW FOR Edge I
+	 	 	 	NT,interval of 4,single 59
+ 011A  BA 9400	 	 	 	MOV DX,9400H	;8259 ICW1 Addr
+ 011D  EE	 	 	 	OUT DX,AL
+ 011E  B0 90	 	 	 	MOV AL,90H	 	;ISR of IR0=INT
+	 	 	 	 90
+ 0120  BA 9402	 	 	 	MOV DX,9402H	;8259 ICW2 Addr
+ 0123  EE	 	 	 	OUT DX,AL
+ 0124  B0 01	 	 	 	MOV AL,01H	 	;8086,Normal,EO
+	 	 	 	I,Non buffered,Non special,Nest
+ 0126  EE	 	 	 	OUT DX,AL	 	;8259 ICW4
+ 0127  B0 FE	 	 	 	MOV AL,0FEH	 	;Enable IR0
+ 0129  EE	 	 	 	OUT DX,AL	 	;OCW1
+ 	 	 	 	
+ 012A  B8 0000	 	 	        MOV AX,0000H    ;Set ES to 0000H
+ 012D  8E C0	 	 	        MOV ES,AX
+ 	 	 	 	 
+ 012F  B0 C0	 	 	        MOV AL,0C0H             ; Control Word 
+	 	 	 	for Mode2.
+ 0131  BA 01E6	 	 	 	MOV DX,01E6H	;CSW address
+ 0134  EE	 	 	 	OUT DX,AL
+ 0135  B0 09	 	 	 	MOV AL,09H	 	; Enable INTR/P
+	 	 	 	C4.
+ 0137  EE	 	 	 	OUT DX,AL
+ 0138  BA 01E0	 	 	 	MOV DX,01E0H
+ 013B  EC	 	 	 	IN  AL,DX	 	; Read port A.
+ 013C  FB	 	 	HERE:   STI                     ; Enable Interr
+	 	 	 	upt.
+ 013D  90	 	 	        NOP
+ 013E  EB FC	 	 	        JMP HERE
+ 0140	 	 	 	ISR:
+ 0140	 	 	 	ISR055:
+ 0140  FA	 	 	        CLI
+ 0141  26: A2 1000	 	        MOV ES:[1000H],AL       ; Store receive
+	 	 	 	d data in memory.
+ 0145  CD AC	 	 	        INT 0ACH                ;Clear display
+ 	 	 	 	
+ 0147  BB 0165 R	 	        MOV BX,OFFSET MSG       ;LXI  H,00H  43
+	 	 	 	H, Pointer for look up table.
+ 014A  CD AF	 	 	        INT 0AFH                ;CALL OUTMSG, C
+	 	 	 	alls display routine.
+ 014C  B3 01	 	 	        MOV BL,01H              ; Set counter f
+	 	 	 	or delay.(C)
+ 	 	 	 	
+ 014E  B9 00FF	 	 	LOOP:   MOV CX,00FFH   ;LXI  D,FFH  FFH, Wait t
+	 	 	 	o stabilise the display.
+ 0151  CD AA	 	 	        INT 0AAH                ;CALL DELAY, Ca
+	 	 	 	lls delay routine.
+ 	 	 	 	 	
+ 0153  26: A0 1000	 	        MOV AL,ES:[1000H];Retrive port A receiv
+	 	 	 	ed data for display purpose.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+ 0157  8A D0	 	 	        MOV DL,AL
+ 0159  B0 02	 	 	 	MOV AL,02H	 	; Number of dig
+	 	 	 	its to be
+ 	 	 	 	 	 	 	 	; displayed in 
+	 	 	 	data segment.
+ 015B  CD AE	 	 	 	INT 0AEH	 	;CALL NMOUT, NM
+	 	 	 	OUT routine is called.
+ 015D  FE CB	 	 	        DEC BL
+ 015F  75 ED	 	 	        JNZ  LOOP
+ 0161  59	 	 	        POP CX                  ;Remove address
+	 	 	 	 from stack
+ 0162  59	 	 	        POP CX
+ 0163  CD A4	 	 	        INT 0A4H                ;GOTO Command M
+	 	 	 	ode.
+ 	 	 	 	
+ 0165  50 4F 54 41 20 20	MSG:    DB "POTA  ",03H        ; End of text.
+       03	 	 	
+ 	 	 	 	
+ 016C	 	 	 	 	X86P553A  ENDS
+ 	 	 	 	     	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P553A . . . . . . . . . . . .	016C	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+HERE . . . . . . . . . . . . . .	L NEAR 	013C	X86P553A
+ISR. . . . . . . . . . . . . . .	L NEAR 	0140	X86P553A
+ISR055 . . . . . . . . . . . . .	L NEAR 	0140	X86P553A
+LOOP . . . . . . . . . . . . . .	L NEAR 	014E	X86P553A
+MSG. . . . . . . . . . . . . . .	L NEAR 	0165	X86P553A
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P553A
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P553A
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,229 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8259 PERIWARE.	 	 	 	 	 	11-16-99    
+
+
+ 	 	 	 	       PAGE,80
+ 	 	 	 	       TITLE--USING 8259 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****FOLLOWING LISTING IS W.R.T. BATTERY BACKED
+	 	 	 	 RAM AT 1250H BUT THIS
+ 	 	 	 	;    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCA
+	 	 	 	TED AT 00000H .PL. ENTER
+ 	 	 	 	;    THE SAME FROM 0125:0100 AND EXECUTE.
+ 	 	 	 	;    FOLLOW  THE STEPS MUST BE FOLLOWED BEFORE 
+	 	 	 	USING PERIWARE 8259:  
+ 	 	 	 	;    1) DISABLE INTERNAL 8259 BY SHORTING 1-2 O
+	 	 	 	F LINK L33 USING SHORT
+ 	 	 	 	;       LINK IF NOT SHORTED ON MB(KIT).
+ 	 	 	 	;    2) TO SELECT INT OF PERIWARE SHORT 1-2 OF 
+	 	 	 	L18 ON MB(KIT).
+ 	 	 	 	;    3) TO GIVE INTR FOR PERIWARE SHORT 1-2 OF 
+	 	 	 	L19 ON MB(KIT).
+ 	 	 	 	;    4) TO SELECT INT OF PERIWARE SHORT 2-3 OF 
+	 	 	 	L3  ON CONVERTER CARD.   
+ 	 	 	 	;****A PROGRAM TO DEMOSTRATE THE USE OF 8259 PI
+	 	 	 	C. HERE ONLY MASTER 8259
+ 	 	 	 	;    IS USED. IN THE MAIN PROGRAM "XPO" IS DISP
+	 	 	 	LAYED. IN THE INTERRUPT 
+ 	 	 	 	;    SERVICE LOOP, "INT 0" IS DISPLAYED. 
+ 	 	 	 	
+ 	 	 	 	;          DATA BUS  COMMENTS
+ 	 	 	 	;
+ 	 	 	 	;START	   13        ICW1
+ 	 	 	 	;
+ 	 	 	 	;STEP1     90	     ICW2
+ 	 	 	 	;
+ 	 	 	 	;STEP2     01        ICW4
+ 	 	 	 	;
+ 	 	 	 	;STEP3     FE        ENABLE IR0. 
+ 	 	 	 	;
+ 	 	 	 	;STEP4  : NOW CPU IS FREE RUNNING INDICATED BY 
+	 	 	 	HALF 
+ 	 	 	 	;         GLOWING LEDS AND "XPO" IS DISPLAYED W
+	 	 	 	AITING 
+ 	 	 	 	;         FOR INTERRUPT. USING PATCH CORD CONNE
+	 	 	 	CT IR0 
+ 	 	 	 	;         TO VCC. CORD CAN BE REMOVED AFTER INT
+	 	 	 	A ARRIVAL.     
+ 	 	 	 	;
+ 	 	 	 	;
+ 	 	 	 	;         DATA BUS  COMMENTS  
+ 	 	 	 	;
+ 	 	 	 	;START    FF        FIRST INTA WITN CALL.
+ 	 	 	 	;
+ 	 	 	 	;STEP5    90        INT 90H FOR IR0. 
+ 	 	 	 	;
+ 	 	 	 	;STEP6    20        OCW2 - EOI.
+ 	 	 	 	;
+ 	 	 	 	;STEP11 : FREE RUNNING CPU DISPLAYING "INT 0" W
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8259 PERIWARE.	 	 	 	 	 	11-16-99    
+
+
+	 	 	 	ITH SOME
+ 	 	 	 	;         DELAY AND AGAIN DISPLAY REVERTS TO "X
+	 	 	 	PO" 
+ 	 	 	 	;         AFTER RETURNING TO MAIN LOOP.
+ 	 	 	 	;
+ 	 	 	 	;
+ 	 	 	 	;
+ 	 	 	 	;
+ 	 	 	 	;
+ 	 	 	 	;
+ 0000	 	 	 	X868259  SEGMENT
+ 	 	 	 	
+ 	 	 	 	         ASSUME CS:X868259, DS:X868259 ,ES:X868
+	 	 	 	259
+ 0100	 	 	 	         ORG 100H   ;COM FORMAT IS RECOMMENDED.
+ 0100	 	 	 	STRT:    
+ 0100  EB 01 90	 	 	JMP SKIP_DATA       ;SKIP LOOK UP/ DATA BASES I
+	 	 	 	F ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	                                            
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 11F0	 	 	MOV  AX,11F0H    
+ 0106  8B E0	 	 	MOV  SP,AX  	;INIT OF SP,DS(=CS).ES,SS=0000 
+ 	 	 	 	 	;ALREADY ON KIT.              
+ 0108  0E	 	 	PUSH CS    	      ;FETCH PRESENT CS IN AX
+ 0109  58	 	 	POP  AX    	      ;AND LOAD INTO DS SINCE D
+	 	 	 	S=CS 	
+ 010A  8E D8	 	 	MOV  DS,AX   
+ 	 	 	 	        
+ 010C  90	 	 	NOP             ;FOR PC
+ 010D  90	 	 	NOP             ;PLACE CALL IN PLACE OF 3 NOP`S
+ 010E  90	 	 	NOP             ;
+ 	 	 	 	
+ 010F  8B C8	 	 	MOV  CX,AX         ;SEG ADDR OF ISR FOR IR0
+ 0111  BE 015A R	 	MOV  SI,OFFSET ISR ;OFFSET ADDR  
+ 0114  B0 90	 	 	MOV  AL,90H	   ;INIT OF 0000:0240H-44H BYTE
+	 	 	 	S SO 
+ 	 	 	 	 	 	   ;ON INTERRUPT IR0 "INT 90,91
+	 	 	 	..
+ 	 	 	 	 	 	   ;ARE EXECUTED.
+ 0116  CD BE	 	 	INT  0BEH          ;                       
+ 0118  B0 13	 	 	MOV  AL,13H    	   ;EDGE,SINGLE	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8259 PERIWARE.	 	 	 	 	 	11-16-99    
+
+
+ 	 	 	 	 	 	   ;ICW1 A1=0                  
+	 	 	 	       
+ 011A  BA 01A0	 	 	MOV  DX,01A0H      ;                      
+ 011D  EE	 	 	OUT  DX,AL         ;                    
+ 011E  B0 90	 	 	MOV  AL,90H	   ;ISR OF IR0 =INT 90H ETC
+ 0120  BA 01A2	 	 	MOV  DX,01A2H      ;A1=1	
+ 0123  EE	 	 	OUT  DX,AL 	   ;ICW2	
+ 0124  B0 01	 	 	MOV  AL,01H	   ;8086,NORMAL EOI,NON BUFERED
+	 	 	 	,
+ 	 	 	 	 	 	   ;NON SPECIAL,NEST
+ 0126  EE	 	 	OUT  DX,AL	   ;ICW4,A1=1
+ 0127  B0 FE	 	 	MOV  AL,0FEH	   ;ENABLE IR0.APPLY L TO H PUL
+	 	 	 	SE 
+ 	 	 	 	 	 	   ;TO IR6 YOU MAY USE STEP SWI
+	 	 	 	TCH.
+ 0129  EE	 	 	OUT  DX,AL 	   ;OCW1                       
+	 	 	 	      
+ 012A  FB	 	 	STI	           ;                        
+ 012B	 	 	 	LOOP1:   
+ 012B  B8 00FF	 	 	MOV  AX,00FFH      ;DELAY COUNT                
+	 	 	 	       
+ 012E	 	 	 	LOOP2:   
+ 012E  B9 00FF	 	 	MOV  CX,00FFH      ;DELAY COUNT                
+	 	 	 	           
+ 0131  CD AA	 	 	INT  0AAH          ;DELAY
+ 0133  48	 	 	DEC  AX            ;                     
+ 0134  75 F8	 	 	JNZ  LOOP2         ;                      
+ 0136  CD AC	 	 	INT  0ACH          ;CLEAR DISPLAY
+ 0138  BB 0168 R	 	MOV  BX,OFFSET MSG1;POINTER TO "XPO"
+ 013B  CD AF	 	 	INT  0AFH          ;OUTMSG UTILITY 
+ 013D  B4 0B	 	 	MOV  AH,0BH        ;TEST FOR KEY PRESS
+ 013F  CD A1	 	 	INT  0A1H          ;LOGICAL I/O
+ 0141  3C FF	 	 	CMP  AL,0FFH
+ 0143  74 03	 	 	JZ   RDESC    
+ 0145  EB 09 90	 	 	JMP  KEEP	                               
+	 	 	 	    
+ 0148	 	 	 	RDESC:
+ 0148  B4 08	 	 	MOV  AH,08H        ;READ KEY
+ 014A  CD A1	 	 	INT  0A1H          ;LOGICAL I/O
+ 014C  3C 1B	 	 	CMP  AL,1BH
+ 014E  74 03	 	 	JZ   EXIT
+ 0150	 	 	 	KEEP:
+ 0150  FB	 	 	STI
+ 0151  EB D8	 	 	JMP  LOOP1
+ 0153	 	 	 	EXIT: 
+ 0153  CD A3	 	 	INT 0A3H           ;CMD MODE.
+ 0155  90	 	 	NOP	                                   
+ 0156  90	 	 	NOP	                                   
+ 0157  90	 	 	NOP	                                   
+ 0158  90	 	 	NOP
+ 0159  90	 	 	NOP
+ 	 	 	 	;NOW APPLY L TO H PULSE TO IR0 USING STEP SWITH
+	 	 	 	C. 
+ 	 	 	 	;8259 WILL FEED INT 90H FOR IR0 INTERRUPT.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-4
+--USING 8259 PERIWARE.	 	 	 	 	 	11-16-99    
+
+
+ 	 	 	 	;ISR FOR 8259--IR0.PRESENTLY MAPPED TO INT 90H 
+	 	 	 	BY ICW2.
+ 	 	 	 	         
+ 015A	 	 	 	ISR:     
+ 015A  CD AC	 	 	INT	0ACH     	;CLEAR TO NEW LINE
+ 015C  BB 016C R	 	MOV	BX,OFFSET MSG2	;POINTER TO MESSAGE  
+ 	 	 	 	 	 	 	;ENDING WITH ETX.
+ 015F  CD AF	 	 	INT	0AFH 	 	;OUTMSG UTILITY.
+	 	 	 	 	
+ 0161  B0 20	 	 	MOV	AL,20H          ;                    
+ 0163  BA 01A0	 	 	MOV	DX,01A0H        ;                    
+ 0166  EE	 	 	OUT	DX,AL           ;OCW2--NON SPECIFIC
+ 0167  CF	 	 	IRET	                                   
+ 	 	 	 	
+ 0168  58 50 4F 03	 	MSG1: DB "XPO",03H    ;MESSAGES "XPO".
+ 016C  49 4E 54 20 30 03	MSG2: DB "INT 0",03H    ;MESSAGE "INT 0".
+ 	 	 	 	
+ 0172	 	 	 	X868259  ENDS
+ 	 	 	 	    END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8259 PERIWARE.	 	 	 	 	 	11-16-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X868259. . . . . . . . . . . . .	0172	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+EXIT . . . . . . . . . . . . . .	L NEAR 	0153	X868259
+ISR. . . . . . . . . . . . . . .	L NEAR 	015A	X868259
+KEEP . . . . . . . . . . . . . .	L NEAR 	0150	X868259
+LOOP1. . . . . . . . . . . . . .	L NEAR 	012B	X868259
+LOOP2. . . . . . . . . . . . . .	L NEAR 	012E	X868259
+MSG1 . . . . . . . . . . . . . .	L NEAR 	0168	X868259
+MSG2 . . . . . . . . . . . . . .	L NEAR 	016C	X868259
+RDESC. . . . . . . . . . . . . .	L NEAR 	0148	X868259
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X868259
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X868259
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

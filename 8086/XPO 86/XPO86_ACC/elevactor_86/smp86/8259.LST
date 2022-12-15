@@ -1,0 +1,70 @@
+
+****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+    THE SAME FROM 0125:0100 AND EXECUTE.
+****HOW TO USE 8259?,HOW TO DO INIT? HOW TO WRITE ISR FOR INTR?
+    ;HERE IR0 OF 8259 IS ENABLED. IN THE MAIN LOOP,"JAIHIND"IS SHOWN.
+    NOW APPLY A PULSE L TO H TO PIN 6 OF HEADER.IN ISR "ANSH LC6"IS
+    ;DISPLAYED FOR DURATION SET BY DELAY LOOP. 
+
+1015:0100 EB12          JMP	0114                               
+1015:0102 90            NOP	                                   
+1015:0103           4A 41 49 48 49-4E 44 03 41 4E 53 48 20 JAIHIND.ANSH 
+1015:0110  4C 43 36 03                                     LC6.
+1015:0114 B8F011        MOV	AX,11F0    
+1015:0117 8BE0          MOV	SP,AX  	;INIT OF SP,DS(=CS).ES,SS=0000 
+					;ALREADY ON KIT.              
+1015:0119 0E            PUSH	CS    	;FETCH PRESENT CS IN AX
+1015:011A 58            POP	AX    	;AND LOAD INTO DS SINCE DS=CS 	
+1015:011B 8ED8          MOV	DS,AX   
+1015:011D 8BC8          MOV	CX,AX   ;SEG ADDR OF ISR FOR IR0
+1015:011F BE5101        MOV	SI,0151	;OFFSET ADDR  
+1015:0122 B090          MOV	AL,90 	;INIT OF 0000:0240H-43H BYTES SO 
+					;ON INTERRUPT IR0 "INT 90,91..
+					;ARE EXECUTED.
+1015:0124 CDBE          INT	BE                                 
+1015:0126 B013          MOV	AL,13 	;EDGE,SINGLE	
+					;ICW1 A1=0                         
+1015:0128 BA0094        MOV	DX,9400                            
+1015:012B EE            OUT	DX,AL                              
+1015:012C B090          MOV	AL,90  	;ISR OF IR0 =INT 90H ETC
+1015:012E BA0294        MOV	DX,9402 ;A1=1	
+1015:0131 EE            OUT	DX,AL 	;ICW2	
+1015:0132 B001          MOV	AL,01	;8086,NORMAL EOI,NON BUFERED,
+					; NON SPECIAL,NEST
+1015:0134 EE            OUT	DX,AL	;ICW4,A1=1
+1015:0135 B0FE          MOV	AL,FE	;ENABLE IR0.APPLY L TO H PULSE 
+					;TO  PIN 6 HEADER
+1015:0137 EE            OUT	DX,AL 	;OCW1                             
+1015:0138 FB            STI	                                   
+1015:0139 B80100        MOV	AX,0001                            
+1015:013C B9FFFF        MOV	CX,FFFF                            
+1015:013F CDAA          INT	AA   	;DELAY
+1015:0141 48            DEC	AX                                 
+1015:0142 75F8          JNZ	013C                               
+1015:0144 CDAC          INT	AC    	;CLEAR DISPLAY
+1015:0146 BB0301        MOV	BX,0103	;POINTER TO "JAIHIND"
+1015:0149 CDAF          INT	AF      ;OUTMSG UTILITY                      
+1015:014B FB            STI	                                   
+1015:014C EBEB          JMP	0139                               
+1015:014E 90            NOP	                                   
+1015:014F 90            NOP	                                   
+1015:0150 90            NOP	                                   
+
+;NOW APPLY L TO H PULSE TO IR0 ON PIN 6 OF HEADER.8259 WILL FEED INT 90H
+;TO 8086 DURING INTA/.USE DEBOUNCED SWITCH USING  NO-NC SWITCH AND 7400.
+;YOU MAY APPLY THE PULSE BY MOMENTARY SHORTING PIN 6 & 16 OF HEADER BY A
+;WIRE BUT 8086 MAY SOMETIMES LOSE CONTROL,BUT THIS IS SHORTCUT.
+;
+;ISR FOR 8259--IR0.PRESENTLY MAPPED TO INT 90H BY ICW2.
+1015:0151 CDAC          INT	AC   	;CLEAR TO NEW LINE
+1015:0153 BB0B01        MOV	BX,010B	;POINTER TO MESSAGE TABLE ENDING
+					; IN ETX
+1015:0156 CDAF          INT	AF 		;OUTMSG UTILITY.	
+1015:0158 B020          MOV	AL,20                              
+1015:015A BA0094        MOV	DX,9400                            
+1015:015D EE            OUT	DX,AL	;OCW2--NON SPECIFIC
+1015:015E CF            IRET	                                   
+
+
+

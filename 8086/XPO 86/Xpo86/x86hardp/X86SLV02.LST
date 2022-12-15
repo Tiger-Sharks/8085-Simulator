@@ -1,0 +1,98 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING SLAVE MICRO.	 	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	       PAGE,80
+ 	 	 	 	       TITLE-- USING SLAVE MICRO.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	 	 	
+ 0000	 	 	 	X86SLVKD   	SEGMENT
+ 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X86SLVKD, DS:X86SLVKD
+	 	 	 	 ,ES:X86SLVKD
+ 0100	 	 	 	          	ORG 100H   	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	JMP 	SKIP_DATA 	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	 	 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	; Init of SP fo
+	 	 	 	r KIT
+ 0106  8B C0	 	 	        MOV   	AX,AX   	; On PC
+ 0108  0E	 	 	        PUSH    CS      	; Init for DS
+ 0109  1F	 	 	        POP     DS  
+ 	 	 	 	                        ;Load KIT INT'S (A0-BF)
+	 	 	 	 
+ 010A  90	 	 	        NOP             ;in PC using
+ 010B  90	 	 	        NOP             ;Place CALL in place of
+	 	 	 	 3 NOP`S
+ 010C  90	 	 	        NOP           	;
+ 	 	 	 	
+ 010D  CD AC	 	 	        INT	0ACH          ;Clear display.
+ 	 	 	 	
+ 010F  B0 8E	 	 	RDKEY:  MOV     AL,8EH        ; Out 8EH to  
+ 0111  BA 9C00	 	 	        MOV     DX,9C00H      ; Read From 0EH.
+ 0114  EE	 	 	        OUT     DX,AL         ; Out to Port. 
+ 0115  B9 0004	 	 	        MOV     CX,0004H      ; Minumum 40 micr
+	 	 	 	osec
+ 0118  CD AA	 	 	        INT     0AAH          ; Delay 
+ 011A  BA 9C01	 	 	        MOV     DX,9C01H
+ 011D  EC	 	 	 	IN      AL,DX         ; Read Character
+ 011E  0A C0	 	 	        OR      AL,AL         ; Check For Key p
+	 	 	 	ress.
+ 0120  79 ED	 	 	        JNS     RDKEY         ; If not go back.
+ 0122  24 7F	 	 	        AND     AL,7FH        ; Get ascii code 
+	 	 	 	in AH
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- USING SLAVE MICRO.	 	 	 	 	 	10-02-99    
+
+
+ 0124  CD AB	 	 	        INT     0ABH          ; Move cursor to 
+	 	 	 	left.
+ 0126  8A D0	 	 	        MOV     DL,AL         ; 
+ 0128  B0 02	 	 	        MOV     AL,02H        ; Display only tw
+	 	 	 	o digits.
+ 012A  CD AE	 	 	        INT     0AEH          ; Display ascii c
+	 	 	 	ode.
+ 012C  EB E1	 	 	        JMP	RDKEY         ; Jump to start.
+ 	 	 	 	
+ 012E	 	 	 	X86SLVKD  	ENDS
+ 	 	 	 	    	END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING SLAVE MICRO.	 	 	 	 	 	10-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86SLVKD . . . . . . . . . . . .	012E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+RDKEY. . . . . . . . . . . . . .	L NEAR 	010F	X86SLVKD
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86SLVKD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86SLVKD
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,140 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+ 	 	 	 	;TO GENERATE FIBONACCI SERIES.
+ 	 	 	 	;NOTE:-PROGRAM GENERATE THE FIBONACCI SERIES UP
+	 	 	 	 TO THE NUMBMER DEFINE
+ 	 	 	 	;USING THE INSTRUCTION 'N DB 14'THUS FIBBONACCI
+	 	 	 	 SERIES IS
+ 	 	 	 	   ; FIBBO:-0,1,1,2,3,5,8,D
+ 	 	 	 	;SO EVERY ELEMENT IS ADDITION OF PREVIOUS TWO E
+	 	 	 	LEMENTS.
+ 	 	 	 	;THE PROGRAM USES RECURSIVE CALL TO A PROCEDURE
+	 	 	 	 TO CALCULATE THE NEXT
+ 	 	 	 	;ELEMENT.THE SAME SERIES CAN BE GENERATED USING
+	 	 	 	 LOOPING CONSTRUCTS AS WELL,
+ 	 	 	 	;HOWEVER THIS IS DONE TO DEMONSTRATE RECURSIVE 
+	 	 	 	CALLING TECHNIQUES.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KBYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 11 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	 	
+ 0103  0E	 	 	N DB 14
+ 0104     0F [	 	 	FIB DB 15 DUP (?)
+                ??	 	
+                    ]	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 0113	 	 	 	SKIP_DATA:	
+ 0113  B8 10FF	 	 	 	MOV AX,10FFH
+ 0116  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 0118  B8 0000	 	 	 	MOV AX,0000H
+ 011B  8E D0	 	 	 	MOV SS,AX
+ 011D  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 011F  0E	 	 	 	PUSH CS
+ 0120  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 0121  90	 	 	 	NOP
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+ 0122  90	 	 	 	NOP
+ 0123  90	 	 	 	NOP	
+ 	 	 	 	 	
+ 0124  BB 0000	 	 	 	MOV BX,00H
+ 0127	 	 	 	NT:
+ 0127  B2 00	 	 	    MOV DL,00H
+ 0129  53	 	 	 	PUSH BX
+ 012A  E8 0142 R	 	 	CALL FIBO
+ 012D  5B	 	 	 	POP BX
+ 012E  3A 16 0103 R	 	 	CMP DL,N
+ 0132  77 0C	 	 	 	JA DONE
+ 0134  80 FA 00	 	 	 	CMP DL,00H
+ 0137  74 04	 	 	 	JE NO_STORE
+ 0139  88 97 0104 R	 	 	MOV FIB[BX],DL
+ 013D	 	 	 	NO_STORE:	
+ 013D  43	 	 	 	INC BX
+ 013E  EB E7	 	 	 	JMP NT
+ 0140  CD A5	 	 	DONE:INT 0A5H
+ 	 	 	 	 	
+ 	 	 	 	;--------------MAIN PROGRAM ENDS HERE----------
+ 	 	 	 	
+ 0142	 	 	 	 	FIBO PROC NEAR
+ 	 	 	 	 	
+ 0142  83 FB 00	 	 	 	CMP BX,0
+ 0145  74 11	 	 	 	JE EXIT1
+ 	 	 	 	 	
+ 0147  83 FB 01	 	 	 	CMP BX,1
+ 014A  74 0D	 	 	 	JE EXIT2
+ 	 	 	 	 	
+ 014C  FE CB	 	 	 	DEC BL
+ 014E  53	 	 	 	PUSH BX
+ 014F  E8 0142 R	 	 	CALL FIBO
+ 0152  5B	 	 	 	POP BX
+ 0153  4B	 	 	 	DEC BX
+ 0154  E8 0142 R	 	 	CALL FIBO
+ 0157  C3	 	 	 	RET
+ 0158	 	 	 	EXIT1:
+ 0158  C3	 	 	 	RET
+ 0159	 	 	 	EXIT2:
+ 0159  FE C2	 	 	 	INC DL
+ 015B  C3	 	 	 	RET
+ 	 	 	 	 	
+ 015C	 	 	 	 	FIBO ENDP
+ 	 	 	 	 	
+ 015C	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	015C	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DONE . . . . . . . . . . . . . .	L NEAR 	0140	COMSEG
+EXIT1. . . . . . . . . . . . . .	L NEAR 	0158	COMSEG
+EXIT2. . . . . . . . . . . . . .	L NEAR 	0159	COMSEG
+FIB. . . . . . . . . . . . . . .	L BYTE 	0104	COMSEG	Length =000F
+FIBO . . . . . . . . . . . . . .	N PROC	0142	COMSEG	Length =001A
+N. . . . . . . . . . . . . . . .	L BYTE 	0103	COMSEG
+NO_STORE . . . . . . . . . . . .	L NEAR 	013D	COMSEG
+NT . . . . . . . . . . . . . . .	L NEAR 	0127	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0113	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50120 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

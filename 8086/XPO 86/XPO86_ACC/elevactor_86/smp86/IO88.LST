@@ -1,0 +1,163 @@
+
+		    USING 8255
+
+TITLE≠ HOW TO INITIALISE & USE 8255?
+
+     THIS PROGRAM INITIALISES BOTH THE 8255'” OŒ UN… 808∏ MOTHER
+BOARƒ IŒ "ALÃ OUTPUT”" MODE.THEŒ I‘ TOGGLE” ALÃ O∆ TH≈ POR‘ P¡'S
+PIN” CONTINUOUSLY.RESE‘ TH≈ SYSTEÕ Tœ HAULT.
+
+0100 BA039C        MOV	DX,9C03        ;C◊ O∆ HIGHE“ 8255.
+0103 B080          MOV	AL,80          ;ALÃ PORT” IŒ O/– MODE                    
+0105 EE            OUT	DX,AL                              
+0106 BA0B9C        MOV	DX,9C0B        ;C◊ O∆ LOWE“ 8255.
+0109 EE            OUT	DX,AL                              
+010A BA009C        MOV	DX,9C00        ;P¡ O∆ HIGHE“ 8255. 
+010D B055          MOV	AL,55          ;WRIT≈ "55".                    
+010F EE            OUT	DX,AL                              
+0110 BA089C        MOV	DX,9C08        ;P¡ O∆ LOWE“ 8255                    
+0113 EE            OUT	DX,AL                              
+0114 B9FF7F        MOV	CX,7FFF        ;DELAY                    
+0117 CDAA          INT	AA             ;PAS” SOM≈ TIME                    
+0119 B0AA          MOV	AL,AA          ;WRIT≈ "AA".     
+011B EE            OUT	DX,AL                              
+011C BA009C        MOV	DX,9C00        ;P¡ O∆ HIGHE“ 8255.                    
+011F EE            OUT	DX,AL                              
+0120 B9FF7F        MOV	CX,7FFF        ;DELAY. 
+0123 CDAA          INT	AA                                 
+0125 EBE3          JMP	010A            ;LOO– BACK.
+
+;-------------------------------------------------------------
+
+                    USIN« 8253/8251
+
+TITLE≠ HO◊ Tœ INITIALIS≈ ¶ US≈ 825≥/8251?
+
+     THI” PROGRAÕ USE” CHANNEÃ-∞ O∆ 825≥ Tœ GENERAT≈ BAUƒ RAT≈ OF
+010∞ †FO“ 8253.I‘ SET” 1+8+≤ Nœ PARITŸ MODE.I‘ SEND” ¡ †CH“ †THR’ ç
+TXD,RECEIVE” †I‘ †THR’ †RXƒ †BŸ SHORTIN« PIŒ †2,≥ †O∆ †2µ †PIŒ †ƒ ç
+CONNECTOR(FEMALE).TH≈ RECEIVEƒ DAT¡ I” DISPLAYEƒ OŒ 827π DISPLAY.
+TBLBAUD∫ D◊ 0110H,0300H,0600H,1200H,2400H,4800H,9600H,1902H,0303H
+TBL8253∫ D◊ 052DH,01E6H,00F3H,0079H,003DH,001EH,000FH,0008H,0303H
+
+010∞ E¬2±90        JM– 0123
+
+010≥ 4±4E5≥        D¬ "ANSHUMAŒ        SERIAÃ   LINÀ  ",03
+     4∏5µ4D        
+     4±4≈2∞2∞2∞2∞
+     2∞2∞2∞2∞5≥45
+     5≤4π4±4√2∞20
+     2∞4√4π4≈4¬20
+     2∞03
+
+0123 B8F011        MO÷ AX,11F0         ;INI‘ O∆ SP
+0126 8BE0          MO÷ SP,AX                    
+0128 0E            PUS» CS                                 ä0129 1F            PO– DS                                 
+012¡ B92D0µ†       MO÷†CX,052ƒ         ;INI‘†O∆†825≥†FO“ 0100 ç
+012D BA1B9C        MO÷ DX,9C1B         ;SE‘ B.RÆ Tœ 0100.                   
+0130 B036          MO÷ AL,36                              
+0132 EE            OU‘ DX,AL                              
+0133 BA189C        MO÷ DX,9C18         ;INI‘ O∆ 825≥ CN‘ #00.
+0136 8AC1          MO÷ AL,CL                              
+0138 EE            OU‘ DX,AL                              
+0139 8AC5          MO÷ AL,CH                              
+013B EE            OU‘ DX,AL                              
+013C BA299C        MO÷ DX,9C29         ;INI‘ O∆ 825± CONTROÃ REG.
+013F B000          MO÷ AL,00           ;SENƒ 00» Tœ ENSUR≈ THA‘                    
+0141 EE            OU‘ DX,AL           ;825± I” IŒ COMMANƒ MODE.                   
+0142 B90F00        MœV CX,000F                            
+014µ CDA¡          IN‘  A¡             ;DELAŸ REQUIREƒ WHIL≈ INI‘ 
+0147 EE            OU‘  DX,AÃ          ;O∆ 8251                    
+0148 CDAA          INT	AA             ;DELAY            
+014A EE            OUT	DX,AL                              
+014B CDAA          INT	AA             ;DELAY              
+014D B040          MOV	AL,40          ;INTERNAÃ RESE‘ COMMAND.              
+014F EE            OUT	DX,AL                              
+0150 CDAA          INT	AA             ;DELAY              
+0152 B0CE          MOV	AL,CE          ;MOD-≤ STO– BITS/Nœ PAR/
+0154 EE            OUT	DX,AL          ;NOÆ O∆ BIT” 08/B.R.*16
+0155 CDAA          INT	AA             ;DELAY              
+0157 B037          MOV	AL,37          ;COMNƒ WORƒ DTR=RTS=0
+0159 EE            OUT	DX,AL          ;TRN” ENABLE,NORMAL.
+015A CDAC          INT	AC             ;STAR‘ SENƒ ¶ RECEIVE
+015C BB0301        MOV	BX,0103        ;MS« PTR.                    
+015F 8A17          MOV	DL,[BX]                            
+0161 80FA03        CMP	DL,03          ;ENƒ O∆ TRNSMISSION?           
+0164 740F          JZ	0175                               
+0166 B402          MOV	AH,02                              
+0168 CDA9          INT	A9             ;SENƒ Tœ TXƒ O∆ 8251.
+016A 43            INC	BX                                 
+016B B408          MOV	AH,08                              
+016D CDA8          INT	A8             ;REAƒ CH“ FROÕ RXD.
+016∆ B40≤          MO÷	AH,0≤          ;I‘ I” ASSUMEƒ THA‘ PIŒ 2¨3 
+0171 CDA2          INT	A2             ;AR≈ SHORTEƒ THR’ WIRE.                    
+0173 EBEA          JMP	015∆           ;SHO◊ OŒ 827π ¶ LOO– BACK.
+0175 CDA4          INT	A4             ;RETURŒ Tœ COMMANƒ MODE.
+
+;---------------------------------------------------------------
+
+                    USIN« 8259
+
+TITLE- HO◊ Tœ INITIALIS≈ ¶ US≈ 8259?HO◊ Tœ WRIT≈ IS“ FO“ INTERPT?
+
+     THI” †PROGRAÕ WILÃ SHO◊ "JAIHIND¢ IŒ MAIŒ LOOP.NOW †I∆ †YO’ ç
+APPLŸ ¡ LO◊ Tœ HIG» PULS≈ Tœ PIŒ π O∆ HEADE“ i.e.IR3.THEŒ I‘ WILL
+SHO◊ "UN… 8088¢ FO“ DURATIOŒ SE‘ BŸ ¡ DELAŸ LOO– COUNT.
+
+010∞ E¬1290        JM– 0114
+
+010≥ 4¡4149        D¬ "JAIHIND",03ä     48494E
+     4403 
+
+010¬ 554E49        D¬ "UN… 8088",03
+     2∞3830
+     383803
+
+0114 B8F01±        MOV	AX,11F0        ;INI‘ O∆ SP,SS=0000
+0117 8BE0          MOV	SP,AX                              
+0119 0E            PUSH	CS             ;DS=CS 
+011A 58            POP	AX                                 
+011B 8ED8          MOV	DS,AX                              
+011D 8BC8          MOV	CX,AX                              
+011F BE5101        MOV	SI,015±        ;ADDRES” O∆ ISR≥ IŒ SI
+0122 B090          MOV	AL,90                              
+012¥ CDB≈ †        IN‘	B≈             ;INI‘†O∆†0000:0240H+¥BYTE 
+0126 B013          MOV	AL,13          ;INI‘ 8259-EDGE,SINGLE.
+0128 BA209C        MOV	DX,9C20
+012B EE            OUT	DX,AL          ;ICW±,A0=0.                   
+012C B090          MOV	AL,90          ;IS“ O∆ IR3=IN‘ 90H     
+012E BA219C        MOV	DX,9C21        ;A0=1
+0131 EE            OUT	DX,AL          ;ICW1               
+0132 B001          MOV	AL,01          ;ICW¥,8086,NORMAÃ,EO…,NOŒ               
+0134 EE            OUT	DX,AL          ;SPECIAL,NEST,NOŒ BUFFER
+0135 B0FE          MOV	AL,FC          ;OCW±,ENABL≈ IR≥ ¶ APPLŸ
+0137 EE            OUT	DX,AL          ;PULS≈ OŒ PIŒ π O∆ HEADER
+0138 FB            STI	                                   
+0139 B80100        MOV	AX,0001                            
+013C B9FFFF        MOV	CX,FFFF        ;DELAŸ COUNT                            
+013F CDAA          INT	AA             ;PAS” SOM≈ TIME...                    
+0141 48            DEC	AX                                 
+0142 75F8          JNZ	013C                              
+0144 CDAC          INT	AC             ;CLEA“ DISPLAY.                              
+0146 BB0301        MOV	BX,010≥        ;POIN‘ Tœ "JAIHIND"
+0149 CDAF          INT	AF             ;OU‘MS« UTILITY.         
+014B FB            STI	                                   
+014C EBEB          JMP	0139    
+014E 90            NOP	                                   
+014F 90            NOP	                                   
+0150 90            NOP	     
+
+     ;NO◊ APPLŸ LO◊ Tœ HIG» PULS≈ Tœ IR≥ PIŒ π HEADER.825π WILL
+     ;B≈ FEƒ IN‘ 90» DURIN« INTA.YO’ MAŸ APPLŸ ¡ PULS≈ BŸ JUST
+     ;SHORTIN« PIŒ π ¶ ∏ O∆ HEADE“ BŸ WIRE.TH≈ 808∏ MAŸ LOOSE
+     ;TH≈ CONTROL,BU‘ O∆ COURS≈ THI” I” ¡ SHOR‘ CUT.
+
+0151 CDAC          INT	AC             ;NE◊ LINE.                                
+0153 BB0B01        MOV	BX,010¬        ;POIN‘ Tœ "UN… 8088".          
+0156 CDAF          INT	AF             ;OUTMSG.
+0158 B020          MOV	AL,20                              
+015A BA209C        MOV	DX,9C20        ;OCW≤ NOŒ SPECIFIC.
+015D EE            OUT	DX,AL                              
+015E CF            IRET	                                   
+
+;≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠-ENƒ≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠≠-çä

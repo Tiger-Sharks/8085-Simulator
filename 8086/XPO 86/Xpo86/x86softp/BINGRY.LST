@@ -1,0 +1,118 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- BINARY (HEX) TO GRAY CODE CONVERSION.	 	 	08-24-99    
+
+
+ 	 	 	 	 PAGE 70
+ 	 	 	 	
+ 	 	 	 	 TITLE -- BINARY (HEX) TO GRAY CODE CONVERSION.
+ 	 	 	 	
+ 	 	 	 	;THIS PROG. CONVERTS A BIN NO. AT 0000H:1000H
+ 	 	 	 	;(FROM 0 TO F) TO ITS GRAY CODE USING TRANSLATE
+ 	 	 	 	;INSTRUCTION.
+ 	 	 	 	;
+ 	 	 	 	; REG.USED/DESTROYED :- AX,CX,BX
+ 	 	 	 	; 
+ 	 	 	 	; INPUT TO THE PROG. :-
+ 	 	 	 	;  SEG 0000H
+ 	 	 	 	;   ADDR       DATA
+ 	 	 	 	; [1000 H] -- DATA IN HEX (00 TO 0F H)
+ 	 	 	 	;
+ 	 	 	 	; OUTPUT OF THE PROG. :-
+ 	 	 	 	; SEG 0000H
+ 	 	 	 	;  ADDR        DATA
+ 	 	 	 	; [1000 H] -- GRAY CODE OF DATA I/P
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	        BINGRY SEGMENT
+ 	 	 	 	        ASSUME CS:BINGRY, DS:BINGRY
+ 	 	 	 	        ASSUME ES:BINGRY
+ 	 	 	 	
+ 	 	 	 	; 'ASSUME' IS AN ASSEMBLER DIRECTIVE. IT HAS
+ 	 	 	 	; NOTHING TO DO WITH 8086. IT IS ONLY USED
+ 	 	 	 	; TO TELL THE ASSEMBLER (MASM) WHERE THE
+ 	 	 	 	; CODE, DATA, STACK ETC. IS LOCATED.
+ 	 	 	 	; IT IS ONLY A FORMALITY FOR MASM.
+ 	 	 	 	
+ = 0000	 	 	 	SCPD     EQU 0000H ; SCRATCH PAD SEGMENT.
+ = 1000	 	 	 	IP_NO    EQU 1000H ; ADDR OF HEX NO. TO BE
+ 	 	 	 	                   ; CONVERTED INTO GRAY CODE
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H        ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100	 	 	 	STRT:
+ 0100  EB 11 90	 	 	JMP SKIP_DATA   ;SKIP LOOK UP/DATA BASES IF ANY
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+ 	 	 	 	;STACK OF YOUR PROGRAME FROM MONITORS],DS AS
+ 	 	 	 	;SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON
+ 	 	 	 	;BY MONITOR. YOU CAN OFCOURSE CHANGE IT BY
+ 	 	 	 	;ADDING A FEW MORE MOVES. BUT WHILE WORKING ON
+ 	 	 	 	;PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE
+ 	 	 	 	;THEY ARE SET BY DOS LOADER,SO MANAGE THESE
+ 	 	 	 	;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+ 	 	 	 	
+ 0103	 	 	 	TBL:
+ 0103  00 01 03 02 06 07	     DB 00H,01H,03H,02H,06H,07H,05H,04H ; GRAY
+       05 04	 	 	
+ 	 	 	 	      ; 00H,01H,02H,03H,04H,05H,06H,07H =BIN NO
+ 010B  0C 0D 0F 0E 0A 0B	     DB 0CH,0DH,0FH,0EH,0AH,0BH,09H,08H ; GRAY
+       09 08	 	 	
+ 	 	 	 	      ; 08H,09H,0AH,0BH,0CH,0DH,0EH,0FH =BIN NO
+ 	 	 	 	
+ 0113	 	 	 	SKIP_DATA:
+ 0113  B8 10FF	 	 	MOV AX,10FFH     ; INIT OF SP FOR KIT
+ 0116  8B E0	 	 	MOV SP, AX       ; MOV AX,AX  ON PC
+ 0118  0E	 	 	PUSH CS          ; INIT FOR DS
+ 0119  1F	 	 	POP DS           ;
+ 011A  90	 	 	NOP              ; TO LOAD KIT INTERRUPTS
+ 011B  90	 	 	NOP              ; (A0-BF) ON PC,
+ 011C  90	 	 	NOP              ; REPLACE 3 NOPS
+ 	 	 	 	; CALL LDINPC    ; WITH THIS CALL.
+ 011D  B8 0000	 	 	MOV AX,SCPD      ; TO SPECIFY SCPD LOCn ON KIT.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- BINARY (HEX) TO GRAY CODE CONVERSION.	 	 	08-24-99    
+
+
+ 0120  90	 	 	NOP              ; <-- MOV AX,CS  ON PC
+ 0121  8E C0	 	 	MOV ES,AX        ;
+ 0123  BB 0103 R	 	MOV BX,OFFSET TBL; POINTER TO TABLE
+ 0126  BE 1000	 	 	MOV SI,IP_NO     ;
+ 0129  26: 8A 04	 	MOV AL,ES:[SI]   ; LOAD THE NO.
+ 012C  24 0F	 	 	AND AL,0FH       ; MASK UPPER NIB.
+ 012E  D7	 	 	XLAT             ;
+ 012F  26: 88 04	 	MOV ES:[SI],AL   ; STORE THE RESULT
+ 0132  CD A3	 	 	INT  0A3H        ; RETURN TO COMMAND= ON KIT
+ 	 	 	 	                 ; RETURN TO DOS ON PC.
+ 	 	 	 	                 ; IF YOU ARE RUNNING YOUR
+ 	 	 	 	                 ; SOFTWARE ON PC INSERT HERE
+ 	 	 	 	                 ; INCLUDE KIT_INTS.ASM
+ 	 	 	 	                 ; *******************
+ 	 	 	 	                                
+ 0134	 	 	 	BINGRY  ENDS     ; READ FOR MORE INFO TITLE
+ 	 	 	 	        END STRT ; OF KIT_INTS.ASM
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- BINARY (HEX) TO GRAY CODE CONVERSION.	 	 	08-24-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+BINGRY . . . . . . . . . . . . .	0134	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+IP_NO. . . . . . . . . . . . . .	Number	1000	
+SCPD . . . . . . . . . . . . . .	Number	0000	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0113	BINGRY
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	BINGRY
+TBL. . . . . . . . . . . . . . .	L NEAR 	0103	BINGRY
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

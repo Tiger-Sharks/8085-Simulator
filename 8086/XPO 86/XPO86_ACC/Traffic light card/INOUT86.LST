@@ -1,0 +1,66 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	07-25-:0    
+
+
+ 	 	 	 	;This program inputs the data from port A and o
+	 	 	 	ut the data to port B
+ 0000	 	 	 	            INOUT SEGMENT
+ 	 	 	 	            ASSUME CS:INOUT
+ 	 	 	 	            ASSUME DS:INOUT
+ 	 	 	 	            ASSUME ES:INOUT
+ = 8006	 	 	 	             CONTWD EQU 8006H
+ = 8000	 	 	 	            PORTA EQU 8000H
+ = 8002	 	 	 	            PORTB EQU 8002H
+ = 8004	 	 	 	            PORTC EQU 8004H
+ 0100	 	 	 	            ORG 0100H
+ 0100  EB 01 90	 	 	      STRT: JMP SKIP_DATA
+ 0103  B8 10FF	 	 	    SKIP_DATA:MOV AX,10FFH
+ 0106  8B E0	 	 	            MOV SP,AX   ;Init. SP fpr KIT
+ 0108  0E	 	 	            PUSH CS     ;Load DS with segment
+ 0109  1F	 	 	            POP DS      ;Value
+ 010A  B8 0000	 	 	            MOV AX,0000H
+ 010D  8E C0	 	 	            MOV ES,AX
+ 010F  B0 90	 	 	            MOV AL,90H   ;Init. PortA of 8255 a
+	 	 	 	s
+ 0111  BA 8006	 	 	            MOV DX,CONTWD ;input and B as outpu
+	 	 	 	t
+ 0114  EE	 	 	            OUT DX,AL     ;Port
+ 0115  BA 8000	 	 	    BACK:   MOV DX,PORTA  ;In the data from
+ 0118  EC	 	 	            IN AL,DX      ;PortA
+ 0119  BA 8002	 	 	            MOV DX,PORTB  ;Out the data to
+ 011C  EE	 	 	            OUT DX,AL     ;PortB
+ 011D  B4 08	 	 	            MOV AH,08H
+ 011F  CD A1	 	 	            INT 0A1H
+ 0121  3C 1B	 	 	            CMP AL,1BH
+ 0123  75 F0	 	 	            JNE BACK
+ 0125	 	 	 	            INOUT ENDS
+ 	 	 	 	            END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	07-25-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+INOUT. . . . . . . . . . . . . .	0125	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BACK . . . . . . . . . . . . . .	L NEAR 	0115	INOUT
+CONTWD . . . . . . . . . . . . .	Number	8006	
+PORTA. . . . . . . . . . . . . .	Number	8000	
+PORTB. . . . . . . . . . . . . .	Number	8002	
+PORTC. . . . . . . . . . . . . .	Number	8004	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	INOUT
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	INOUT
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

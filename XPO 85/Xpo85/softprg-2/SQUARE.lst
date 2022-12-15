@@ -1,0 +1,74 @@
+ AS V1.42 Beta [Bld 56] - source file SQUARE.asm - page 1 - 2/13/2008 19:00:50
+
+
+       1/       0 :                     		cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Program squares a number at location 2100h
+       4/       0 :                     ; It is assumed that a look up table of single byte
+       5/       0 :                     ; squares is located at 6620h onwards.
+       6/       0 :                     ; The program fetches the square from this lookup table.
+       7/       0 :                     ; The result is stored at location 2101h.
+       8/       0 :                     
+       9/       0 :                     ; This method (program logic) is usable only upto numbers
+      10/       0 :                     ; whose square is < 255 (<= 256). So the largest number for
+      11/       0 :                     ; which a square can be located with this program (without
+      12/       0 :                     ; modifications is 15.
+      13/       0 :                     
+      14/    6620 :                     	org 6620h			;Three Bytes blank after previous program
+      15/    6620 : 00 01 04 09 10 19   	db 0,1,4,9,16,25,36,49,64,81,100,121,144,169,196,225
+                    24 31 40 51 64 79 
+                    90 A9 C4 E1 
+      16/    6630 :                     
+      17/    6630 :                     		org 6630h		
+      18/    6630 :                     start:
+      19/    6630 : 11 20 66            		lxi d,6620h		;Base address of lookup table
+      20/    6633 : 3A 00 21            		lda 2100h		;Get the number to square
+      21/    6636 : 26 00               		mvi h,00h
+      22/    6638 : 6F                  		mov l,a
+      23/    6639 : 19                  		dad d			;Add offset to lookup table base address
+      24/    663A : 46                  		mov b,m
+      25/    663B : 78                  		mov a,b			;Get the square
+      26/    663C : 32 01 21            		sta 2101h		;Store result
+      27/    663F : CF                  		rst 1
+      28/    6640 :                     		
+      29/    6640 :                     
+ AS V1.42 Beta [Bld 56] - source file SQUARE.asm - page 2 - 2/13/2008 19:00:50
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6630 C |
+*TIME :                    19:00:50 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     29 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file SQUARE.asm - page 3 - 2/13/2008 19:00:50
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+     29 lines source file
+      1 pass
+      0 errors
+      0 warnings

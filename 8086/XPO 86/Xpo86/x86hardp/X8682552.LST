@@ -1,0 +1,95 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING 8255	 	 	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	       PAGE 80
+ 	 	 	 	       TITLE-- USING 8255
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X868255   	SEGMENT
+ 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X868255, DS:X868255 ,
+	 	 	 	ES:X868255
+ 0100	 	 	 	          	ORG 100H     	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	JMP 	SKIP_DATA 	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	; Init of SP fo
+	 	 	 	r Kit
+ 0106  8B C0	 	 	        MOV     AX,AX     	; On PC
+ 0108  0E	 	 	        PUSH    CS        	; Init for DS
+ 0109  1F	 	 	        POP     DS  
+ 	 	 	 	                            	; Load Kit Ints
+	 	 	 	 (A0-BF) 
+ 010A  90	 	 	        NOP               	; In PC using
+ 010B  90	 	 	        NOP               	; CALL in place
+	 	 	 	 of 3 NOP`S
+ 010C  90	 	 	        NOP               	;
+ 	 	 	 	 	 	 	 	
+ 010D  BA 8006	 	 	        MOV     DX,8006H  	; Control Port 
+	 	 	 	of 8255L
+ 0110  B8 8080	 	 	        MOV     AX,8080H  	; Control word 
+	 	 	 	'80'H
+ 0113  EE	 	 	        OUT     DX,AL	 	;
+ 0114  BA 8807	 	 	        MOV     DX,8807H  	; Control of 82
+	 	 	 	55U
+ 0117  EE	 	 	        OUT     DX,AL	 	;
+ 0118  B8 5555	 	 	AGAIN:  MOV     AX,5555H  	; Data '55'H 
+ 011B  BA 8000	 	 	        MOV     DX,8000H  	; Port addr of 
+	 	 	 	8255L
+ 011E  EE	 	 	        OUT     DX,AL	 	;
+ 011F  BA 8801	 	 	        MOV     DX,8801H  	; Port addr of 
+	 	 	 	8255U
+ 0122  EE	 	 	        OUT     DX,AL	 	;
+ 0123  B9 7000	 	 	        MOV     CX,7000H	;
+ 0126  CD AA	 	 	        INT     0AAH      	; CALL Delay
+ 0128  B8 AAAA	 	 	        MOV     AX,0AAAAH 	; Data 'AA'
+ 012B  BA 8000	 	 	        MOV     DX,8000H	;
+ 012E  EE	 	 	        OUT     DX,AL	 	;
+ 012F  BA 8801	 	 	        MOV     DX,8801H	;
+ 0132  EE	 	 	        OUT     DX,AL	 	;
+ 0133  CD AA	 	 	        INT     0AAH	 	; Delay
+ 0135  EB E1	 	 	        JMP     AGAIN	 	; Continue
+ 	 	 	 	
+ 0137	 	 	 	X868255   	ENDS
+ 	 	 	 	 	END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING 8255	 	 	 	 	 	 	10-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X868255. . . . . . . . . . . . .	0137	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+AGAIN. . . . . . . . . . . . . .	L NEAR 	0118	X868255
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X868255
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X868255
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

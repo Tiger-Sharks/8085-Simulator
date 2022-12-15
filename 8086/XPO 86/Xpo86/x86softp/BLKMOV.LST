@@ -1,0 +1,131 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- BLOCK MOVE.	 	 	 	 	 	 	08-24-99    
+
+
+ 	 	 	 	        PAGE 70
+ 	 	 	 	
+ 	 	 	 	  TITLE -- BLOCK MOVE.
+ 	 	 	 	
+ 	 	 	 	;THIS PROG. MOVES A BLOCK OF 100 (D) BYTES
+ 	 	 	 	;FROM SOURCE ADDRESS 0000H:[1000H] TO THE
+ 	 	 	 	;DESTINATION ADDRESS AT 0000H:[1100H]
+ 	 	 	 	;
+ 	 	 	 	;0000H:[1000H ...1063H] SOURCE BLOCK
+ 	 	 	 	;0000H:[1100H ...1163H] DESTINATION BLOCK
+ 	 	 	 	;
+ 	 	 	 	;REG.USED/DESTROYED :- AX,CX,SI,DI ETC.
+ 	 	 	 	;MEM. LOCATIONS MODIFIED :- 1100H TO 1163H
+ 	 	 	 	;
+ 	 	 	 	;COMMON SCRATCH PAD AREA ALLOTED :-
+ 	 	 	 	;SEG.=0000H, ADDR.=1000H ONWARDS.
+ 	 	 	 	;ie 0000:1000 H ONWARDS.
+ 	 	 	 	; 
+ 	 	 	 	; INPUT TO THE PROG. :-
+ 	 	 	 	; SOURCE BLOCK
+ 	 	 	 	;  SEG 0000H
+ 	 	 	 	;  ADDR        DATA
+ 	 	 	 	; [1000 H] -- DATA BYTE 1
+ 	 	 	 	; [1001 H] -- DATA BYTE 2
+ 	 	 	 	;   |          |
+ 	 	 	 	; [1063 H] -- DATA BYTE 100
+ 	 	 	 	;
+ 	 	 	 	; OUTPUT OF THE PROG. :-
+ 	 	 	 	; DESTINATION BLOCK
+ 	 	 	 	;   SEG 0000H
+ 	 	 	 	;   ADDR       DATA
+ 	 	 	 	; [1100 H] -- DATA BYTE 1
+ 	 	 	 	; [1101 H] -- DATA BYTE 2
+ 	 	 	 	;   |          |
+ 	 	 	 	; [1163 H] -- DATA BYTE 100
+ 	 	 	 	
+ 0000	 	 	 	        BLKMOV  SEGMENT
+ 	 	 	 	        ASSUME CS:BLKMOV, DS:BLKMOV
+ 	 	 	 	        ASSUME ES:BLKMOV
+ 	 	 	 	; 'ASSUME' IS AN ASSEMBLER DIRECTIVE. IT HAS
+ 	 	 	 	; NOTHING TO DO WITH 8086. IT IS ONLY USED
+ 	 	 	 	; TO TELL THE ASSEMBLER (MASM), WHERE THE
+ 	 	 	 	; CODE, DATA, STACK ETC. IS LOCATED.
+ 	 	 	 	; IT IS ONLY A FORMALITY FOR MASM.
+ 	 	 	 	
+ = 0000	 	 	 	SCPD     EQU 0000H ; SCRATCH PAD SEGMENT.
+ = 1000	 	 	 	ADR_SRC  EQU 1000H ; ADDRESS OF SOURCE BLK.
+ = 1100	 	 	 	ADR_DST  EQU 1100H ; ADDRESS OF DESTINATION.
+ = 0064	 	 	 	BYTENO   EQU 0064H ; NO. OF BYTES IN THE BLK.
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H       ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100	 	 	 	STRT:
+ 0100  EB 01 90	 	 	JMP SKIP_DATA  ;SKIP LOOK UP/DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP TO SEPARATE
+ 	 	 	 	;STACK OF YOUR PROGRAME FROM MONITORS, DS AS
+ 	 	 	 	;SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON
+ 	 	 	 	;BY MONITOR. YOU CAN OFCOURSE CHANGE IT BY
+ 	 	 	 	;ADDING A FEW MORE MOVES. BUT WHILE WORKING ON
+ 	 	 	 	;PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE
+ 	 	 	 	;THEY ARE SET BY DOS LOADER,SO MANAGE THESE
+ 	 	 	 	;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV AX,10FFH    ; INIT OF SP FOR KIT
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- BLOCK MOVE.	 	 	 	 	 	 	08-24-99    
+
+
+ 0106  8B E0	 	 	MOV  SP,AX      ; <-- MOV AX,AX  ON PC
+ 0108  0E	 	 	PUSH CS         ; INIT FOR DS
+ 0109  1F	 	 	POP DS          ;
+ 010A  90	 	 	NOP             ; TO LOAD KIT INTERRUPTS
+ 010B  90	 	 	NOP             ; (A0-BF) IN PC
+ 010C  90	 	 	NOP             ; REPLACE THE 3 NOPS
+ 	 	 	 	; CALL LDINPC   ; WITH THIS CALL.
+ 010D  B8 0000	 	 	MOV AX,SCPD     ; TO SPECIFY SCPD LOCn ON KIT.
+ 0110  90	 	 	NOP             ; <-- MOV AX,CS  ON PC
+ 0111  8E C0	 	 	MOV ES,AX       ;
+ 0113  BE 1000	 	 	MOV SI,ADR_SRC  ; ADDR. OF SOURCE BLOCK.
+ 0116  BF 1100	 	 	MOV DI,ADR_DST  ; ADDR. OF DESTINATION.
+ 0119  B9 0064	 	 	MOV CX,BYTENO   ; BLOCK LENGTH IN CX
+ 011C	 	 	 	LUP1:           ;
+ 011C  26: 8A 04	 	MOV AL,ES:[SI]  ; TAKE DATA BYTE FROM SOURCE
+ 011F  26: 88 05	 	MOV ES:[DI],AL  ; STORE AT DESTINATION
+ 0122  47	 	 	INC DI          ;
+ 0123  46	 	 	INC SI          ; POINTERS TO NEXT BYTE.
+ 0124  E2 F6	 	 	LOOP LUP1       ;
+ 0126  CD A3	 	 	INT 0A3H        ; GOTO COMMAND = MODE ON KIT.
+ 	 	 	 	                ; ON PC RETURN TO DOS.
+ 	 	 	 	                ; IF YOU ARE RUNNING YOUR
+ 	 	 	 	                ; SOFTWARE ON PC INSERT HERE
+ 	 	 	 	                ; INCLUDE KIT_INTS.ASM
+ 	 	 	 	                ; *******************
+ 	 	 	 	                                
+ 0128	 	 	 	BLKMOV ENDS     ; READ FOR MORE INFO TITLE OF
+ 	 	 	 	       END STRT ; KIT_INTS.ASM
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- BLOCK MOVE.	 	 	 	 	 	 	08-24-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+BLKMOV . . . . . . . . . . . . .	0128	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ADR_DST. . . . . . . . . . . . .	Number	1100	
+ADR_SRC. . . . . . . . . . . . .	Number	1000	
+BYTENO . . . . . . . . . . . . .	Number	0064	
+LUP1 . . . . . . . . . . . . . .	L NEAR 	011C	BLKMOV
+SCPD . . . . . . . . . . . . . .	Number	0000	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	BLKMOV
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	BLKMOV
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

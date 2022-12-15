@@ -1,0 +1,101 @@
+ AS V1.42 Beta [Bld 56] - source file adc.asm - page 1 - 12/13/2010 18:22:18
+
+
+       1/       0 :                     ;*******************************************************************************
+       2/       0 :                     ;Header: 		Sample program for B
+       3/       0 :                     
+       4/       0 :                     ;Monitor utilities used in this program
+       5/       0 :                         cpu     8085
+       6/       0 :                     
+       7/       0 :                     ;Addresses of 8255 control register, ports etc.
+       8/       0 : =8H                 PORTA			equ		08H	; This is address of 8255 PORTA
+       9/       0 : =9H                 PORTB			equ		09H	; This is address of 8255 PORTB
+      10/       0 : =AH                 PORTc			equ		0AH	; This is address of 8255 PORTC
+      11/       0 : =BH                 CW8255        	equ		0BH	; This is address of 8255 control word
+      12/       0 :                     ;~~~~~~~~~~~~~~~~~~~~~~Start of main program~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      13/       0 :                     
+      14/    7000 :                     						ORG 7000H
+      15/    7000 : 31 00 21            START:		lxi SP,2100H; init stack pointer.
+      16/    7003 : CD 8A 04            			call 048AH
+      17/    7006 : 3E 80               			 mvi A,	80H ; 8255 SET IN I/O MODE	
+      18/    7008 : D3 0B               			 out 0BH
+      19/    700A : 3E 82               			 mvi A, 82H
+      20/    700C : D3 0B               			 out 0BH
+      21/    700E : 00                  	loop3:	 NOP
+      22/    700F : 00                  			 NOP
+      23/    7010 : 3E 20               			 mvi A, 20H
+      24/    7012 : D3 0A               			 out 0AH
+      25/    7014 : 00                  			 NOP
+      26/    7015 : 3E A0               			 mvi A, 0A0H  
+      27/    7017 : D3 0A               			 out 0AH
+      28/    7019 :                     			 
+      29/    7019 : DB 09               	loop1:	 in 09H
+      30/    701B : E6 80               			 ANI  80H
+      31/    701D : CA 19 70            			 JZ loop1
+      32/    7020 : 3E 20               			 mvi A,20H
+      33/    7022 : D3 0A               			 out 0AH
+      34/    7024 : 3E 30               	loop2:	mvi A, 30H
+      35/    7026 : D3 0A               			out 0AH
+      36/    7028 : DB 09               			in 09H
+      37/    702A : E6 80               			ani 80H
+      38/    702C : C2 24 70            			jnz loop2
+      39/    702F : DB 09               			in 09H
+      40/    7031 : E6 0F               			ani 0FH
+      41/    7033 : 57                  			mov D,A
+      42/    7034 : 3E 20               			mvi A, 20H
+      43/    7036 : D3 0A               			out 0AH
+      44/    7038 : DB 09               			in 09H
+      45/    703A : 5F                  			mov E,A
+      46/    703B : 06 03               			mvi B, 03H
+      47/    703D : CD 6C 03            			call 036CH
+      48/    7040 : CD 72 20            			call 2072H
+      49/    7043 : 3E 0D               			mvi A, 0DH
+      50/    7045 : CD 78 20            			call 2078H
+      51/    7048 : DA 0E 70            			jc loop3
+      52/    704B : C3 00 70            			jmp START
+      53/    704E :                     				
+      54/    704E :                     
+      55/    704E :                     
+ AS V1.42 Beta [Bld 56] - source file adc.asm - page 2 - 12/13/2010 18:22:18
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *CW8255 :                         B - |
+*DATE :                  12/13/2010 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - |  LOOP1 :                       7019 C |
+ LOOP2 :                       7024 C |  LOOP3 :                       700E C |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*PORTA :                          8 - | *PORTB :                          9 - |
+*PORTC :                          A - | *RELAXED :                        0 - |
+ START :                       7000 C | *TIME :                    18:22:18 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     36 symbols
+     32 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file adc.asm - page 3 - 12/13/2010 18:22:18
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     55 lines source file
+      1 pass
+      0 errors
+      0 warnings

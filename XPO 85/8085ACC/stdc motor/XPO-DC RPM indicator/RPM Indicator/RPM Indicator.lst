@@ -1,0 +1,226 @@
+ AS V1.42 Beta [Bld 71] - source file RPM Indicator.asm - page 1 - 11/16/2009 15:27:28
+
+
+       1/       0 :                     ;PWM generation trial program for 8253
+       2/       0 :                     ;Measurement range is from 10mSec per pulse to 2mSec per pulse
+       3/       0 :                     ; == 100Hz to 500Hz
+       4/       0 :                     ; So rps = 65536 - number of pulses
+       5/       0 :                     ; rpm = rps * 60 (Write a 16 x 8 multiplication routine)
+       6/       0 :                     
+       7/       0 :                     ; For 1/8SEC use monitor utility DELAY (Address 0615H) load DE with 
+       8/       0 :                     ; 1131H (Error of 0.01mSec)
+       9/       0 :                     
+      10/       0 :                     ; 1) Configure 8253 in mode 0 (Terminal count mode, load full count)
+      11/       0 :                     ; 2) Use monitor utility DELAY to generate a delay of 256mSec
+      12/       0 :                     ; 3) Latch counter and read back
+      13/       0 :                     ; 4) Calculate rps as (10000H - Counter Value)
+      14/       0 :                     ; 5) Calculate rpm as rps * 60
+      15/       0 :                     ; 6) Display
+      16/       0 :                     
+      17/       0 :                     ; THE BCD TO DECIMAL CONVERSION IN BOTH CASES HAS BEEN DONE BY USING A RATHER
+      18/       0 :                     ; SIMPLISTIC METHOD OF A BCD UP COUNTER THAT COUNTS TILL A HEX DOWN COUNTER
+      19/       0 :                     ; REACHES 0. THE DISADVANTAGE OF THIS METHOD IS THAT THE AMOUNT OF TIME
+      20/       0 :                     ; NEEDED FOR CONVERSION IS PROPORTIONAL TO THE NUMBER THAT IS TO BE CONVERTED.
+      21/       0 :                     ; BUT HERE WE ARE NOT SHORT OF TIME AT ALL.
+      22/       0 :                     
+      23/       0 :                         cpu 8085            
+      24/       0 :                         
+      25/       0 : =2100H              RPS_HI  EQU     2100H
+      26/       0 : =2101H              RPS_LO  EQU     2101H
+      27/    7000 :                         ORG 7000h
+      28/    7000 :                     
+      29/    7000 :                     START:
+      30/    7000 : 3E 80                   MVI A,80H         ;Set all ports of 8255 as OP ports
+      31/    7002 : D3 0B                   OUT 0BH
+      32/    7004 :                     
+      33/    7004 : 3E 94                   MVI A,94H         ;COUNTER2 OF 8253 IN MODE2
+      34/    7006 : D3 1B                   OUT 1BH           ;
+      35/    7008 :                         
+      36/    7008 : 3E 04                   MVI A,04H
+      37/    700A : D3 1A                   OUT 1AH
+      38/    700C :                         
+      39/    700C : 3E 02                   MVI A,02H
+      40/    700E : D3 0A                   OUT 0AH           ;REVERSE DIRECTION SELECTED.
+      41/    7010 :                     ;CONFIGURE THE REMAINING COUNTER (COUNTER 2) IN MODE 0 AND ENTER A 125mSEC DELAY
+      42/    7010 :                     ;AT END OF THE DELAY LATCH THE COUNT VALUE, READ IT BACK AND UPLOAD IT.
+      43/    7010 :                     
+      44/    7010 :                     NEXT_MEASUREMENT:    
+      45/    7010 :                     ;    LXI H,MSG1
+      46/    7010 :                     ;    CALL 03D8H           ;DISPLAY "RPS: "
+      47/    7010 :                             
+      48/    7010 : 16 11                   MVI D,011H
+      49/    7012 : 1E 31                   MVI E,031H
+      50/    7014 :                     
+      51/    7014 : 3E 70                   MVI A,70H         ;COUNTER1 IN MODE 0 16 BIT LSB-MSB ORDER BINARY COUNT
+      52/    7016 : D3 1B                   OUT 1BH
+      53/    7018 : 3E FF                   MVI A,0FFH
+      54/    701A : D3 19                   OUT 19H
+      55/    701C : D3 19                   OUT 19H           ;COUNTER LOADED
+      56/    701E : CD 15 06                CALL 0615H
+      57/    7021 :                         
+      58/    7021 : 3E 40                   MVI A,40H         ;COUNTER LATCH
+      59/    7023 : D3 1B                   OUT 1BH           ;WRITE TO 8253 CONTROL REGISTER.
+      60/    7025 :                         
+ AS V1.42 Beta [Bld 71] - source file RPM Indicator.asm - page 2 - 11/16/2009 15:27:28
+
+
+      61/    7025 : DB 19                   IN 19H            ;READ IN LSB OF COUNTER
+      62/    7027 : 6F                      MOV L,A
+      63/    7028 : DB 19                   IN 19H
+      64/    702A : 67                      MOV H,A           ;H:L CONTAIN THE COUNTER VALUE
+      65/    702B :                         
+      66/    702B : 16 FF                   MVI D,0FFH
+      67/    702D : 1E FF                   MVI E,0FFH
+      68/    702F : CD 5B 05                CALL 055BH        ;FFFF - (COUNT IN COUNTER REGISTER)
+      69/    7032 :                     
+      70/    7032 : 7C                      MOV A,H
+      71/    7033 : 32 00 21                STA RPS_HI
+      72/    7036 : 7D                      MOV A,L
+      73/    7037 : 32 01 21                STA RPS_LO      ;SAVE HL
+      74/    703A :                     
+      75/    703A :                     ;    MVI B,00
+      76/    703A :                     ;    MVI C,00        ;B:C USED AS DECIMAL UP COUNTER. HL IS DECIMAL DOWNCOUNTER
+      77/    703A :                     ;    MVI A,00
+      78/    703A :                     ;BCD_CONVERT_RPS:
+      79/    703A :                     ;    MVI A,00
+      80/    703A :                     ;    CMP L
+      81/    703A :                     ;    JNZ CONTINUE_COUNTING_RPS
+      82/    703A :                     ;    CMP H
+      83/    703A :                     ;    JNZ CONTINUE_COUNTING_RPS
+      84/    703A :                     ;    JMP DONE_CONVERT_RPS
+      85/    703A :                     ;CONTINUE_COUNTING_RPS:    
+      86/    703A :                     ;    DCX H
+      87/    703A :                     ;    STC
+      88/    703A :                     ;    CMC             ;CLEAR CARRY
+      89/    703A :                     ;    MOV A,C
+      90/    703A :                     ;    ADI 01
+      91/    703A :                     ;    DAA
+      92/    703A :                     ;    MOV C,A
+      93/    703A :                     ;    MOV A,B
+      94/    703A :                     ;    ACI 00H 
+      95/    703A :                     ;    DAA
+      96/    703A :                     ;    MOV B,A
+      97/    703A :                     ;    JMP BCD_CONVERT_RPS
+      98/    703A :                     
+      99/    703A :                     ;DONE_CONVERT_RPS:
+     100/    703A :                     ;    MOV D,B
+     101/    703A :                     ;    MOV E,C
+     102/    703A :                     ;    MVI B,04H
+     103/    703A :                     ;    CALL 036CH        ;NMOUT
+     104/    703A :                     ;    CALL 048AH        ;CRLF
+     105/    703A :                         
+     106/    703A : 3A 00 21                LDA RPS_HI
+     107/    703D : 57                      MOV D,A
+     108/    703E : 3A 01 21                LDA RPS_LO
+     109/    7041 : 5F                      MOV E,A             ;GET SAVED RPS
+     110/    7042 : 26 00                   MVI H,00
+     111/    7044 : 2E 00                   MVI L,00
+     112/    7046 :                     
+     113/    7046 :                     ;INSTEAD OF DOING A TRUE 16 X 8 MULTIPLY (WHICH WILL BE GENERALIZED) WE WILL
+     114/    7046 :                     ;SIMPLY ADD THE RPS TO ITSELF 60 TIMES. THIS WILL STILL PRODUCE A RESULT THAT
+     115/    7046 :                     ;IS LESS THAN 16 BIT BECAUSE:
+     116/    7046 :                     ;AT THE HIGHEST SPEED THE MOTOR WILL PRODUCE 500 * 8 = 4000 PULSES PER SECOND
+     117/    7046 :                     ;SINCE OUT MEASUREMENT INTERVAL IS 125mSEC AT HIGHEST SPEED THE COUNT IN
+     118/    7046 :                     ;THE 8253 COUNTER WILL BE MAX 500 (9 BIT). MULTIPLYING BY 60 (6 BITS) WILL GIVE
+     119/    7046 :                     ;A RESULT NOT EXCEESING 15 BITS AT MOST.
+     120/    7046 :                         
+ AS V1.42 Beta [Bld 71] - source file RPM Indicator.asm - page 3 - 11/16/2009 15:27:28
+
+
+     121/    7046 :                     CALC_RPM:
+     122/    7046 : 0E 3C                   MVI C,60
+     123/    7048 : 3E 00                   MVI A,00
+     124/    704A :                     ADD_AGAIN:
+     125/    704A : 19                      DAD D
+     126/    704B : 0D                      DCR C
+     127/    704C : B9                      CMP C
+     128/    704D : C2 4A 70                JNZ ADD_AGAIN   
+     129/    7050 :                                         ;NOW HL CONTAINS THE RPM VALUE.
+     130/    7050 : 06 00                   MVI B,00
+     131/    7052 : 0E 00                   MVI C,00        ;B:C USED AS DECIMAL UP COUNTER. HL IS DECIMAL DOWNCOUNTER
+     132/    7054 : 3E 00                   MVI A,00
+     133/    7056 :                     BCD_CONVERT_RPM:
+     134/    7056 : 3E 00                   MVI A,00
+     135/    7058 : BD                      CMP L
+     136/    7059 : C2 63 70                JNZ CONTINUE_COUNTING_RPM
+     137/    705C : BC                      CMP H
+     138/    705D : C2 63 70                JNZ CONTINUE_COUNTING_RPM
+     139/    7060 : C3 73 70                JMP DONE_CONVERT_RPM
+     140/    7063 :                     CONTINUE_COUNTING_RPM:    
+     141/    7063 : 2B                      DCX H
+     142/    7064 : 37                      STC
+     143/    7065 : 3F                      CMC             ;CLEAR CARRY
+     144/    7066 : 79                      MOV A,C
+     145/    7067 : C6 01                   ADI 01
+     146/    7069 : 27                      DAA
+     147/    706A : 4F                      MOV C,A
+     148/    706B : 78                      MOV A,B
+     149/    706C : CE 00                   ACI 00H 
+     150/    706E : 27                      DAA
+     151/    706F : 47                      MOV B,A
+     152/    7070 : C3 56 70                JMP BCD_CONVERT_RPM
+     153/    7073 :                         
+     154/    7073 :                     DONE_CONVERT_RPM:
+     155/    7073 : 50                      MOV D,B
+     156/    7074 : 59                      MOV E,C
+     157/    7075 :                             
+     158/    7075 : CD 97 04                CALL 0497H         ;CR
+     159/    7078 : 21 8C 70                LXI H,MSG2
+     160/    707B : CD D8 03                CALL 03D8H         ;DISPLAY "RPM: "
+     161/    707E :                         
+     162/    707E : 06 04                   MVI B,04H
+     163/    7080 : CD 6C 03                CALL 036CH         ;NMOUT
+     164/    7083 :                     
+     165/    7083 : C3 10 70                JMP NEXT_MEASUREMENT
+     166/    7086 :                     ;------------------------------------------------------------------------------
+     167/    7086 : 52 50 53 3A 20 03   MSG1: DB 'R','P','S',':',' ',03H    
+     168/    708C : 52 50 4D 3A 20 03   MSG2: DB 'R','P','M',':',' ',03H
+     169/    7092 :                     
+     170/    7092 :                     
+     171/    7092 :                         
+     172/    7092 :                         END    
+ AS V1.42 Beta [Bld 71] - source file RPM Indicator.asm - page 4 - 11/16/2009 15:27:28
+
+
+  symbol table (* = unused):
+  ------------------------
+
+ ADD_AGAIN :                   704A C | *ARCHITECTURE :  i386-unknown-linux - |
+ BCD_CONVERT_RPM :             7056 C | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CALC_RPM :                    7046 C |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+ CONTINUE_COUNTING_RPM :       7063 C | *DATE :                  11/16/2009 - |
+ DONE_CONVERT_RPM :            7073 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*MSG1 :                        7086 C |  MSG2 :                        708C C |
+*NESTMAX :                      100 - |  NEXT_MEASUREMENT :            7010 C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - |  RPS_HI :                      2100 - |
+ RPS_LO :                      2101 - | *START :                       7000 C |
+*TIME :                    15:27:28 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     39 symbols
+     31 unused symbols
+
+ AS V1.42 Beta [Bld 71] - source file RPM Indicator.asm - page 5 - 11/16/2009 15:27:28
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+    173 lines source file
+      2 passes
+      0 errors
+      0 warnings

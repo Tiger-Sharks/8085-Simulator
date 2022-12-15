@@ -1,0 +1,142 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- DECIMAL COUNTER	 	 	 	 	 	01-30-;6    
+
+
+ 	 	 	 	 	PAGE 80
+ 	 	 	 	 	TITLE-- DECIMAL COUNTER
+ 	 	 	 	;A FOUR DIGIT DECIMAL COUNTER IS SIMULATED BY T
+	 	 	 	HIS PROGRAME.IT IS UP COUNTEER
+ 	 	 	 	;STARTING FROM 0000.IT INCREMENTS BY ONE.THE SP
+	 	 	 	EED OF COUNTING CAN BE CHANGED
+ 	 	 	 	;BY CHANGING DELAY COUNT.THE DISPLAY CAN BE FRO
+	 	 	 	ZEN BY PRESSING F KEY.CAN
+ 	 	 	 	;BE RESTARTED BY PRESSING S KEY.PRESSING ESC  K
+	 	 	 	EY RETURNS TO COMMAND MODE.
+ 	 	 	 	;
+ 0000	 	 	 	TYBS08	SEGMENT
+ 	 	 	 	 	ASSUME CS:TYBS08, DS:TYBS08 ,ES:TYBS08 
+ 0100	 	 	 	 	ORG 100H	 	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA	 	 	;SKIP L
+	 	 	 	OOK UP/ DATA BASES IF ANY
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 0103  B8 10FF	 	 	SKIP_DATA:MOV AX,10FFH	 	 	;INIT O
+	 	 	 	F SP FOR KIT
+ 0106  8B C0	 	 	  	MOV  AX,AX	 	 	;MOV AX
+	 	 	 	,AX   ON PC
+ 0108  0E	 	 	 	PUSH CS	 	 	 	;INIT F
+	 	 	 	OR DS 
+ 0109  1F	 	 	 	POP DS	 	 	 	;
+ 	 	 	 	 	 	 	 	 	;LOAD K
+	 	 	 	IT INT S (A0-BF) IN PC USING
+ 010A  E8 0000 U	 	 	CALL LDINPC
+ E r r o r   ---	9:Symbol not defined            
+ 	 	 	 	 	 	 	 	 	;******
+	 	 	 	*************
+ 	 	 	 	 	 	 	 	;PLACE ABOVE CA
+	 	 	 	LL IN PLACE OF 3 NOP`S
+ 010D  BA 0000	 	 	 	MOV DX,0000H	 	 	;INIT O
+	 	 	 	F DECIMAL COUNTER
+ 0110  CD AC	 	 	 	INT 0ACH	 	 	
+ 	 	 	 	 	; CALL CRLF
+ 0112  CD AB	 	 	LOOP1:	INT 0ABH	 	 	
+ 	 	 	 	 	;BRING CURSOR TO LEFTMOST POS BY
+ 	 	 	 	 	 	 	 	 	;FEEDIN
+	 	 	 	G CR ONLY
+ 0114  B0 04	 	 	 	MOV AL,04H	 	 	;DISPLA
+	 	 	 	YS GIVEN NO OF(AL) DIGITS
+ 	 	 	 	 	 	 	 	 	;FROM P
+	 	 	 	RESENT CURSOR POS
+ 0116  CD AE	 	 	 	INT 0AEH
+ 0118  8A C2	 	 	 	MOV AL,DL	 	 	;FETCH 
+	 	 	 	LOWER BYTE OF COUNTER
+ 011A  04 01	 	 	 	ADD AL,01H	 	 	;INCREM
+	 	 	 	ENT IT
+ 011C  27	 	 	 	DAA	 	 	 	;DECIMA
+	 	 	 	LY
+ 011D  8A D0	 	 	 	MOV DL,AL	 	 	;SAVE L
+	 	 	 	OWER BYTE
+ 011F  8A C6	 	 	 	MOV AL,DH	 	 	;FETCH 
+	 	 	 	UPPER BYTE OF COUNTER
+ 0121  14 00	 	 	 	ADC AL,00H	 	 	;INCREM
+	 	 	 	ENT IF CARRY
+ 0123  27	 	 	 	DAA
+ 0124  8A F0	 	 	 	MOV DH,AL	 	 	;SAVE U
+	 	 	 	PPER BYTE
+ 0126  B9 4000	 	 	 	MOV CX,4000H	 	 	;DELAY 
+	 	 	 	COUNT
+ 0129  CD AA	 	 	 	INT 0AAH
+ 012B  B4 0B	 	 	 	MOV AH,0BH
+ 012D  CD A1	 	 	 	INT 0A1H	 	 	
+ 	 	 	 	 	;TEST KBD OR CONSOL IN TO CHECK
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- DECIMAL COUNTER	 	 	 	 	 	01-30-;6    
+
+
+ 012F  3C 00	 	 	 	CMP AL,00H	 	 	;IF ANY
+	 	 	 	 KEY PRESSED
+ 0131  74 DF	 	 	 	JZ LOOP1	 	 	;NO CON
+	 	 	 	TINUE COUNTING
+ 0133  B4 08	 	 	 	MOV AH,08H	 	 	;READ K
+	 	 	 	BD TO FETCH KEY
+ 0135  CD A1	 	 	 	INT 0A1H
+ 0137  3C 46	 	 	 	CMP AL,"F"	 	 	;CHECK 
+	 	 	 	IF FREEZE (F) KEY PRESSED
+ 0139  74 06	 	 	 	JZ SKP01
+ 013B  3C 1B	 	 	 	CMP AL,1BH	 	 	;ESC KE
+	 	 	 	Y PRESSED?
+ 013D  75 D3	 	 	 	JNZ LOOP1
+ 013F  CD A3	 	 	 	INT 0A3H	 	 	
+ 	 	 	 	 	;RETURN TO COMMAND MODE.ON PC 
+ 	 	 	 	 	 	 	 	 	;RETURN
+	 	 	 	S TO DOS AUTOMATICALLY
+ 0141  B4 08	 	 	SKP01:	MOV AH,08H	 	 	;POLL K
+	 	 	 	BD OR CONSOL IN CONTINUOUSLY
+ 0143  CD A1	 	 	 	INT 0A1H	 	 	
+ 	 	 	 	 	;TILL KEY PRESSED
+ 0145  3C 53	 	 	 	CMP AL,"S"	 	 	;S KEY 
+	 	 	 	PRESSED?
+ 0147  74 C9	 	 	 	JZ LOOP1
+ 0149  EB F6	 	 	 	JMP SKP01
+ 	 	 	 	;IF YOU ARE RUNNING YOUR SOFTWARE ON PC INSERT 
+	 	 	 	HERE -->INCLUDE KIT_INTS.ASM
+ 	 	 	 	 	 	 	 	;	
+ 	 	 	 	 	  **************************
+ 014B	 	 	 	TYBS08	ENDS	 	 	;READ FOR MORE 
+	 	 	 	INFO TITLE OF KIT_INTS.ASM
+ 	 	 	 	 	END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- DECIMAL COUNTER	 	 	 	 	 	01-30-;6    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+TYBS08 . . . . . . . . . . . . .	014B	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+LOOP1. . . . . . . . . . . . . .	L NEAR 	0112	TYBS08
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	TYBS08
+SKP01. . . . . . . . . . . . . .	L NEAR 	0141	TYBS08
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	TYBS08
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	1

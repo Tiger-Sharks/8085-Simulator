@@ -1,0 +1,120 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	;SORT GIVEN SET OF DATAPOINTS USING SELECTION S
+	 	 	 	ORT. 
+ 	 	 	 	;SORTING IS IN DESCENDING ORDER i.e. LARGEST EL
+	 	 	 	EMENT ON TOP
+ 	 	 	 	;SMALLEST ELEMENT AT BOTTOM
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KBYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 0D 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---	
+ 	 	 	 	
+ 0103  0087 0098 0012 0043	TABLE DW 87H,98H,12H,43H
+ 010B  0004	 	 	COUNT DW 4
+ 010D  ????	 	 	NEWC  DW ?
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 010F	 	 	 	SKIP_DATA:
+ 010F  B8 10FF	 	 	 	MOV AX,10FFH
+ 0112  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 0114  B8 0000	 	 	 	MOV AX,0000H
+ 0117  8E D0	 	 	 	MOV SS,AX
+ 0119  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 011B  0E	 	 	 	PUSH CS
+ 011C  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 011D  90	 	 	 	NOP
+ 011E  90	 	 	 	NOP
+ 011F  90	 	 	 	NOP	
+ 	 	 	 	
+ 0120  8B 16 010B R	 	 	MOV DX,COUNT	;TOTAL NUMBER OF DATA P
+	 	 	 	OINTS.
+ 0124  4A	 	 	    DEC DX          ;DX=3 NO OF PASSES REQUIRED
+	 	 	 	 
+ 0125  C7 06 010D R 0000	    MOV NEWC,0 
+ 012B	 	 	 	OUTLUP: 
+ 012B  8B CA	 	 	    MOV CX,DX       ;CX=NO OF COMPARISIONS TO B
+	 	 	 	E PERFORMED IN A PASS 
+ 012D  BE 0000	 	 	    MOV SI,0 
+ 0130  8B 84 0103 R	 	    MOV AX,TABLE[SI] ;GET THE FIRST ELEMENT TO 
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+	 	 	 	SORT.
+ 0134  8B DE	 	 	    MOV BX,SI 
+ 0136	 	 	 	INLUP: 
+ 0136  46	 	 	    INC SI     	 	 	;POINT TO THE N
+	 	 	 	EXT ELEMENT TO BE SORTED.
+ 0137  46	 	 	    INC SI
+ 0138  FF 06 010D R	 	    INC NEWC 	;INCREMENT COUNTER
+ 013C  3B 84 0103 R	 	    CMP AX,TABLE[SI] 	;PERFORM THE COMPARISON
+	 	 	 	.
+ 0140  72 06	 	 	    JB GO_ON 	 	 	 	
+ 	 	 	 	 	;IF ELEMENT BELOW THE NEXT IN TABLE CON
+	 	 	 	TINUE
+ 0142  8B 84 0103 R	 	    MOV AX,TABLE[SI]    ;AH=SMALLEST ELEMENT IN
+	 	 	 	 THE VECTOR 
+ 0146  8B DE	 	 	    MOV BX,SI       ;BX=POSITION OF THE SMALLES
+	 	 	 	T ELEMENT 
+ 0148	 	 	 	GO_ON: 
+ 0148  E2 EC	 	 	    LOOP INLUP      ;UNTILL CX=0 
+ 014A  87 84 0103 R	 	    XCHG AX,TABLE[SI]   ;XCHG THE LAST ELEMENT 
+	 	 	 	POINTED BY SI,WITH THE 
+ 014E  89 87 0103 R	 	    MOV TABLE[BX],AX    ;SMALLEST ELEMENT POINT
+	 	 	 	ED BY BX 
+ 0152  4A	 	 	    DEC DX 
+ 0153  75 D6	 	 	    JNZ OUTLUP   
+ 0155  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	 	
+ 0157	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0157	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+COUNT. . . . . . . . . . . . . .	L WORD 	010B	COMSEG
+GO_ON. . . . . . . . . . . . . .	L NEAR 	0148	COMSEG
+INLUP. . . . . . . . . . . . . .	L NEAR 	0136	COMSEG
+NEWC . . . . . . . . . . . . . .	L WORD 	010D	COMSEG
+OUTLUP . . . . . . . . . . . . .	L NEAR 	012B	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	010F	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+TABLE. . . . . . . . . . . . . .	L WORD 	0103	COMSEG
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

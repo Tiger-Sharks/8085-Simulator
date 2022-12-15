@@ -1,0 +1,74 @@
+ AS V1.42 Beta [Bld 56] - source file DEC2SEVSEG.ASM - page 1 - 2/13/2008 19:01:29
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Decimal to seven segment conversion.
+       4/       0 :                     ; Lookup table for 7 segment equivalents is stored at location 6900 
+       5/       0 :                     ; onwards. Only decimal numbers are converted. (0..9) are converted to
+       6/       0 :                     ; seven segment equivalent. Any number > 9 produces a blank display.
+       7/       0 :                     ; The lookup table assumes that MSbit is decimal point and rest of the
+       8/       0 :                     ; bits are arranged as LSbit (a).....MSbit-1 (g), MSbit is Decimal Point
+       9/       0 :                     	
+      10/    6900 :                     	org 6900h			;Four bytes blank after previous program
+      11/    6900 : 3F 06 5B 4F 66 6D   	db 3Fh,06h,5Bh,4Fh,66h,6Dh,7Dh,07h,7Fh,67h
+                    7D 07 7F 67 
+      12/    690A :                     	
+      13/    6910 :                     	org 6910h
+      14/    6910 :                     	start:
+      15/    6910 : 06 00               		mvi b,00h		;If number > 09 use b to produce blank
+      16/    6912 : 3A 00 21            		lda 2100h		;Get number to perform lookup on.
+      17/    6915 : FE 0A               		cpi 0ah			;Carry is set if Accumulator < 0a
+      18/    6917 : D2 22 69            		jnc done			
+      19/    691A :                     		
+      20/    691A : 11 00 69            		lxi d,6900h		;DE = Base address of lookup table
+      21/    691D : 26 00               		mvi h,00h
+      22/    691F : 6F                  		mov l,a			;HL = Number (offset) to index into lookup table
+      23/    6920 : 19                  		dad d
+      24/    6921 : 46                  		mov b,m			;Get seven segment equivalent to B
+      25/    6922 :                     	done:
+      26/    6922 : 78                  		mov a,b
+      27/    6923 : 32 01 21            		sta 2101h
+      28/    6926 : CF                  		rst 1
+      29/    6927 :                     
+      30/    6927 :                     ;Last address used by the program 1B14h == 6932
+ AS V1.42 Beta [Bld 56] - source file DEC2SEVSEG.ASM - page 2 - 2/13/2008 19:01:29
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+ DONE :                        6922 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*START :                       6910 C | *TIME :                    19:01:29 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     30 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file DEC2SEVSEG.ASM - page 3 - 2/13/2008 19:01:29
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     30 lines source file
+      2 passes
+      0 errors
+      0 warnings

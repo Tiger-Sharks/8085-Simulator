@@ -1,0 +1,125 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-25-:9    
+
+
+ 0000	 	 	 	  X86DAC   SEGMENT
+ 	 	 	 	        ASSUME CS:X86DAC, DS:X86DAC, ES:X86DAC
+ 	 	 	 	
+ 0100	 	 	 	                ORG 100H               ;REPRESN
+	 	 	 	TS ".COM" FORMAT
+ 0100  EB 01 90	 	 	           STRT: JMP SKIP_DAT          ;
+ 0103  B8 0000	 	 	       SKIP_DAT: MOV AX,0000H
+ 0106  8E C0	 	 	                 MOV ES,AX
+ 0108  8E D0	 	 	                 MOV SS,AX
+ 010A  B8 11F0	 	 	                 MOV AX,11F0H       ;INIT OF SP
+ 010D  8B E0	 	 	                 MOV SP,AX
+ 010F  0E	 	 	                 PUSH CS
+ 0110  1F	 	 	                 POP DS            ;SET DS=CS
+ 0111  90	 	 	                 NOP                           
+	 	 	 	             
+ 0112  90	 	 	                 NOP                           
+	 	 	 	             
+ 0113  90	 	 	                 NOP                           
+	 	 	 	             
+ 0114  CD AC	 	 	                 INT 0ACH
+ 0116  B0 80	 	 	                 MOV AL,80H         ;INIT 8255 
+	 	 	 	WITH PORT A,B
+ 0118  BA 8807	 	 	                 MOV DX,8807H       ;& C(UPPER)
+	 	 	 	 O/P MODE
+ 011B  EE	 	 	                 OUT DX,AL
+ 	 	 	 	                 
+ 011C  B9 0000	 	 	                 MOV CX,0000H
+ 011F  BA 000F	 	 	                 MOV DX,000FH       ;LOAD DEFAU
+	 	 	 	LT VALUE OF HEIGHT
+ 	 	 	 	                
+ 0122  52	 	 	                 PUSH DX
+ 	 	 	 	                 
+ 0123  B9 0000	 	 	                 MOV CX,0000H
+ 0126  BA 0001	 	 	                 MOV DX,0001H
+ 	 	 	 	                 
+ 0129  B6 00	 	 	                 MOV DH,00H
+ 012B  52	 	 	                 PUSH DX
+ 012C  59	 	 	                 POP CX
+ 012D  5B	 	 	                 POP BX
+ 012E  BA 8801	 	 	                 MOV DX,8801H       ;INIT DIGIT
+	 	 	 	AL INPUT
+ 0131  BB 0154 R	 	            ABC:MOV BX, OFFSET TRING
+ 0134  2E: 8A 07	 	 	 	  BACK2: MOV AL,CS:[BX]        
+	 	 	 	 ;TO DAC AT 00H
+ 0137  EE	 	 	          BACK3: OUT DX,AL          ;FEED DIGIT
+	 	 	 	AL I/P TO DAC
+ 0138  51	 	 	                 PUSH CX
+ 0139  CD AA	 	 	                 INT 0AAH
+ 013B  59	 	 	                 POP CX
+ 013C  3C FF	 	 	                 CMP AL,0FFH         ;IS REQUIR
+	 	 	 	ED HEIGHT ATTAINED?
+ 013E  74 03	 	 	                 JZ BACK1         ;IF NO JUMP B
+	 	 	 	ACK
+ 0140  43	 	 	 	 	 	 	 INC BX
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	02-25-:9    
+
+
+ 0141  EB F1	 	 	 	 	 	 	 JMP BACK2
+ 0143  2E: 8A 07	 	          BACK1: MOV AL,CS:[BX]
+ 0146  EE	 	 	 	 	         OUT DX,AL         ;ELS
+	 	 	 	E FEED I/P TO DAC
+ 0147  51	 	 	                 PUSH CX
+ 0148  CD AA	 	 	                 INT 0AAH
+ 014A  59	 	 	                 POP CX            ;CONSTRUCT F
+	 	 	 	ALLING RAMP
+ 014B  3C 00	 	 	                 CMP AL,00H
+ 	 	 	 	 	 	 	 	 
+ 014D  74 E2	 	 	 	 	 	 	 JZ ABC        
+	 	 	 	 ;IF NO JUMP BACK
+ 014F  4B	 	 	                 DEC BX
+ 0150  EB F1	 	 	 	 	 	 	 JMP BACK1
+ 	 	 	 	 	 	 	 	 
+ 0152  CD A3	 	 	 	 	 	 	 INT 0A3H
+ 	 	 	 	        
+ 0154  00 01 04 09 0F 16	 	 	TRING:  DB 00H,01H,04H,09H,0FH,
+	 	 	 	16H,1EH,27H,31H,38H
+       1E 27 31 38	 	
+ 015E  49 51 5B 65 6F 78	 	 	        DB 49H,51H,5BH,65H,6FH,
+	 	 	 	78H,80H,87H,90H,9AH
+       80 87 90 9A	 	
+ 0168  A4 AE B6 C7 CE D8	 	 	 	 	DB 0A4H,0AEH,0B
+	 	 	 	6H,0C7H,0CEH,0D8H,0E1H,0E9H
+       E1 E9	 	 	
+ 0170  F0 F6 FB FE FF 03	 	 	 	 	DB 0F0H,0F6H,0F
+	 	 	 	BH,0FEH,0FFH,03H
+ 	 	 	 	 	 	 	 	
+ 	 	 	 	 	 	 	 	
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	 	
+ 0176	 	 	 	X86DAC   ENDS
+ 	 	 	 	        END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	02-25-:9    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86DAC . . . . . . . . . . . . .	0176	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ABC. . . . . . . . . . . . . . .	L NEAR 	0131	X86DAC
+BACK1. . . . . . . . . . . . . .	L NEAR 	0143	X86DAC
+BACK2. . . . . . . . . . . . . .	L NEAR 	0134	X86DAC
+BACK3. . . . . . . . . . . . . .	L NEAR 	0137	X86DAC
+SKIP_DAT . . . . . . . . . . . .	L NEAR 	0103	X86DAC
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86DAC
+TRING. . . . . . . . . . . . . .	L NEAR 	0154	X86DAC
+
+50088 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

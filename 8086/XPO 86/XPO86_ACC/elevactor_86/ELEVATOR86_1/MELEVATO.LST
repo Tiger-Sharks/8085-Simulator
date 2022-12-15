@@ -1,0 +1,568 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	;DOCUMENTATION ERROR IN XPO86-SW
+ 	 	 	 	;PAGE 10-3 INPUT DATA TO INT 0A2H IS IN DX NOT 
+	 	 	 	IN DI
+ 	 	 	 	 	
+ = 8000	 	 	 	L55PORTA   EQU 8000H
+ = 8002	 	 	 	L55PORTB   EQU 8002H
+ = 8004	 	 	 	L55PORTC   EQU 8004H
+ = 8006	 	 	 	L55CONTROL EQU 8006H
+ 	 	 	 	
+ 	 	 	 	
+ = 0040	 	 	 	GNDLED	   	EQU	40H	 	
+ 	 	 	 	 	;6TH BIT PORTB
+ = 0004	 	 	 	FIRSTLED   	EQU	04H	 	
+ 	 	 	 	 	;2ND BIT PORTB
+ = 0002	 	 	 	SECLED	   	EQU	02H	 	
+ 	 	 	 	 	;1ST BIT PORTA
+ 	 	 	 	
+ = 0020	 	 	 	UPLED1	 	EQU 20H	 	 	;5TH BI
+	 	 	 	T PORTB
+ = 0002	 	 	 	UPLED2	 	EQU 02H	 	 	;1ST BI
+	 	 	 	T PORTB
+ = 0001	 	 	 	UPLED3	 	EQU 01H	 	 	;0TH BI
+	 	 	 	T PORTA
+ 	 	 	 	
+ = 0080	 	 	 	DNLED1	 	EQU 80H	 	 	;7TH BI
+	 	 	 	T PORTB
+ = 0008	 	 	 	DNLED2	 	EQU 08H	 	 	;3RD BI
+	 	 	 	T PORTB
+ = 0004	 	 	 	DNLED3	 	EQU 04H	 	 	;2ND BI
+	 	 	 	T PORTA
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 36 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 0103  50 4F 53 49 54 49	HEADER1 DB "POSITION 0",03H
+       4F 4E 20 30 03	 	
+ 010E  47 4F 49 4E 47 20	HEADER2 DB "GOING ",03H
+       03	 	 	
+ 0115  57 41 49 54 49 4E	HEADER3 DB "WAITING",03H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+       47 03	 	 	
+ 	 	 	 	
+ 011D  55 50 03	 	 	DIRUP  DB "UP",03H
+ 0120  44 4E 03	 	 	DIRDN  DB "DN",03H
+ 0123  20 20 44 41 4E 47	BREACH1 DB "  DANGER  ",03H
+       45 52 20 20 03	 	
+ 012E  30 31 32 33 34 35	ASCIITABLE DB 30H,31H,32H,33H,34H,35H,36H,37H,3
+	 	 	 	8H,39H
+       36 37 38 39	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 	 	 	 	 	
+ 0138	 	 	 	SKIP_DATA:
+ 0138  B8 10FF	 	 	 	MOV AX,10FFH
+ 013B  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 013D  B8 0000	 	 	 	MOV AX,0000H
+ 0140  8E D0	 	 	 	MOV SS,AX
+ 0142  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 0144  0E	 	 	 	PUSH CS
+ 0145  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 0146  90	 	 	 	NOP
+ 0147  90	 	 	 	NOP
+ 0148  90	 	 	 	NOP	
+ 	 	 	 	 	
+ 	 	 	 	
+ 0149  BA 8006	 	 	 	MOV DX,L55CONTROL
+ 014C  B0 89	 	 	 	MOV AL,89H
+ 014E  EE	 	 	 	OUT DX,AL	 	 	;CONFIG
+	 	 	 	URE 8255 PORTS
+ 	 	 	 	 	
+ 014F  BE 0000	 	 	 	MOV SI,00H	 	 	;CURREN
+	 	 	 	T FLOOR
+ 0152  BF 0000	 	 	 	MOV DI,00H	 	 	;REQUES
+	 	 	 	TED FLOOR
+ 0155  B3 00	 	 	 	MOV BL,00H	 	 	;PORTA 
+	 	 	 	STATUS
+ 0157  B7 00	 	 	 	MOV BH,00H	 	 	;PORTB 
+	 	 	 	STATUS
+ 	 	 	 	
+ 0159  80 CF 40	 	 	 	OR BH,GNDLED
+ 	 	 	 	
+ 	 	 	 	
+ 015C  E8 0301 R	 	 	CALL UPDATE_8255
+ 015F  E8 030E R	 	 	CALL DISP_FLR_DIR
+ 0162	 	 	 	NEXT_REQUEST:	
+ 	 	 	 	
+ 0162  E8 0227 R	 	 	CALL GET_FLOOR_KEY	;RETURNS FLOOR 
+	 	 	 	KEY IN DI
+ 0165  3B F7	 	 	 	CMP SI,DI
+ 0167  74 F9	 	 	 	JE NEXT_REQUEST
+ 0169  7F 05	 	 	 	JG CALL_GO_DOWN
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 016B  E8 01CE R	 	 	CALL GO_UP
+ 016E  EB F2	 	 	 	JMP NEXT_REQUEST
+ 0170	 	 	 	CALL_GO_DOWN:
+ 0170  E8 0175 R	 	 	CALL GO_DOWN
+ 0173  EB ED	 	 	 	JMP NEXT_REQUEST
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 0175	 	 	 	GO_DOWN PROC NEAR
+ 0175  E8 030E R	 	 	CALL DISP_FLR_DIR
+ 0178  80 CF 80	 	 	 	OR BH,DNLED1
+ 017B  80 CF 08	 	 	 	OR BH,DNLED2
+ 017E  80 CB 04	 	 	 	OR BL,DNLED3
+ 0181  E8 0301 R	 	 	CALL UPDATE_8255	;ALL DOWN LEDS 
+	 	 	 	ON
+ 	 	 	 	 	
+ 0184  83 FE 01	 	 	 	CMP SI,01H
+ 0187  74 20	 	 	 	JE DN_FLR10
+ 	 	 	 	 	
+ 0189	 	 	 	DN_FLR21:
+ 0189  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 018C  80 F3 02	 	 	 	XOR BL,SECLED	 	;TURN OFF SECON
+	 	 	 	D FLOOR LED
+ 018F  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;UPDATE PORT STATUS
+ 0192  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 0195  80 CF 04	 	 	 	OR BH,FIRSTLED
+ 0198  E8 0301 R	 	 	CALL UPDATE_8255
+ 019B  BE 0001	 	 	 	MOV SI,01H
+ 019E  E8 02CB R	 	 	CALL DELAY
+ 01A1  E8 030E R	 	 	CALL DISP_FLR_DIR	
+ 01A4  83 FF 00	 	 	 	CMP DI,0
+ 01A7  75 18	 	 	 	JNE DNFLR_REACHED
+ 01A9	 	 	 	DN_FLR10:	
+ 01A9  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 01AC  80 F7 04	 	 	 	XOR BH,FIRSTLED	 	;TURN OFF FIRST
+	 	 	 	 FLOOR INDICATOR
+ 01AF  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;UPDATE PORT
+ 01B2  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 01B5  80 CF 40	 	 	 	OR BH,GNDLED
+ 01B8  E8 0301 R	 	 	CALL UPDATE_8255
+ 01BB  BE 0000	 	 	 	MOV SI,0H
+ 01BE  E8 030E R	 	 	CALL DISP_FLR_DIR	
+ 01C1	 	 	 	DNFLR_REACHED:
+ 01C1  80 F7 80	 	 	 	XOR BH,DNLED1
+ 01C4  80 F7 08	 	 	 	XOR BH,DNLED2
+ 01C7  80 F3 04	 	 	 	XOR BL,DNLED3
+ 01CA  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;ALL DOWNLEDS ARE NOW OFF
+ 01CD  C3	 	 	 	RET
+ 01CE	 	 	 	GO_DOWN ENDP	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-4
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 01CE	 	 	 	GO_UP PROC NEAR
+ 01CE  E8 030E R	 	 	CALL DISP_FLR_DIR
+ 	 	 	 	 	
+ 01D1  80 CF 20	 	 	 	OR BH,UPLED1
+ 01D4  80 CF 02	 	 	 	OR BH,UPLED2
+ 01D7  80 CB 01	 	 	 	OR BL,UPLED3
+ 01DA  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	;ALL UP
+	 	 	 	 LEDS ON	
+ 	 	 	 	 	
+ 01DD  83 FE 01	 	 	 	CMP SI,01H
+ 01E0  74 20	 	 	 	JE UP_FLR12
+ 01E2	 	 	 	UP_FLR01:
+ 01E2  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 01E5  80 F7 40	 	 	 	XOR BH,GNDLED
+ 01E8  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	;GND FL
+	 	 	 	OOR LED OFF
+ 01EB  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 01EE  80 CF 04	 	 	 	OR BH,FIRSTLED
+ 01F1  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	;FIRST 
+	 	 	 	FLOOR LED ON
+ 01F4  BE 0001	 	 	 	MOV SI,01H
+ 01F7  E8 02CB R	 	 	CALL DELAY	
+ 01FA  E8 030E R	 	 	CALL DISP_FLR_DIR	
+ 01FD  83 FF 02	 	 	 	CMP DI,02H
+ 	 	 	 	
+ 0200  75 18	 	 	 	JNE UPFLR_REACHED
+ 0202	 	 	 	UP_FLR12:
+ 0202  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 0205  80 F7 04	 	 	 	XOR BH,FIRSTLED
+ 0208  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	 	 	 	 	;FIRST 
+	 	 	 	FLOOR LED OFF
+ 020B  E8 02D1 R	 	 	CALL FLOOR_DELAY
+ 020E  80 CB 02	 	 	 	OR BL,SECLED
+ 0211  E8 0301 R	 	 	CALL UPDATE_8255
+ 0214  BE 0002	 	 	 	MOV SI,02H
+ 0217  E8 030E R	 	 	CALL DISP_FLR_DIR	
+ 	 	 	 	 	 	 	 	 	;SECOND
+	 	 	 	 FLOOR LED ON
+ 	 	 	 	 	
+ 021A	 	 	 	UPFLR_REACHED:	
+ 021A  80 F7 20	 	 	 	XOR BH,UPLED1
+ 021D  80 F7 02	 	 	 	XOR BH,UPLED2
+ 0220  80 F3 01	 	 	 	XOR BL,UPLED3
+ 0223  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	
+ 	 	 	 	 	 	 	 	 	;ALL UP
+	 	 	 	LEDS ARE NOW OFF
+ 0226  C3	 	 	 	RET
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-5
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 0227	 	 	 	GO_UP ENDP	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 0227	 	 	 	GET_FLOOR_KEY PROC NEAR
+ 	 	 	 	
+ 0227	 	 	 	WAIT_KEY:	
+ 0227  BA 8004	 	 	 	MOV DX,L55PORTC
+ 022A  EC	 	 	 	IN AL,DX
+ 	 	 	 	 	
+ 022B  0C 63	 	 	 	OR AL,63H	 	 	;MASK A
+	 	 	 	LL OTHER BITS EXCEPT KEYS AND EMMERGENCY STOP
+ 022D  3C 63	 	 	 	CMP AL,63H
+ 022F  74 F6	 	 	 	JE WAIT_KEY
+ 0231  3C E3	 	 	 	CMP AL,0E3H
+ 0233  75 03	 	 	 	JNE CONTINUE_KEYDET
+ 0235  E8 0290 R	 	 	CALL ALARM
+ 0238	 	 	 	CONTINUE_KEYDET:	
+ 0238  8A E0	 	 	 	MOV AH,AL	 	 	;AH CON
+	 	 	 	TAINS ORIGINALLY DETECTED KEYPRESS
+ 023A  E8 02CB R	 	 	CALL DELAY
+ 023D  BA 8004	 	 	 	MOV DX,L55PORTC
+ 0240  EC	 	 	 	IN AL,DX
+ 0241  0C 63	 	 	 	OR AL,63H
+ 0243  3A C4	 	 	 	CMP AL,AH
+ 0245  75 E0	 	 	 	JNE WAIT_KEY
+ 	 	 	 	
+ 0247	 	 	 	KEY_PRESS:
+ 	 	 	 	;INSERT ALARM CHECK HERE
+ 0247	 	 	 	CHECK_FLOOR_KEYS:
+ 0247  BA 8004	 	 	 	MOV DX,L55PORTC
+ 024A  EC	 	 	 	IN AL,DX
+ 024B  0C 63	 	 	 	OR AL,63H
+ 024D  3C E3	 	 	 	CMP AL,0E3H
+ 024F  75 03	 	 	 	JNE CHECK_FLOORS
+ 0251  E8 0290 R	 	 	CALL ALARM
+ 0254	 	 	 	CHECK_FLOORS:	
+ 0254  3C 73	 	 	 	CMP AL,73H	 	 	;SECOND
+	 	 	 	 FLOOR KEY
+ 0256  74 0A	 	 	 	JE GND_FLR
+ 0258  3C 6B	 	 	 	CMP AL,6BH
+ 025A  74 0C	 	 	 	JE FIRST_FLR
+ 025C  3C 67	 	 	 	CMP AL,67H
+ 025E  74 0E	 	 	 	JE SECOND_FLR
+ 0260  EB C5	 	 	 	JMP WAIT_KEY
+ 	 	 	 	 	
+ 0262	 	 	 	GND_FLR:
+ 0262  BF 0000	 	 	 	MOV DI,00H
+ 0265  EB 0A 90	 	 	 	JMP WAIT_RELEASE
+ 0268	 	 	 	FIRST_FLR:
+ 0268  BF 0001	 	 	 	MOV DI,01H
+ 026B  EB 04 90	 	 	 	JMP WAIT_RELEASE
+ 026E	 	 	 	SECOND_FLR:
+ 026E  BF 0002	 	 	 	MOV DI,02H
+ 0271	 	 	 	WAIT_RELEASE:
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-6
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 0271  BA 8004	 	 	 	MOV DX,L55PORTC
+ 0274  EC	 	 	 	IN AL,DX
+ 0275  0C 63	 	 	 	OR AL,63H
+ 0277  3C E3	 	 	 	CMP AL,0E3H
+ 0279  75 03	 	 	 	JNE CHECK_RELEASE
+ 027B  E8 0290 R	 	 	CALL ALARM
+ 027E	 	 	 	CHECK_RELEASE:
+ 027E  3C 63	 	 	 	CMP AL,63H
+ 0280  75 EF	 	 	 	JNE WAIT_RELEASE
+ 0282  E8 02CB R	 	 	CALL DELAY
+ 0285  BA 8004	 	 	 	MOV DX,L55PORTC
+ 0288  EC	 	 	 	IN AL,DX
+ 0289  0C 63	 	 	 	OR AL,63H
+ 028B  3C 63	 	 	 	CMP AL,63H
+ 028D  75 E2	 	 	 	JNE WAIT_RELEASE
+ 	 	 	 	 	
+ 028F  C3	 	 	 	RET
+ 0290	 	 	 	GET_FLOOR_KEY ENDP
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 0290	 	 	 	ALARM PROC NEAR
+ 	 	 	 	
+ 0290  53	 	 	 	PUSH BX	 	 	 	;SAVE B
+	 	 	 	X
+ 0291  CD AC	 	 	 	INT 0ACH
+ 0293  8D 1E 0123 R	 	 	LEA BX,BREACH1	 	 	;DISPLA
+	 	 	 	Y ALARM MESSAGE
+ 0297  CD AF	 	 	 	INT 0AFH
+ 0299  5B	 	 	 	POP BX	 	 	 	
+ 	 	 	 	 	;RESTORE BX
+ 	 	 	 	 	
+ 029A	 	 	 	ALARM_IN:	
+ 029A  BA 8004	 	 	 	MOV DX,L55PORTC
+ 029D  EC	 	 	 	IN AL,DX
+ 029E  0C 63	 	 	 	OR AL,63H
+ 02A0  24 80	 	 	 	AND AL,80H
+ 02A2  74 20	 	 	 	JZ ALARM_OVER
+ 02A4	 	 	 	FLASH_OFF:
+ 02A4  BA 8000	 	 	 	MOV DX,L55PORTA
+ 02A7  B0 FF	 	 	 	MOV AL,0FFH
+ 02A9  EE	 	 	 	OUT DX,AL
+ 02AA  BA 8002	 	 	 	MOV DX,L55PORTB
+ 02AD  EE	 	 	 	OUT DX,AL	
+ 02AE  B9 1FFF	 	 	 	MOV CX,01FFFH
+ 02B1	 	 	 	ALARM1:	
+ 02B1  E2 FE	 	 	 	LOOP ALARM1
+ 02B3	 	 	 	FLASH_ON:
+ 02B3  BA 8000	 	 	 	MOV DX,L55PORTA
+ 02B6  B0 00	 	 	 	MOV AL,00H
+ 02B8  EE	 	 	 	OUT DX,AL
+ 02B9  BA 8002	 	 	 	MOV DX,L55PORTB
+ 02BC  EE	 	 	 	OUT DX,AL
+ 02BD  B9 1FFF	 	 	 	MOV CX,01FFFH
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-7
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 02C0	 	 	 	ALARM2:	
+ 02C0  E2 FE	 	 	 	LOOP ALARM2
+ 02C2  EB D6	 	 	 	JMP ALARM_IN
+ 02C4	 	 	 	ALARM_OVER:
+ 02C4  E8 030E R	 	 	CALL DISP_FLR_DIR	
+ 02C7  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	
+ 02CA  C3	 	 	 	RET
+ 02CB	 	 	 	ALARM ENDP
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 02CB	 	 	 	DELAY PROC NEAR
+ 02CB  B9 03FF	 	 	 	MOV CX,03FFH
+ 02CE	 	 	 	DLY:
+ 02CE  E2 FE	 	 	 	LOOP DLY
+ 02D0  C3	 	 	 	RET
+ 02D1	 	 	 	DELAY ENDP
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 	 	 	 	
+ 02D1	 	 	 	FLOOR_DELAY PROC NEAR
+ 02D1  53	 	 	 	PUSH BX
+ 02D2  57	 	 	 	PUSH DI
+ 02D3  80 E7 BB	 	 	 	AND BH,0BBH	 	 	;MASK F
+	 	 	 	LOOR LEDS
+ 02D6  80 E3 FD	 	 	 	AND BL,0FDH
+ 02D9  8B FB	 	 	 	MOV DI,BX
+ 02DB  B4 10	 	 	 	MOV AH,10H
+ 02DD	 	 	 	INNER_FLR_DLY:
+ 	 	 	 	 	
+ 02DD  B9 0FFF	 	 	 	MOV CX,0FFFH
+ 02E0	 	 	 	FLR_DLY:
+ 02E0  BA 8004	 	 	 	MOV DX,L55PORTC
+ 02E3  EC	 	 	 	IN AL,DX
+ 02E4  0C 63	 	 	 	OR AL,63H
+ 02E6  3C E3	 	 	 	CMP AL,0E3H
+ 02E8  75 03	 	 	 	JNE CONTINUE_FLR_DLY
+ 02EA  E8 0290 R	 	 	CALL ALARM
+ 02ED	 	 	 	CONTINUE_FLR_DLY:	
+ 02ED  E2 F1	 	 	 	LOOP FLR_DLY
+ 02EF  33 DF	 	 	 	XOR BX,DI
+ 02F1  E8 0301 R	 	 	CALL UPDATE_8255
+ 	 	 	 	 	
+ 02F4  FE CC	 	 	 	DEC AH
+ 02F6  80 FC 00	 	 	 	CMP AH,00H
+ 02F9  75 E2	 	 	 	JNE INNER_FLR_DLY
+ 02FB  5F	 	 	 	POP DI
+ 02FC  5B	 	 	 	POP BX
+ 02FD  E8 0301 R	 	 	CALL UPDATE_8255
+ 0300  C3	 	 	 	RET
+ 0301	 	 	 	FLOOR_DELAY ENDP	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 	 	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-8
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 0301	 	 	 	UPDATE_8255	PROC NEAR
+ 	 	 	 	 	
+ 0301  BA 8002	 	 	 	MOV DX,L55PORTB
+ 0304  8A C7	 	 	 	MOV AL,BH
+ 0306  EE	 	 	 	OUT DX,AL
+ 0307  BA 8000	 	 	 	MOV DX,L55PORTA
+ 030A  8A C3	 	 	 	MOV AL,BL
+ 030C  EE	 	 	 	OUT DX,AL
+ 030D  C3	 	 	 	RET
+ 	 	 	 	 	
+ 030E	 	 	 	UPDATE_8255 ENDP
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 030E	 	 	 	DISP_FLR_DIR PROC NEAR
+ 030E  53	 	 	 	PUSH BX
+ 030F  51	 	 	 	PUSH CX
+ 0310  CD AC	 	 	 	INT 0ACH
+ 0312  8D 1E 0103 R	 	 	LEA BX,HEADER1	 	;LINE 1 "POSITI
+	 	 	 	ON 0"
+ 0316  CD AF	 	 	 	INT 0AFH
+ 	 	 	 	
+ 0318  8B C6	 	 	 	MOV AX,SI
+ 031A  25 00FF	 	 	 	AND AX,00FFH	
+ 031D  8D 1E 012E R	 	 	LEA BX,ASCIITABLE
+ 0321  D7	 	 	 	XLAT
+ 0322  25 00FF	 	 	 	AND AX,00FFH
+ 0325  8B D0	 	 	 	MOV DX,AX
+ 0327  B4 02	 	 	 	MOV AH,02H
+ 0329  CD A2	 	 	 	INT 0A2H	 	 	;"FLR"
+ 	 	 	 	 	
+ 032B  CD AC	 	 	 	INT 0ACH	 	 	;GOTO L
+	 	 	 	INE2
+ 032D  8D 1E 010E R	 	 	LEA BX,HEADER2
+ 0331  CD AF	 	 	 	INT 0AFH	 	 	;LINE 2
+	 	 	 	 "GOING "
+ 	 	 	 	 	
+ 0333  3B F7	 	 	 	CMP SI,DI
+ 0335  74 14	 	 	 	JE DISPLAY_RCH
+ 0337  7F 09	 	 	 	JG DISPLAY_DOWN
+ 	 	 	 	
+ 0339  8D 1E 011D R	 	 	LEA BX,DIRUP
+ 033D  CD AF	 	 	 	INT 0AFH
+ 033F  EB 12 90	 	 	 	JMP DONE_DISPLAY
+ 0342	 	 	 	DISPLAY_DOWN:
+ 0342  8D 1E 0120 R	 	 	LEA BX,DIRDN
+ 0346  CD AF	 	 	 	INT 0AFH
+ 0348  EB 09 90	 	 	 	JMP DONE_DISPLAY
+ 034B	 	 	 	DISPLAY_RCH:
+ 034B  CD AB	 	 	 	INT 0ABH	 	 	;GO TO 
+	 	 	 	START OF LINE
+ 034D  8D 1E 0115 R	 	 	LEA BX,HEADER3	 	;"WAITING      
+	 	 	 	   "
+ 0351  CD AF	 	 	 	INT 0AFH
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-9
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+ 0353	 	 	 	DONE_DISPLAY:	
+ 0353  59	 	 	 	POP CX
+ 0354  5B	 	 	 	POP BX
+ 0355  C3	 	 	 	RET
+ 0356	 	 	 	DISP_FLR_DIR ENDP
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------------
+ 	 	 	 	
+ 	 	 	 	
+ 0356	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0356	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ALARM. . . . . . . . . . . . . .	N PROC	0290	COMSEG	Length =003B
+ALARM1 . . . . . . . . . . . . .	L NEAR 	02B1	COMSEG
+ALARM2 . . . . . . . . . . . . .	L NEAR 	02C0	COMSEG
+ALARM_IN . . . . . . . . . . . .	L NEAR 	029A	COMSEG
+ALARM_OVER . . . . . . . . . . .	L NEAR 	02C4	COMSEG
+ASCIITABLE . . . . . . . . . . .	L BYTE 	012E	COMSEG
+BREACH1. . . . . . . . . . . . .	L BYTE 	0123	COMSEG
+CALL_GO_DOWN . . . . . . . . . .	L NEAR 	0170	COMSEG
+CHECK_FLOORS . . . . . . . . . .	L NEAR 	0254	COMSEG
+CHECK_FLOOR_KEYS . . . . . . . .	L NEAR 	0247	COMSEG
+CHECK_RELEASE. . . . . . . . . .	L NEAR 	027E	COMSEG
+CONTINUE_FLR_DLY . . . . . . . .	L NEAR 	02ED	COMSEG
+CONTINUE_KEYDET. . . . . . . . .	L NEAR 	0238	COMSEG
+DELAY. . . . . . . . . . . . . .	N PROC	02CB	COMSEG	Length =0006
+DIRDN. . . . . . . . . . . . . .	L BYTE 	0120	COMSEG
+DIRUP. . . . . . . . . . . . . .	L BYTE 	011D	COMSEG
+DISPLAY_DOWN . . . . . . . . . .	L NEAR 	0342	COMSEG
+DISPLAY_RCH. . . . . . . . . . .	L NEAR 	034B	COMSEG
+DISP_FLR_DIR . . . . . . . . . .	N PROC	030E	COMSEG	Length =0048
+DLY. . . . . . . . . . . . . . .	L NEAR 	02CE	COMSEG
+DNFLR_REACHED. . . . . . . . . .	L NEAR 	01C1	COMSEG
+DNLED1 . . . . . . . . . . . . .	Number	0080	
+DNLED2 . . . . . . . . . . . . .	Number	0008	
+DNLED3 . . . . . . . . . . . . .	Number	0004	
+DN_FLR10 . . . . . . . . . . . .	L NEAR 	01A9	COMSEG
+DN_FLR21 . . . . . . . . . . . .	L NEAR 	0189	COMSEG
+DONE_DISPLAY . . . . . . . . . .	L NEAR 	0353	COMSEG
+FIRSTLED . . . . . . . . . . . .	Number	0004	
+FIRST_FLR. . . . . . . . . . . .	L NEAR 	0268	COMSEG
+FLASH_OFF. . . . . . . . . . . .	L NEAR 	02A4	COMSEG
+FLASH_ON . . . . . . . . . . . .	L NEAR 	02B3	COMSEG
+FLOOR_DELAY. . . . . . . . . . .	N PROC	02D1	COMSEG	Length =0030
+FLR_DLY. . . . . . . . . . . . .	L NEAR 	02E0	COMSEG
+GET_FLOOR_KEY. . . . . . . . . .	N PROC	0227	COMSEG	Length =0069
+GNDLED . . . . . . . . . . . . .	Number	0040	
+GND_FLR. . . . . . . . . . . . .	L NEAR 	0262	COMSEG
+GO_DOWN. . . . . . . . . . . . .	N PROC	0175	COMSEG	Length =0059
+GO_UP. . . . . . . . . . . . . .	N PROC	01CE	COMSEG	Length =0059
+HEADER1. . . . . . . . . . . . .	L BYTE 	0103	COMSEG
+HEADER2. . . . . . . . . . . . .	L BYTE 	010E	COMSEG
+HEADER3. . . . . . . . . . . . .	L BYTE 	0115	COMSEG
+INNER_FLR_DLY. . . . . . . . . .	L NEAR 	02DD	COMSEG
+KEY_PRESS. . . . . . . . . . . .	L NEAR 	0247	COMSEG
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-2
+	 	 	 	 	 	 	 	06-11-:8    
+
+
+L55CONTROL . . . . . . . . . . .	Number	8006	
+L55PORTA . . . . . . . . . . . .	Number	8000	
+L55PORTB . . . . . . . . . . . .	Number	8002	
+L55PORTC . . . . . . . . . . . .	Number	8004	
+NEXT_REQUEST . . . . . . . . . .	L NEAR 	0162	COMSEG
+SECLED . . . . . . . . . . . . .	Number	0002	
+SECOND_FLR . . . . . . . . . . .	L NEAR 	026E	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0138	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+UPDATE_8255. . . . . . . . . . .	N PROC	0301	COMSEG	Length =000D
+UPFLR_REACHED. . . . . . . . . .	L NEAR 	021A	COMSEG
+UPLED1 . . . . . . . . . . . . .	Number	0020	
+UPLED2 . . . . . . . . . . . . .	Number	0002	
+UPLED3 . . . . . . . . . . . . .	Number	0001	
+UP_FLR01 . . . . . . . . . . . .	L NEAR 	01E2	COMSEG
+UP_FLR12 . . . . . . . . . . . .	L NEAR 	0202	COMSEG
+WAIT_KEY . . . . . . . . . . . .	L NEAR 	0227	COMSEG
+WAIT_RELEASE . . . . . . . . . .	L NEAR 	0271	COMSEG
+
+48526 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

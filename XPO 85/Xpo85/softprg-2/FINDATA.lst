@@ -1,0 +1,101 @@
+ AS V1.42 Beta [Bld 56] - source file FINDATA.ASM - page 1 - 2/13/2008 19:01:14
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; To find the occurrences of zero,negative and positive elements
+       4/       0 :                     ; in a given set of data.
+       5/       0 :                     ; Number of data points is specified at location 2100h
+       6/       0 :                     ; The data series starts from 2104h
+       7/       0 :                     ; Results are: 2101h contains number of zero elements
+       8/       0 :                     ; 			   2102h contains number of positive elements
+       9/       0 :                     ;              2103h contains number of negative elements	
+      10/       0 :                     ; Program considers the uppermost bit as the sign bit.
+      11/       0 :                     ; So numbers range from -1 to -127,0,+1 to +127
+      12/       0 :                     ; i.e. (0-7F positive, 81 to ff negative)	
+      13/       0 :                     	
+      14/    6755 :                     	org 6755h		;Three bytes blank after previous program
+      15/    6755 :                     	start:
+      16/    6755 : 21 00 21            		lxi h,2100h
+      17/    6758 : 4E                  		mov c,m		;Get number of data points to check.
+      18/    6759 :                     		
+      19/    6759 : AF                  		xra a		;clear accumulator for comparisons
+      20/    675A : 47                  		mov b,a
+      21/    675B : 57                  		mov d,a
+      22/    675C : 5F                  		mov e,a		;Clear b d and e registers as well.
+      23/    675D : 23                  		inx h		;These three registers are used as counters.
+      24/    675E : 23                  		inx h		;e=number of zeroes,b=number of negatives		
+      25/    675F : 23                  		inx h		;HL points to first number - 1 location
+      26/    6760 :                     	check_next:
+      27/    6760 : 23                  		inx h
+      28/    6761 : BE                  		cmp m		;Compare memory
+      29/    6762 : C2 69 67            		jnz check_neg	;If number not zero check if negative
+      30/    6765 : 1C                  		inr e		;Increment number of zeroes counter
+      31/    6766 : C3 74 67            		jmp next_num
+      32/    6769 :                     		
+      33/    6769 :                     	check_neg:
+      34/    6769 : 3E 7F               		mvi a,7fh	;Largest positive number
+      35/    676B : BE                  		cmp m		
+      36/    676C : D2 73 67            		jnc num_pos	;If no carry then the number is positive
+      37/    676F : 04                  		inr b
+      38/    6770 : C3 74 67            		jmp next_num
+      39/    6773 :                     		
+      40/    6773 :                     	num_pos:
+      41/    6773 : 14                  		inr d
+      42/    6774 :                     	next_num:
+      43/    6774 : AF                  		xra a		;Clear Accumulator
+      44/    6775 : 0D                  		dcr c
+      45/    6776 : C2 60 67            		jnz check_next	;Continue till end of data set.
+      46/    6779 :                     		
+      47/    6779 :                     	store_res:
+      48/    6779 : 21 01 21            		lxi h,2101h		;Store results
+      49/    677C : 73                  		mov m,e			;Number of zeroes stored
+      50/    677D : 23                  		inx h
+      51/    677E : 72                  		mov m,d			;number of positive data points
+      52/    677F : 23                  		inx h
+      53/    6780 : 70                  		mov m,b			;Number of negative data points
+      54/    6781 : CF                  		rst 1
+      55/    6782 :                     
+      56/    6782 :                     ;Last address used by program 1A8Fh == 6799
+ AS V1.42 Beta [Bld 56] - source file FINDATA.ASM - page 2 - 2/13/2008 19:01:14
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+ CHECK_NEG :                   6769 C |  CHECK_NEXT :                  6760 C |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+ NEXT_NUM :                    6774 C |  NUM_POS :                     6773 C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6755 C |
+*STORE_RES :                   6779 C | *TIME :                    19:01:14 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     34 symbols
+     30 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file FINDATA.ASM - page 3 - 2/13/2008 19:01:14
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     56 lines source file
+      2 passes
+      0 errors
+      0 warnings

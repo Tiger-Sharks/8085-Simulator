@@ -1,0 +1,78 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ 	 	 	 	
+ = 0000          SCPD EQU 0000H ;Scratch Pad location.
+ 	 	 	 	
+ ;This program gives largest of given signed number.
+ ;User can store signed numbers from memory location
+ ;1000:0103H to 1000:0116and see result at memory location 0000:1000H
+ ;using substitute command.
+ 0000	 	 	 	               LRG SEGMENT
+ 	 	 	 	               ASSUME CS:LRG,DS:LRG,ES:LRG
+ 0100	 	 	 	               ORG 100H          ;Com format is
+	 	 	 	 recommanded.
+ 0100  EB 15 90	 	 	 START:JMP SKIP_DATA             ;Skip lookup d
+	 	 	 	ata bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	 
+ 	 	 	 	
+ 0103  8700 0080 1234 3233	                ARRAY1 DW 8700H,0080H,1234H,323
+	 	 	 	3H,8676H,5000H,6000H,8000H,5785H,1000H  ;Addres
+	 	 	 	s for TA4BL.
+       8676 5000 6000 8000	
+       5785 1000	 	
+ 	 	 	 	
+ 0117	 	 	 	   SKIP_DATA:
+ 0117  B8 10FF	 	 	                MOV AX,10FFH
+ 011A  8B E0	 	 	                MOV SP,AX               ;Init S
+	 	 	 	P register
+ 011C  0E	 	 	                PUSH CS                 ;Init D
+	 	 	 	S register
+ 011D  1F	 	 	                POP DS
+ 011E  B8 0000	 	 	                MOV AX,SCPD             ;To spe
+	 	 	 	cify SCPD on kit.
+ 0121  8E C0	 	 	                MOV ES,AX
+ 0123  BE 0103 R	 	                MOV SI,OFFSET ARRAY1           
+	 	 	 	  ;Address of ARRAY1 in SI.
+ 0126  BB 8000	 	 	                MOV BX,8000H            ;Maximu
+	 	 	 	m number for comparision.
+ 0129  B9 0008	 	 	                MOV CX,08               ;Counte
+	 	 	 	r=8
+ 012C  8B 04	 	 	        BACK:   MOV AX,[SI]          ;Load numb
+	 	 	 	er form sequence.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ 012E  3B D8	 	 	 	 	CMP BX,AX	 	;Compai
+	 	 	 	r with current maximum number.
+ 0130  73 02	 	 	                JNC AHEAD               ;If gra
+	 	 	 	ter ,
+ 0132  8B D8	 	 	                MOV BX,AX               ;Save n
+	 	 	 	ew maximum number.
+ 0134	 	 	 	 	AHEAD:
+ 0134  46	 	 	                INC SI                  ;Then c
+	 	 	 	heck with next number.
+ 0135  46	 	 	 	 	INC SI
+ 0136  E2 F4	 	 	 	 	LOOP BACK 
+ 0138  26: 89 1E 1000	 	                MOV ES:[1000H],BX
+ 013D  CD A5	 	 	                INT 0A5H                ;Return
+	 	 	 	 to command mode.
+ 	 	 	 	                                        ;If you
+	 	 	 	 are running your software
+ 013F	 	 	 	    LRG ENDS                            ;on PC 
+	 	 	 	insert ----->include.
+ 	 	 	 	    END START
+

@@ -1,0 +1,123 @@
+ AS V1.42 Beta [Bld 56] - source file adc_7109_V1.ASM - page 1 - 12/20/2010 18:17:02
+
+
+       1/       0 :                     ;*******************************************************************************
+       2/       0 :                     ;Header: 		Sample program for B
+       3/       0 :                     
+       4/       0 :                     ;Monitor utilities used in this program
+       5/       0 :                         cpu     8085
+       6/       0 :                     
+       7/       0 :                     ;Addresses of 8255 control register, ports etc.
+       8/       0 : =8H                 PORTA			equ		08H	; This is address of 8255 PORTA
+       9/       0 : =9H                 PORTB			equ		09H	; This is address of 8255 PORTB
+      10/       0 : =AH                 PORTc			equ		0AH	; This is address of 8255 PORTC
+      11/       0 : =BH                 CW8255        	equ		0BH	; This is address of 8255 control word
+      12/       0 :                     ;~~~~~~~~~~~~~~~~~~~~~~Start of main program~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      13/       0 :                     
+      14/    7000 :                     						ORG 7000H
+      15/    7000 : 31 00 21            START:		lxi SP,2100H      ; init stack pointer.
+      16/    7003 : CD 8A 04            			call 048AH
+      17/    7006 : 3E 93               			 mvi A,	93H      ; 8255 SET IN I/O MODE	
+      18/    7008 : D3 0B               			 out 0BH
+      19/    700A : 3E E0               	loop3:   mvi A, 0E0H     ; pc7=1-run mode, lben=4-pc4=0
+      20/    700C : D3 0A               			 out 0AH
+      21/    700E : DB 0A               	loop2:	 in 0AH
+      22/    7010 : E6 01               			 ani 01H
+      23/    7012 : CA 0E 70            			 jz loop2    ; check till conversion really begun
+      24/    7015 : DB 0A               	loop1:	 in 0AH
+      25/    7017 : E6 01               			 ani 01H
+      26/    7019 : C2 15 70            			 jnz loop1   ; end of conversion
+      27/    701C : DB 0A               			 in 0AH
+      28/    701E : E6 60               			 ani 60H     ;pc7=0- hold mode 
+      29/    7020 : D3 0A               			 out 0AH
+      30/    7022 : DB 09               			 in 09H			; read port b
+      31/    7024 : 5F                  			 mov E,A
+      32/    7025 : DB 0A               			 in 0AH
+      33/    7027 : F6 10               			 ori 10H		;PC4=1
+      34/    7029 : D3 0A               			 out 0AH
+      35/    702B : 00                  			 NOP
+      36/    702C : DB 09               			 in 09H		; read port b upper byte
+      37/    702E : 4F                  			 mov c,A
+      38/    702F : E6 0F               			 ani 0FH
+      39/    7031 : 57                  			 mov D,A
+      40/    7032 : CD 97 04            			 call 0497H
+      41/    7035 : 79                  			 mov A,C
+      42/    7036 : 07                  			 RLC
+      43/    7037 : DA 4A 70            			 jc skp1	; show -ve
+      44/    703A : 07                  			 RLC
+      45/    703B : DA 5D 70            			 jc skip4	; show OR
+      46/    703E : 3E 2D               			 mvi A,"-"
+      47/    7040 : CD 78 20            			 call 2078H
+      48/    7043 : C3 4F 70            			 jmp skp
+      49/    7046 : 07                  			 RLC
+      50/    7047 : DA 5D 70            			 jc skip4
+      51/    704A : 3E 2B               	skp1: 	mvi A, "+"
+      52/    704C : CD 78 20            			call 2078H
+      53/    704F : 06 03               	skp:	mvi B, 03H
+      54/    7051 : CD 6C 03            			call 036CH
+      55/    7054 : CD 72 20            	loop5:  call 2072H
+      56/    7057 : DA 0A 70            			jc loop3
+      57/    705A : C3 13 00            			jmp 0013H
+      58/    705D : CD 97 04            	skip4:	call 0497H
+      59/    7060 : 3E 4F               			mvi A, 4FH
+      60/    7062 : CD 78 20            			call 2078H
+ AS V1.42 Beta [Bld 56] - source file adc_7109_V1.ASM - page 2 - 12/20/2010 18:17:02
+
+
+      61/    7065 : 3E 52               			mvi A,52H
+      62/    7067 : CD 78 20            			call 2078H
+      63/    706A : 3E 20               			mvi A,20H
+      64/    706C : CD 78 20            			call 2078H
+      65/    706F : CD 78 20            			call 2078H
+      66/    7072 : C3 54 70            			jmp loop5
+      67/    7075 :                     			
+      68/    7075 :                     	
+      69/    7075 :                     		
+      70/    7075 :                     				
+      71/    7075 :                     
+      72/    7075 :                     
+ AS V1.42 Beta [Bld 56] - source file adc_7109_V1.ASM - page 3 - 12/20/2010 18:17:02
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *CW8255 :                         B - |
+*DATE :                  12/20/2010 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - |  LOOP1 :                       7015 C |
+ LOOP2 :                       700E C |  LOOP3 :                       700A C |
+ LOOP5 :                       7054 C | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *PORTA :                          8 - |
+*PORTB :                          9 - | *PORTC :                          A - |
+*RELAXED :                        0 - |  SKIP4 :                       705D C |
+ SKP :                         704F C |  SKP1 :                        704A C |
+*START :                       7000 C | *TIME :                    18:17:02 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     40 symbols
+     33 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file adc_7109_V1.ASM - page 4 - 12/20/2010 18:17:02
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     72 lines source file
+      2 passes
+      0 errors
+      0 warnings

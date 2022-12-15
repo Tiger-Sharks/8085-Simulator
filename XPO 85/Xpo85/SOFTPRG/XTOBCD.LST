@@ -1,0 +1,46 @@
+                
+                ;TITLE : DIVISION TWO ONE BYTE BINARY NUMBER.
+                
+                
+ 0000                              CPU"8085.TBL"   ;CPU USED IS 8085.
+ 0000                              HOF"INT8"       ;INTELHEX 8 BIT FORMAT IS USED.
+                
+                
+ 20C0 =                        RESULT:  EQU 20C0H
+ 6480                               ORG 6480H
+                
+ 6480 21AB64                        LXI H,HEXDTA
+ 6483 010000                        LXI B,0000H
+ 6486 7E                            MOV A,M
+ 6487 D664                 LOOP:    SUI 64H
+ 6489 DA9064                        JC LOOP1
+ 648C 04                            INR B
+ 648D C38764                        JMP LOOP
+ 6490 C664                 LOOP1:   ADI 64H
+ 6492 D60A                 LOOP2:   SUI 0AH
+ 6494 DA9B64                        JC LOOP3
+ 6497 0C                            INR C
+ 6498 C39264                        JMP LOOP2
+ 649B C60A                 LOOP3:   ADI 0AH
+ 649D 21C020                        LXI H,RESULT
+ 64A0 70                            MOV M,B
+ 64A1 47                            MOV B,A
+ 64A2 79                            MOV A,C
+ 64A3 07                            RLC
+ 64A4 07                            RLC
+ 64A5 07                            RLC
+ 64A6 07                            RLC
+ 64A7 80                            ADD B
+ 64A8 23                            INX H
+ 64A9 77                            MOV M,A
+ 64AA CF                            RST 1
+ 64AB 47                  HEXDTA:   DFB 47H
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    0003  E                    0004  H             
+64AB  HEXDTA               0005  L                    6487  LOOP          
+6490  LOOP1                6492  LOOP2                649B  LOOP3         
+0006  M                    20C0  RESULT               
+

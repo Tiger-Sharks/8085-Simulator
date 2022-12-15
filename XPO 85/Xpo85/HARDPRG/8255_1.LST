@@ -1,0 +1,27 @@
+                ;8255 FLASHING LEDS
+ 0000                           CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 0615 =         DELAY:  EQU 0615H
+                
+ 6045                   ORG 6045H
+ 6045 3E80              MVI A,80H
+ 6047 D303              OUT 03H
+ 6049 D30B              OUT 0BH
+ 604B 3E55      FLASH:  MVI A,55H
+ 604D D300              OUT 00H
+ 604F D308              OUT 08H
+ 6051 11FFFF            LXI D,0FFFFH
+ 6054 CD1506            CALL DELAY
+ 6057 3EAA              MVI A,0AAH
+ 6059 D300              OUT 00H
+ 605B D308              OUT 08H
+ 605D CD1506            CALL DELAY
+ 6060 C34B60            JMP FLASH
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    0615  DELAY                0003  E             
+604B  FLASH                0004  H                    0005  L             
+0006  M                    
+

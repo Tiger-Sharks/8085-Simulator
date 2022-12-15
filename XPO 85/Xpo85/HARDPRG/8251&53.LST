@@ -1,0 +1,96 @@
+                
+ 0000           		CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 0615 =         DELAY:  EQU 0615H
+ 048A =         CRLF:   EQU 048AH
+ 2078 =         WRITE:  EQU 2078H
+ 0013 =         CMDWDP: EQU 0013H
+ 60B0                   ORG 60B0H
+ 60B0 11FF01            LXI D,01FFH   ;
+ 60B3 3E36              MVI A,36H
+ 60B5 D31B              OUT 1BH
+ 60B7 3E2D              MVI A,2DH
+ 60B9 D318              OUT 18H
+ 60BB 3E05              MVI A,05H
+ 60BD D318              OUT 18H
+ 60BF 3E00              MVI A,00H
+ 60C1 D329              OUT 29H
+ 60C3 CD1506            CALL DELAY
+ 60C6 D329              OUT 29H
+ 60C8 CD1506            CALL DELAY
+ 60CB D329              OUT 29H
+ 60CD CD1506            CALL DELAY
+ 60D0 3E40              MVI A,40H
+ 60D2 D329              OUT 29H
+ 60D4 CD1506            CALL DELAY
+ 60D7 3ECE              MVI A,0CEH
+ 60D9 D329              OUT 29H
+ 60DB CD1506            CALL DELAY
+ 60DE 3E37              MVI A,37H
+ 60E0 D329              OUT 29H
+ 60E2 CD8A04            CALL CRLF
+ 60E5 210E61            LXI H,TABLE
+ 60E8 7E        LOOP:   MOV A,M
+ 60E9 FE03              CPI 03H
+ 60EB CA0B61            JZ FINIT
+ 60EE DB29      SEND:   IN 29H
+ 60F0 E601              ANI 01H
+ 60F2 CAEE60            JZ SEND
+ 60F5 7E                MOV A,M
+ 60F6 D328              OUT 28H
+ 60F8 23                INX H
+ 60F9 DB29      RECIV:  IN 29H
+ 60FB E602              ANI 02H
+ 60FD CAF960            JZ RECIV
+ 6100 DB28              IN 28H
+ 6102 CD7820            CALL WRITE
+ 6105 CD1506            CALL DELAY
+ 6108 C3E860            JMP LOOP
+ 610B C31300    FINIT:  JMP CMDWDP
+                ;DISPLAYS "ANSHUMAN SERIAL LINK"
+ 610E 41        TABLE:  DFB 41H
+ 610F 4E                DFB 4EH
+ 6110 53                DFB 53H
+ 6111 48                DFB 48H
+ 6112 55                DFB 55H
+ 6113 4D                DFB 4DH
+ 6114 41                DFB 41H
+ 6115 4E                DFB 4EH
+ 6116 20                DFB 20H
+ 6117 20                DFB 20H
+ 6118 20                DFB 20H
+ 6119 20                DFB 20H
+ 611A 20                DFB 20H
+ 611B 20                DFB 20H
+ 611C 20                DFB 20H
+ 611D 20                DFB 20H
+ 611E 53                DFB 53H
+ 611F 45                DFB 45H
+ 6120 52                DFB 52H
+ 6121 49                DFB 49H
+ 6122 41                DFB 41H
+ 6123 4C                DFB 4CH
+ 6124 20                DFB 20H
+ 6125 20                DFB 20H
+ 6126 20                DFB 20H
+ 6127 4C                DFB 4CH
+ 6128 49                DFB 49H
+ 6129 4E                DFB 4EH
+ 612A 4B                DFB 4BH
+ 612B 20                DFB 20H
+ 612C 20                DFB 20H
+ 612D 03                DFB 03H
+                
+                
+                
+                
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0013  CMDWDP               048A  CRLF                 0002  D             
+0615  DELAY                0003  E                    610B  FINIT         
+0004  H                    0005  L                    60E8  LOOP          
+0006  M                    60F9  RECIV                60EE  SEND          
+610E  TABLE                2078  WRITE                
+

@@ -1,0 +1,136 @@
+
+PROCOMM PLUS HOST MODE HELP
+
+
+Every user is presented the following menu after successfully logging
+on and viewing the optional news file.
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³   F)iles      U)pload      D)ownload    ³
+³   H)elp       T)ime        C)hat        ³
+³   R)ead mail  L)eave mail  G)oodbye     ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+If the user has Level 2 privileged access, then the following lines are
+added to the prompt:
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³   S)hell                          ³
+³   A)bort (SHUT DOWN host mode)    ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+A Host command is invoked by pressing the first letter of the command
+name; no carriage return is needed.  To download, for example, just
+press <D>.
+
+    Command     Description
+    -------     -----------
+
+*   ABORT:      Terminates user and exits Host mode.  This has the same
+                effect as pressing ESC on the Host keyboard.  The
+                user is asked whether on not he would like to disconnect
+                the line.
+
+    CHAT:       Sounds the speaker on the Host PC (unless the alarm
+                sound has been turned off in the Setup facility).
+                If the Sysop presses F1, the Host PC enters Chat mode.
+                If any other key is pressed on the Host keyboard, paging
+                is halted and a message is sent to the user.  A user can
+                abort a page request by pressing [Ctrl]-[C].
+
+    DOWNLOAD:   The user is prompted for a protocol to use and then for
+                the specification of the file(s) to download from the
+                Host.  If the user has Level 2 access, a path may be
+                included in the specification; otherwise, only files in
+                the Host download directory (or the current directory if
+                there isn't a download directory defined) are allowed.
+                When a valid file specification is entered, the message
+                "Begin your  ???????  transfer procedure"  is issued and
+                the Host waits for the user to download the file(s) using
+                the specified protocol.
+
+    FILES:      Prompts for a file specification (like DOS' DIR command)
+                and displays a list of matching downloadable files.
+                A user can cancel the file display by pressing [Ctrl]-[C].
+                Level 2 users can view any directory by including a path in
+                the file specification.
+
+    GOODBYE:    Terminates the call.  Host can then recycle to answer the
+                next call, perform external processing or abort (depending
+                on the value of the Goodbye Option Setup field).
+
+    HELP:       Displays the ASCII text file PCPLUS.HHP (if it exists).
+                Host looks for the help file in the current directory
+                first and then in the directory specified by the "PCPLUS="
+                environment variable (if one exists).  A user can cancel
+                the help display by pressing [Ctrl]-[C].
+
+    LEAVE MAIL: The user is prompted for the following:
+                To:                  (the intended recipient of the mail)
+                Subj:                (the subject of the mail)
+                Private Mail(Y/N/Q)  (Y for private, N for public, Q quits)
+
+                The user can then accept or re-enter the header information.
+
+                Once accepted, the user is placed in a line input mode
+                (which continues until an empty line is entered).  When an
+                empty line is entered, the user is prompted with:
+
+                S)ave  A)bort  D)isplay  C)ontinue ?
+
+                        Save:       Append the message to the mailbase and
+                                    return to the Main Menu.
+
+                       Abort:       Erase the message and return to the
+                                    Main Menu (after confirmation).
+
+                     Display:       Show text that's been entered (with the
+                                    same format as the Read Mail command)
+                                    and display this prompt again.
+
+                    Continue:       Return to input mode.
+
+    READ MAIL:  The user is prompted to choose one of the following:
+
+                  F)orward read
+                  S)earch mail
+                  I)ndividual read
+                  Q)uit
+
+                Forward read:       Sequential multiple read.
+                                    Prompts for the beginning message
+                                    number and displays all accessable
+                                    messages starting with that number.
+
+                 Search mail:       Selective sequential multiple read.
+                                    Asks for a field to search, a target
+                                    string to search for and the beginning
+                                    message number for the search.
+                                    Host displays all accessable
+                                    messages which match the search
+                                    criteria.
+
+                  Individual:       Single message read.
+                                    Prompts for the message number and
+                                    displays it (if the message is
+                                    accessable).
+
+                        Quit:       Return to the Main Menu.
+
+*   SHELL:      Identical to the DOS Gateway command.  Host "shells" to DOS
+                and displays the DOS prompt.  To reload Host, the user types
+                the word EXIT at the DOS prompt and presses [Enter].
+
+    TIME:       The time the user connected is displayed, followed by
+                the current time and the elapsed time for this call.
+
+    UPLOAD:     The user is prompted for a protocol to use for the
+                transfer, the file specification and a short description
+                of the file.  Host then waits to receive the file (using
+                the specified protocol) to upload.  Files are placed in the
+                Host mode upload directory (if one has been specified in the
+                Setup facility); otherwise, they're saved in the current
+                directory.  Level 2 privileged users can upload to other
+                directories (if they use a protocol that doesn't transfer
+                filenames and they specify a path with the name).
+
+* = requires Level 2 privileged access
+

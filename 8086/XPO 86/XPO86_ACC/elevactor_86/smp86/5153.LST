@@ -1,0 +1,81 @@
+
+****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+    THE SAME FROM 011D:0100 AND EXECUTE.
+****ILLUSTRATES HOW TO INIT 8251/8253?USES CHANEL 0 OF 8253 AS BAUD
+    RATE GENERATOR.SETS 8251 TO 110 BAUD,1+8+2 BIT WITH PARITY DISABLED
+    NOW SEND A CHR THROUGH T+D,RECEIVE IT BACK THROUGH R+D BY
+    SHORTING PIN 2,3 OF 25 PIN D CONNECTOR PREFERABLY AT FEMALE END.
+    THUS RECEIVED CHARACTER IS DISPLAYED AT 8279.USE SINGLE STRAND WIRE.
+    ;TBLBAUD DW 0110H,0300H,0600H,1200H,2400H,4800H,9600H,1902H,0303H
+    ;TBL8253 DW 052DH,01E6H,00F3H,0079H,003DH,001EH,000FH,0008H,0303H
+
+8086 LINE ASSEMBLER/DISASSEMBLER UTILITY 1.0
+COPYRIGHT 1989 --- ANSHUMAN PUNE 411030.
+-U100D:0100 0102
+
+100D:0100 EB21          JMP	0123                               
+100D:0102 90            NOP	                                   
+100D:0100           41 4E 53 48 55-4D 41 4E 20 20 20 20 20  ANSHUMAN     
+100D:0110  20 20 20 53 45 52 49 41-4C 20 20 20 4C 49 4E 4B  SERIAL  LINK
+100D:0120  20 20 03                                         .
+100D:0123 B8F011        MOV	AX,11F0                            
+100D:0126 8BE0          MOV	SP,AX                              
+100D:0128 0E            PUSH	CS                                 
+100D:0129 1F            POP	DS                                 
+100D:012A B92D05        MOV	CX,052D	;INIT OF 8253 CHANEL#0 
+					;SET BAUD RATE TO 1100
+					;052DH= COUNT FOR 8253
+100D:012D BA428C        MOV	DX,8C42                            
+100D:0130 B036          MOV	AL,36                              
+100D:0132 EE            OUT	DX,AL                              
+100D:0133 BA008C        MOV	DX,8C00                            
+100D:0136 8AC1          MOV	AL,CL                              
+100D:0138 EE            OUT	DX,AL                              
+100D:0139 8AC5          MOV	AL,CH                              
+100D:013B EE            OUT	DX,AL                              
+100D:013C BA0290        MOV	DX,9002	;INIT OF 8251
+					;COMMAND REGISTER
+100D:013F B000          MOV	AL,00   ;SEND 0`S TO ENSURE THAT 
+					;8251 IS IN COMMAND 
+100D:0141 EE            OUT	DX,AL                              
+100D:0142 B90F00        MOV	CX,000F                            
+100D:0145 CDAA          INT	AA    	;DELAY REQUIRED WHILE 
+					;DOING INIT OF 8251
+100D:0147 EE            OUT	DX,AL                              
+100D:0148 CDAA          INT	AA                                 
+100D:014A EE            OUT	DX,AL                              
+100D:014B CDAA          INT	AA                                 
+100D:014D B040          MOV	AL,40                              
+100D:014F EE            OUT	DX,AL                              
+100D:0150 CDAA          INT	AA                                 
+100D:0152 B0CE          MOV	AL,CE 	;MODE WORD-2 STOP BIT,
+					;NO PARITY,NO OF BITS 8	
+					;BAUD RATE FACTOR *16.
+100D:0154 EE            OUT	DX,AL                              
+100D:0155 CDAA          INT	AA                                 
+100D:0157 B037          MOV	AL,37 	;COMMAND WORD DTR=0=RTS,
+					;T R ENABLE,NORMAL
+100D:0159 EE            OUT	DX,AL                              
+100D:015A CDAC          INT	AC    	;START SENDING AND
+					;RECEIVING ALTERNATELY
+
+100D:015C BB0301        MOV	BX,0103	;MESSAGE POINTER                
+100D:015F 8A17          MOV	DL,[BX]                            
+100D:0161 80FA03        CMP	DL,03   ;END OF TRANSMISSION?
+100D:0164 740F          JZ	0175                               
+100D:0166 B402          MOV	AH,02                              
+100D:0168 CDA9          INT	A9   	;SEND TO T+D OF 8251
+
+100D:016A 43            INC	BX                                 
+100D:016B B408          MOV	AH,08                              
+100D:016D CDA8          INT	A8  	;READ THE CHR FROM R+D
+				;IT IS ASSUMED THAT PIN 2 & 3 
+				;OF 25 D ARE SHORTED EXTERNALY.    
+100D:016F B402          MOV	AH,02                              
+100D:0171 CDA2          INT	A2  	;DISPLAY AT PRESENT CONSOLE
+100D:0173 EBEA          JMP	015F                               
+100D:0175 CDA4          INT	A4      ;RETURN TO COMMAND=
+
+
+

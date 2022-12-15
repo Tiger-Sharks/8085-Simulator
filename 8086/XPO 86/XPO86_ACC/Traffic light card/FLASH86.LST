@@ -1,0 +1,134 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- TRAF3	 	 	 	 	 	 	07-25-:0    
+
+
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	        PAGE,70
+ 	 	 	 	        TITLE-- TRAF3
+ 	 	 	 	;
+ 0000	 	 	 	TRAF3     SEGMENT
+ 	 	 	 	        ASSUME CS:TRAF3, DS:TRAF3 ,ES
+	 	 	 	:TRAF3
+ 0100	 	 	 	 	ORG 100H	 	;COM 
+	 	 	 	FORMAT IS RECOMMENDED.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA	 	
+ 	 	 	 	 	;SKIP LOOK UP/ DATA BASES IF 
+	 	 	 	ANY
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [T
+	 	 	 	O SEPARATE STACK OF YOUR PROGRAME FRO
+	 	 	 	M
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES AR
+	 	 	 	E SET TO 0000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING
+	 	 	 	 A FEW MORE MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TO
+	 	 	 	UCH SEGMENT REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE IN
+	 	 	 	STRUCTIONS AS SHOWN IN COMMENT FIELD.
+	 	 	 	  
+ 0103  B8 11FF	 	 	SKIP_DATA:MOV AX,11FFH               
+	 	 	 	   ;Init. of SP for KIT
+ 0106  8B E0	 	 	STRT1:  MOV SP,AX                    
+	 	 	 	   ;Mov AX,AX on PC
+ 0108  0E	 	 	        PUSH CS                      
+	 	 	 	   ;This is the best way to load DS
+ 0109  1F	 	 	        POP DS                       
+	 	 	 	   ;With segment value
+ 010A  90	 	 	        NOP                          
+	 	 	 	   ;Load Kit INT S
+ 010B  90	 	 	        NOP                          
+	 	 	 	   ;Call LDINPC
+ 010C  90	 	 	        NOP                          
+	 	 	 	   ;Place above call in place of NOP
+ 010D  B0 80	 	 	        MOV AL,80H                   
+	 	 	 	   ;Set all port of
+ 010F  BA 8006	 	 	        MOV DX,8006H                 
+	 	 	 	   ;lower 8255 as output ports
+ 0112  EF	 	 	        OUT DX,AX
+ 0113  B0 61	 	 	START:  MOV AL,61H                   
+	 	 	 	  ;Turn all red signals ON
+ 0115  BA 8000	 	 	        MOV DX,8000H
+ 0118  EE	 	 	        OUT DX,AL
+ 0119  B0 68	 	 	        MOV AL,68H
+ 011B  BA 8002	 	 	        MOV DX,8002H
+ 011E  EE	 	 	        OUT DX,AL
+ 011F  B0 86	 	 	        MOV AL,86H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-2
+-- TRAF3	 	 	 	 	 	 	07-25
+	 	 	 	-:0    
+
+
+ 0121  BA 8004	 	 	        MOV DX,8004H
+ 0124  EE	 	 	        OUT DX,AL
+ 0125  E8 0154 R	 	        CALL DELAY2                  
+	 	 	 	 ;Delay for 4 sec.
+ 0128  B0 92	 	 	        MOV AL,92H                   
+	 	 	 	 ;Turn all yellow signals ON
+ 012A  BA 8000	 	 	        MOV DX,8000H
+ 012D  EE	 	 	        OUT DX,AL
+ 012E  B0 84	 	 	        MOV AL,84H
+ 0130  BA 8002	 	 	        MOV DX,8002H
+ 0133  EE	 	 	        OUT DX,AL
+ 0134  B0 48	 	 	        MOV AL,48H
+ 0136  BA 8004	 	 	        MOV DX,8004H
+ 0139  EE	 	 	        OUT DX,AL
+ 013A  E8 015D R	 	        CALL DELAY1                 ;
+	 	 	 	Delay for 2 sec.
+ 013D  B0 0C	 	 	        MOV AL,0CH                  ;
+	 	 	 	Turn all green signals ON
+ 013F  BA 8000	 	 	        MOV DX,8000H
+ 0142  EE	 	 	        OUT DX,AL
+ 0143  B0 13	 	 	        MOV AL,13H
+ 0145  BA 8002	 	 	        MOV DX,8002H
+ 0148  EE	 	 	        OUT DX,AL
+ 0149  B0 31	 	 	        MOV AL,31H
+ 014B  BA 8004	 	 	        MOV DX,8004H
+ 014E  EE	 	 	        OUT DX,AL
+ 014F  E8 0154 R	 	        CALL DELAY2               ;De
+	 	 	 	lay for 4 sec.
+ 0152  EB BF	 	 	        JMP START                 ;Re
+	 	 	 	peat the same
+ 0154  CD AA	 	 	DELAY2:INT 0AAH
+ 0156  CD AA	 	 	        INT 0AAH
+ 0158  CD AA	 	 	        INT 0AAH
+ 015A  CD AA	 	 	        INT 0AAH
+ 015C  C3	 	 	        RET
+ 015D  E8 0154 R	 	DELAY1: CALL DELAY2
+ 0160  E8 0154 R	 	        CALL DELAY2
+ 0163  C3	 	 	         RET
+ 0164	 	 	 	TRAF3    ENDS                    ;REA
+	 	 	 	D FOR MORE INFO TITLE OF KIT_INTS.ASM
+ 	 	 	 	         END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	Symbols-1
+-- TRAF3	 	 	 	 	 	 	07-25
+	 	 	 	-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+TRAF3. . . . . . . . . . . . . .	0164	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DELAY1 . . . . . . . . . . . . .	L NEAR 	015D	TRAF3
+DELAY2 . . . . . . . . . . . . .	L NEAR 	0154	TRAF3
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	TRAF3
+START. . . . . . . . . . . . . .	L NEAR 	0113	TRAF3
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	TRAF3
+STRT1. . . . . . . . . . . . . .	L NEAR 	0106	TRAF3
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

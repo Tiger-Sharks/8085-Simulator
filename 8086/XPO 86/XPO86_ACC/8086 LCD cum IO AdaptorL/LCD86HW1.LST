@@ -1,0 +1,393 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+ 	 	 	 	;**********************************************
+	 	 	 	*********************************
+ 	 	 	 	;Header: 	 	Sample program for char
+	 	 	 	acter LCD interfacing with 8086 via 8255
+ 	 	 	 	;File Name: 	LCD86HW1.asm
+ 	 	 	 	;Author: 	 	Technobits, Pune (www.t
+	 	 	 	echnobits.in)
+ 	 	 	 	;Date created:	Mar 3, 2009
+ 	 	 	 	;Assembler:	 	MASM.EXE (Used in conju
+	 	 	 	nction with link.exe and conex.exe)
+ 	 	 	 	
+ 	 	 	 	;Description:
+ 	 	 	 	;This program is written to display string 'HEL
+	 	 	 	LO WORLD' continuously
+ 	 	 	 	;on 16x1 character LCD.
+ 	 	 	 	
+ 	 	 	 	;**********************************************
+	 	 	 	*********************************
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	---------------------------------
+ 	 	 	 	;	 	 	 	 	
+ 	 	 	 	 	 	 	MAIN PROGRAM
+ 	 	 	 	;Input:	 	 	 	 	Nothing
+ 	 	 	 	;Output:	 	 	 	Nothing
+ 	 	 	 	;Calls to Subroutines:	SendLCDCMD, SendLCDDAT,
+	 	 	 	 Monitor utilities
+ 	 	 	 	
+ 	 	 	 	;Connections:
+ 	 	 	 	;8255 (Lower i.e. U23) is used to connect with 
+	 	 	 	LCD in the following manner
+ 	 	 	 	
+ 	 	 	 	;8255 PORT B (PB0-PB7)	<->	 	LCD dat
+	 	 	 	a bus D0-D7
+ 	 	 	 	;8255 PORT C (PC3)	 	-->	
+ 	 	 	 	 	LCD ENABLE
+ 	 	 	 	;8255 PORT C (PC4)	 	<->	
+ 	 	 	 	 	LCD R/W (READ=1, WRITE=0)
+ 	 	 	 	;8255 PORT C (PC5)	 	-->	
+ 	 	 	 	 	LCD RS (0=Command register, 1=Data regi
+	 	 	 	ster)
+ 	 	 	 	
+ 	 	 	 	;8255 is connected as memory mapped device.
+ 	 	 	 	;A0, A1, RD, WR are controlled automatically wh
+	 	 	 	en specified memory location is addressed.
+ 	 	 	 	;LCD used is 16x1. Internally it is treated as 
+	 	 	 	8x2 line display.
+ 	 	 	 	;----------------------------------------------
+	 	 	 	---------------------------------
+ 	 	 	 	
+ 	 	 	 	;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 	 	 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 	 	 	 	
+ 	 	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+ 	 	 	 	;Addresses of 8255 control register, ports etc.
+ = 8002	 	 	 	LCD_DATABUS	 	 	equ	
+ 	 	 	 	 	8002H	; This is address of 8255 PORTB
+ = 8004	 	 	 	PORTC_8255	 	 	equ	
+ 	 	 	 	 	8004H	; This is address of 8255 PORTC
+ = 8006	 	 	 	cONTROL_ADDR_8255	equ	 	8006H
+	 	 	 	 	; This is address of 8255 control word
+ 	 	 	 	
+ 	 	 	 	;~~~~~~~~~~~~~~~~~~~~~~Start of main program~~~
+	 	 	 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 	 	 	 	
+ 0000	 	 	 	CHLCD86 SEGMENT
+ 	 	 	 	ASSUME CS:CHLCD86, DS:CHLCD86, ES:CHLCD86
+ 	 	 	 	
+ 	 	 	 	
+ 0100	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	ORG 0100H
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 0100  BA 8006	 	 	 	mov	 	DX,	 	cONTROL
+	 	 	 	_ADDR_8255	;8255 Control word address load
+	 	 	 	ed in DX
+ 0103  B0 80	 	 	 	mov	 	AL,	 	80H
+	 	 	 	 	 	 	 	 	;8255 c
+	 	 	 	ontrol word to set all ports as O/P in mode 0
+ 0105  EE	 	 	 	out	 	DX,	 	AL
+	 	 	 	 	 	 	 	 	;Send c
+	 	 	 	ontrol word to 8255
+ 	 	 	 	
+ 0106  B0 38	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	38H	 	 	 	;LCD fu
+	 	 	 	nction set (8bit interface, 2line, 5x7 font)
+ 0108  E8 0158 R	 	 	call	SendLCDCMD	 	
+ 	 	 	 	 	 	 	;Send the command (code
+	 	 	 	 in A) to LCD
+ 	 	 	 	
+ 010B  B0 0C	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	0CH	 	 	 	;LCD on
+	 	 	 	, CUrsor off, blink off
+ 010D  E8 0158 R	 	 	call	SendLCDCMD	 	
+ 	 	 	 	 	 	 	;Send the command (code
+	 	 	 	 in A) to LCD
+ 	 	 	 	
+ 0110  B0 01	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	01H	 	 	 	;Clear 
+	 	 	 	display and return cursor to home position
+ 0112  E8 0158 R	 	 	call	SendLCDCMD	 	
+ 	 	 	 	 	 	 	;Send the command (code
+	 	 	 	 in A) to LCD
+ 	 	 	 	
+ 0115  B0 80	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	80H	 	 	 	;LCD DD
+	 	 	 	RAM address set to 1st line 1st char
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+ 0117  E8 0158 R	 	 	call	SendLCDCMD	 	
+ 	 	 	 	 	 	 	;Send the command (code
+	 	 	 	 in A) to LCD
+ 	 	 	 	
+ 011A  B0 48	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'H'	 	 	 	;ASCII 
+	 	 	 	code for character 'H'
+ 011C  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 011F  B0 45	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'E'	 	 	 	;ASCII 
+	 	 	 	code for character 'E'
+ 0121  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0124  B0 4C	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'L'	 	 	 	;ASCII 
+	 	 	 	code for character 'L'
+ 0126  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0129  B0 4C	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'L'	 	 	 	;ASCII 
+	 	 	 	code for character 'L'
+ 012B  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 012E  B0 4F	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'O'	 	 	 	;ASCII 
+	 	 	 	code for character 'O'
+ 0130  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0133  B0 20	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	' '	 	 	 	;ASCII 
+	 	 	 	code for character ' '
+ 0135  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0138  B0 57	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'W'	 	 	 	;ASCII 
+	 	 	 	code for character 'W'
+ 013A  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 013D  B0 4F	 	 	 	mov	 	AL,	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-4
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+	 	 	 	 	'O'	 	 	 	;ASCII 
+	 	 	 	code for character 'O'
+ 013F  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0142  B0 C0	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	0C0H	 	 	;LCD DDRAM addr
+	 	 	 	ess set to 2nd line 1st char
+ 0144  E8 0158 R	 	 	call	SendLCDCMD	 	
+ 	 	 	 	 	 	 	;Send the command (code
+	 	 	 	 in A) to LCD
+ 	 	 	 	
+ 0147  B0 52	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'R'	 	 	 	;ASCII 
+	 	 	 	code for character 'R'
+ 0149  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 014C  B0 4C	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'L'	 	 	 	;ASCII 
+	 	 	 	code for character 'L'
+ 014E  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0151  B0 44	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	'D'	 	 	 	;ASCII 
+	 	 	 	code for character 'D'
+ 0153  E8 016B R	 	 	call	SendLCDDAT	 	
+ 	 	 	 	 	 	 	;Send the data (in A) t
+	 	 	 	o LCD
+ 	 	 	 	
+ 0156  CD A3	 	 	 	INT	 	0A3H	 	
+ 	 	 	 	 	 	 	 	;Monitor Return
+	 	 	 	 to command position
+ 	 	 	 	
+ 	 	 	 	;~~~~~~~~~~~~~~~~~~~~~~End of main program~~~~~
+	 	 	 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	 	 	 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 	 	 	 	;	 	 	 	 	
+ 	 	 	 	 	 	 	Subroutine SendLCDCMD
+ 	 	 	 	;----------------------------------------------
+	 	 	 	----------------------------------
+ 	 	 	 	;Description:
+ 	 	 	 	;This subroutine sends the data in accumulator 
+	 	 	 	to PORT B of 8255.
+ 	 	 	 	;LCD command register is enabled by making RS=0
+	 	 	 	 and RW=0.
+ 	 	 	 	;LCD is enabled by making EN=1 and then EN=0.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-5
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+ 	 	 	 	;Called by:	 	 	 	MAIN pr
+	 	 	 	ogram
+ 	 	 	 	;Calls subroutines:	 	Monitor Utility
+	 	 	 	 DELAY
+ 	 	 	 	;Input:	 	 	 	 	LCD com
+	 	 	 	mand code in Accumulator
+ 	 	 	 	;Output:	 	 	 	Nothing
+ 	 	 	 	;----------------------------------------------
+	 	 	 	----------------------------------
+ 	 	 	 	
+ 0158	 	 	 	SendLCDCMD:	 	 	 	
+ 	 	 	 	 	 	;Subroutine start label
+ 	 	 	 	
+ 0158  BA 8002	 	 	 	mov	 	DX,	 	
+ 	 	 	 	 	LCD_DATABUS	;Load 8255 address (POR
+	 	 	 	T B) in DX
+ 015B  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port B (LCD data bus).
+ 	 	 	 	
+ 015C  BA 8004	 	 	 	mov	 	DX,	 	
+ 	 	 	 	 	PORTC_8255	;Load 8255 address (POR
+	 	 	 	T C) in DX
+ 015F  B0 08	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	08H	 	 	;RS=0 (Command 
+	 	 	 	reg), RW=0 (Write mode), EN=1
+ 0161  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port c.
+ 	 	 	 	
+ 0162  B0 00	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	00H	 	 	;RS=0 (Command 
+	 	 	 	reg), RW=0 (Write mode), EN=0
+ 0164  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port c.
+ 	 	 	 	
+ 	 	 	 	 	;Delay so LCD completes write operation
+ 	 	 	 	
+ 0165  B9 00FF	 	 	 	mov	 	CX,	 	
+ 	 	 	 	 	00FFH	 	;Value loaded for DELAY
+	 	 	 	 utility
+ 0168  CD AA	 	 	 	INT	 	0AAh	 	
+ 	 	 	 	 	 	 	;Implement delay
+ 	 	 	 	
+ 016A  C3	 	 	 	ret	 	 	 	
+ 	 	 	 	 	 	 	 	;End of subrout
+	 	 	 	ine
+ 	 	 	 	;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	 	 	 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	 	 	 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-6
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+ 	 	 	 	;	 	 	 	 	
+ 	 	 	 	 	 	 	Subroutine SendLCDDAT
+ 	 	 	 	;----------------------------------------------
+	 	 	 	----------------------------------
+ 	 	 	 	;Description:
+ 	 	 	 	;This subroutine sends the data in accumulator 
+	 	 	 	to PORT B of 8255.
+ 	 	 	 	;LCD data register is enabled by making RS=1 an
+	 	 	 	d RW=0.
+ 	 	 	 	;LCD is enabled by making EN=1 and then EN=0.
+ 	 	 	 	
+ 	 	 	 	;Called by:	 	 	 	MAIN pr
+	 	 	 	ogram
+ 	 	 	 	;Calls subroutines:	 	Monitor Utility
+	 	 	 	 DELAY
+ 	 	 	 	;Input:	 	 	 	 	LCD dat
+	 	 	 	a to be displayed in Accumulator
+ 	 	 	 	;Output:	 	 	 	Nothing
+ 	 	 	 	;----------------------------------------------
+	 	 	 	----------------------------------
+ 	 	 	 	
+ 016B	 	 	 	SendLCDDAT:	 	 	 	
+ 	 	 	 	 	 	 	 	;Subroutine sta
+	 	 	 	rt
+ 	 	 	 	
+ 016B  BA 8002	 	 	 	mov	 	DX,	 	
+ 	 	 	 	 	LCD_DATABUS	;Load 8255 address (POR
+	 	 	 	T B) in DX
+ 016E  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port B (LCD data bus).
+ 	 	 	 	
+ 016F  BA 8004	 	 	 	mov	 	DX,	 	
+ 	 	 	 	 	PORTC_8255	;Load 8255 address (POR
+	 	 	 	T C) in DX
+ 0172  B0 28	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	28H	 	 	;RS=1 (Data reg
+	 	 	 	), RW=0 (Write mode), EN=1
+ 0174  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port c.
+ 	 	 	 	
+ 0175  B0 20	 	 	 	mov	 	AL,	 	
+ 	 	 	 	 	20H	 	 	;RS=1 (Data reg
+	 	 	 	), RW=0 (Write mode), EN=0
+ 0177  EE	 	 	 	out	 	DX,	 	
+ 	 	 	 	 	AL	 	 	;Send data to 8
+	 	 	 	255 port c.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;Delay so LCD completes write operation
+ 	 	 	 	
+ 0178  B9 00FF	 	 	 	mov	 	CX,	 	
+ 	 	 	 	 	00FFH	 	;Value loaded for DELAY
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-7
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+	 	 	 	 utility
+ 017B  CD AA	 	 	 	INT	 	0AAh	 	
+ 	 	 	 	 	 	 	;Implement delay
+ 	 	 	 	
+ 017D  C3	 	 	 	ret	 	 	 	
+ 	 	 	 	 	 	 	 	;End of subrout
+	 	 	 	ine
+ 	 	 	 	;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	 	 	 	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 	 	 	 	
+ 017E	 	 	 	 	CHLCD86	ENDS
+ 	 	 	 	 	end	 	 	 	
+ 	 	 	 	 	 	 	 	;This is end of
+	 	 	 	 program
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	03-12-:9    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+CHLCD86. . . . . . . . . . . . .	017E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+CONTROL_ADDR_8255. . . . . . . .	Number	8006	
+LCD_DATABUS. . . . . . . . . . .	Number	8002	
+PORTC_8255 . . . . . . . . . . .	Number	8004	
+SENDLCDCMD . . . . . . . . . . .	L NEAR 	0158	CHLCD86
+SENDLCDDAT . . . . . . . . . . .	L NEAR 	016B	CHLCD86
+
+50088 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

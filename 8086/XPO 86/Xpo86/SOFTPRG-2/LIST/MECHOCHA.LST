@@ -1,0 +1,109 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	;Program to echo a character.
+ 	 	 	 	;AFTER SERIAL DOWNLOAD IS COMPLETE, THIS PROGRA
+	 	 	 	M WILL READBACK A CHARACTER
+ 	 	 	 	;ON THE CURRENT CONSOLE DEVICE (WHICH IS SERIAL
+	 	 	 	 DEVICE IF PROGRAM IS DOWNLOADED
+ 	 	 	 	;USING SERIAL PORT), AND THEN WILL ECHO BACK TH
+	 	 	 	E CHARACTER. IT WILL CONTINUE
+ 	 	 	 	;DOING THIS TILL AN 'A' IS RECEIVED.
+ 	 	 	 	
+ 	 	 	 	; FOR EXAMPLE IF YOU ARE USING HYPERTERMINAL (T
+	 	 	 	URN OFF THE ECHO CHARACTERS
+ 	 	 	 	; LOCALLY SETTING UNDER FILE->PROPERTIES->SETTI
+	 	 	 	NGS->ASCII SETUP->ECHO TYPED CHARACTERS LOCALLY
+	 	 	 	 (DO NOT TICK).
+ 	 	 	 	; NOW HYPERTERMINAL WILL NOT SHOW YOU WHAT YOU 
+	 	 	 	ARE TYPING UNLESS THE RECEIVING DEVICE SENDS BA
+	 	 	 	CK THE CHARACTERS
+ 	 	 	 	; (THE KIT MONITOR PRORGRAM IS DESIGNED TO SEND
+	 	 	 	 BACK ALL CHARACTERS THAT IT RECEIVES).
+ 	 	 	 	; NOW AFTER RUNNING THE PROGRAM, YOU WILL SEE E
+	 	 	 	VERY CHARACTER THAT YOU SEND DOWN THROUGH HYPER
+	 	 	 	TERMINAL USING
+ 	 	 	 	; THE PC's KEYBOARD. THIS WILL CONTINUE TILL YO
+	 	 	 	U PRESS 'A'.
+ 	 	 	 	; NOW TURN ON THE ECHO TYPED CHARACTERS LOCALLY
+	 	 	 	 SETTING, AND RUN THE PROGRAM, YOU SHOULD SEE A
+	 	 	 	LL THE
+ 	 	 	 	; CHARACTERS THAT YOU ARE TYPING ECHOED TWICE O
+	 	 	 	N THE HYPERTERMINAL SCREEN.
+ 	 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KBYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 01 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV AX,10FFH
+ 0106  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 0108  B8 0000	 	 	 	MOV AX,0000H
+ 010B  8E D0	 	 	 	MOV SS,AX
+ 010D  8E C0	 	 	 	MOV ES,AX
+ 	 	 	 	 	
+ 010F  0E	 	 	 	PUSH CS
+ 0110  1F	 	 	 	POP DS
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	 	
+ 0111  90	 	 	 	NOP
+ 0112  90	 	 	 	NOP
+ 0113  90	 	 	 	NOP	
+ 	 	 	 	 	
+ 0114	 	 	 	ECHOLOOP:
+ 0114  B4 01	 	 	 	MOV AH,1
+ 0116  CD A2	 	 	 	INT 0A2H	 	;WAIT FOR CHARA
+	 	 	 	CTER ON SERIAL PORT.(INT A2 FUNCTION 1 ON KIT I
+	 	 	 	S GET CHARACTER WITH ECHO)
+ 0118  3C 41	 	 	 	CMP AL,41H	 	;IF RECEIVED CH
+	 	 	 	ARACTER IS 'A' EXIT
+ 011A  74 02	 	 	 	JZ ECHODONE
+ 011C  EB F6	 	 	 	JMP ECHOLOOP	;ELSE GET NEXT CHARACTE
+	 	 	 	R.
+ 	 	 	 	 	
+ 011E	 	 	 	EchoDone:
+ 011E  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	
+ 0120	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	0120	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ECHODONE . . . . . . . . . . . .	L NEAR 	011E	COMSEG
+ECHOLOOP . . . . . . . . . . . .	L NEAR 	0114	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50088 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,173 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	08-23-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;***FOLLOWING LISTING IS W.R.T. BATTERY BACKED 
+	 	 	 	RAM AT 10000H BUT THIS
+ 	 	 	 	;   PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCAT
+	 	 	 	ED AT 00000H .PL. ENTER
+ 	 	 	 	;   THE SAME FROM 0140:0100[0000:1500] AND EXEC
+	 	 	 	UTE. 
+ 	 	 	 	;*********CONVERTING BCD TO HEX
+ 	 	 	 	;----------------------------------------------
+	 	 	 	------------------------
+ 	 	 	 	;BCDHEX TRANSLATES THE BCD NUMBER IN  AX TO ITS
+	 	 	 	 HEX EQUIVALENT IN AX.
+ 	 	 	 	;ON ENTRY AX MUST CONTAIN OR VALID BCD DIGITS, 
+	 	 	 	OTHERWISE THE
+ 	 	 	 	;RESULTS ARE UNPREDICTABLE.
+ 	 	 	 	;	ALL REGISTERS OTHER THAN AX    PRESERVE
+	 	 	 	D.
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-------------------------
+ 	 	 	 	;PASCAL CONSTRUCT-
+ 	 	 	 	;var
+ 	 	 	 	;	n : integeer;
+ 	 	 	 	;	d : array[0..3] of [0..9];
+ 	 	 	 	;	i : integer;
+ 	 	 	 	;begin
+ 	 	 	 	;	n:= 0;
+ 	 	 	 	;	for i := 3 down to 0  do
+ 	 	 	 	;	    n := 10*n + d[i];
+ 	 	 	 	;end.
+ 	 	 	 	
+ 0000	 	 	 	X86BCDHX	SEGMENT
+ 	 	 	 	 	 	 	 	 	 
+	 	 	 	 	
+ 	 	 	 	ASSUME   CS:X86BCDHX, DS:X86BCDHX, ES:X86BCDHX
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H      ;Com format is recommended.
+ 	 	 	 	 	
+ 0100  EB 01 90	 	 	STRT:   JMP  SKIP_DATA   ;Skip lookup/
+ 	 	 	 	                         ;data bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+ 	 	 	 	;stack of your programme from monitors], DS as 
+ 	 	 	 	;shown below. SS, ES are ;set to 0000 at power 
+ 	 	 	 	;on by monitor. You can of course change it by 
+ 	 	 	 	;adding a few more move's. but while working on
+	 	 	 	 
+ 	 	 	 	;PC you can't touch segment registers since the
+	 	 	 	y 
+ 	 	 	 	;are set by dos loader, ;so manage these 
+ 	 	 	 	;instructions as shown in comment field.  
+ 	 	 	 	 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV	AX,10FFH 
+ 0106  8B E0	 	 	MOV	SP,AX   
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	08-23-99    
+
+
+ 0108  0E	 	 	PUSH	CS      
+ 0109  1F	 	 	POP	DS      
+ 010A  90	 	 	NOP	        
+ 010B  90	 	 	NOP	        
+ 010C  90	 	 	NOP	        
+ 010D  B8 4096	 	 	MOV	AX,4096H ;BCD NO LOADED HERE
+ 0110  53	 	 	 PUSH	BX                                     
+	 	 	 	     
+ 0111  51	 	 	 PUSH	CX                                     
+	 	 	 	     
+ 0112  52	 	 	 PUSH	DX                                     
+	 	 	 	     
+ 0113  56	 	 	 PUSH	SI                                     
+	 	 	 	     
+ 0114  57	 	 	 PUSH	DI                                     
+	 	 	 	     
+ 0115  BE 000A	 	 	 MOV	SI,000AH ;SOURCE OF CONSTANT 10        
+	 	 	 	       
+ 0118  B9 0001	 	 	 MOV	CX,0001H ;COUNT                        
+	 	 	 	      
+ 011B  8B D8	 	 	 MOV	BX,AX   ;BCD NUMBER IN BX              
+	 	 	 	     
+ 011D  33 FF	 	 	 XOR	DI,DI   ;FORM ANSWER IN DI. FIRST INIT
+ 011F  53	 	 	 PUSH	BX      ; SUM TO 0.                    
+	 	 	 	     
+ 0120  81 E3 000F	 	 AND	BX,000FH                               
+	 	 	 	      
+ 0124  03 FB	 	 	 ADD	DI,BX   ;RETAIN LOW NIBBLE ONLY        
+	 	 	 	     
+ 0126  5B	 	 	 POP	BX      ;UNIT PLACE                    
+	 	 	 	     
+ 0127  D1 CB	 	 	STORE:ROR	BX,01H    ;RESTORE ROTATED BCD 
+	 	 	 	NUMBER         
+ 0129  D1 CB	 	 	 ROR	BX,01H                                 
+	 	 	 	       
+ 012B  D1 CB	 	 	 ROR	BX,01H                                 
+	 	 	 	       
+ 012D  D1 CB	 	 	 ROR	BX,01H    ;GET NEXT DIGT TO RT NIBLE OF
+	 	 	 	 B
+ 012F  53	 	 	 PUSH	BX      ;SAVE ROTATED VALUE            
+	 	 	 	     
+ 0130  51	 	 	 PUSH	CX                                     
+	 	 	 	     
+ 0131  81 E3 000F	 	 AND	BX,000FH ;RETAIN LOW NIBBLE ONLY       
+	 	 	 	      
+ 0135  8B C3	 	 	 MOV	AX,BX                                  
+	 	 	 	     
+ 0137  F7 E6	 	 	 LUP: MUL	SI      ;IN := N*10. PRODUCT  I
+	 	 	 	N DX,AX
+ 0139  E2 FC	 	 	 LOOP	LUP    ;DX SHOULD GET NO CARRY.        
+	 	 	 	    
+ 013B  59	 	 	 POP	CX                                     
+	 	 	 	     
+ 013C  41	 	 	 INC	CX                                     
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+	 	 	 	 	 	 	 	08-23-99    
+
+
+	 	 	 	     
+ 013D  03 F8	 	 	 ADD	DI,AX                                  
+	 	 	 	     
+ 013F  5B	 	 	 POP	BX      ;N := N*10 + d[i]              
+	 	 	 	     
+ 0140  83 F9 04	 	 	 CMP	CX,+04H                                
+	 	 	 	      
+ 0143  72 E2	 	 	 JB	STORE                                  
+	 	 	 	      
+ 0145  8B C7	 	 	 MOV	AX,DI   ;REPEAT FOR FOUR BCD DIGITS    
+	 	 	 	     
+ 0147  5F	 	 	 POP	DI                                     
+	 	 	 	     
+ 0148  5E	 	 	 POP	SI                                     
+	 	 	 	     
+ 0149  5A	 	 	 POP	DX                                     
+	 	 	 	     
+ 014A  59	 	 	 POP	CX                                     
+	 	 	 	     
+ 014B  5B	 	 	 POP	BX                                     
+	 	 	 	     
+ 014C  CD A5	 	 	 INT	0A5H      ;AX= RESULT / REPLACE HERE 'R
+	 	 	 	ET'
+ 	 	 	 	 	 	 	 	 	  ;TO M
+	 	 	 	AKE IT CALLABLE	 	    
+ 014E	 	 	 	X86BCDHX	ENDS
+ 	 	 	 	 	END	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	08-23-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86BCDHX . . . . . . . . . . . .	014E	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+LUP. . . . . . . . . . . . . . .	L NEAR 	0137	X86BCDHX
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86BCDHX
+STORE. . . . . . . . . . . . . .	L NEAR 	0127	X86BCDHX
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86BCDHX
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

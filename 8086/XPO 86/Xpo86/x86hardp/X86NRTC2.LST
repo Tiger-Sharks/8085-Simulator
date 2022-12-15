@@ -1,0 +1,274 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	       PAGE,80
+ 	 	 	 	       TITLE-- 10. Using NMI For RTC.
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	 	
+ 0000	 	 	 	X86NMIRTC       SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	
+ 	 	 	 	                ASSUME CS:X86NMIRTC, DS:X86NMIR
+	 	 	 	TC ,ES:X86NMIRTC
+ 0100	 	 	 	                ORG 100H              ;COM FORM
+	 	 	 	AT IS RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	 	JMP SKIP_DATA         ;SKIP LOO
+	 	 	 	K UP/ DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	;INIT OF SP FOR
+	 	 	 	 KIT
+ 0106  8B C0	 	 	 	MOV     AX,AX     	;MOV AX,AX   ON
+	 	 	 	 PC
+ 0108  0E	 	 	       	PUSH    CS        	;INIT FOR DS
+ 0109  1F	 	 	        POP     DS  
+ 	 	 	 	 	 	 	 	;LOAD KIT INTS 
+	 	 	 	(A0-BF) IN PC USING
+ 010A  90	 	 	        NOP             	;
+ 010B  90	 	 	        NOP               	;PLACE CALL IN 
+	 	 	 	PLACE OF 3 NOP`S
+ 010C  90	 	 	        NOP               	;
+ 010D  B8 0000	 	 	        MOV 	AX,0000H      	;ES IS USED AS 
+	 	 	 	SCPD TO 
+ 0110  90	 	 	        NOP               	;STORE DATA.
+ 0111  8E C0	 	 	       	MOV 	ES,AX
+ 	 	 	 	
+ 0113  CD AC	 	 	        INT 	0ACH            ; Clear display
+ 0115  B0 00	 	 	       	MOV 	AL,00H          ; Store 00H on 
+	 	 	 	Start.
+ 0117  26: A2 1000	 	        MOV 	ES:[1000H],AL 	; Hour cntr = 0
+ 011B  26: A2 1001	 	 	MOV 	ES:[1001H],AL 	; Min  cntr  =0
+ 011F  26: A2 1002	 	 	MOV 	ES:[1002H],AL	; Sec  cntr = 0
+	 	 	 	 
+ 0123  26: A2 1003	 	 	MOV 	ES:[1003H],AL	; Set  Flag  
+ 0127  26: A2 1004	 	        MOV 	ES:[1004H],AL  	; Set Intr, Che
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+	 	 	 	ck Counter
+ 	 	 	 	                             	; be stored at 
+	 	 	 	vector addr.
+ 	 	 	 	        	                ; location of N
+	 	 	 	MI where 
+ 	 	 	 	        	               	; control goes 
+	 	 	 	when NMI
+ 012B  0E	 	 	        PUSH 	CS
+ 012C  59	 	 	       	POP  	CX              ; Segment addr 
+	 	 	 	for ISR 
+ 012D  BE 01E7 R	 	       	MOV 	SI,OFFSET ISR 	; Load ISR addr
+	 	 	 	.
+ 0130  B0 02	 	 	       	MOV 	AL,02H 	 	; init of 0000:
+	 	 	 	0008H to 000BH
+ 	 	 	 	              	 	 	; NMI is type 0
+	 	 	 	2H interrupt.
+ 0132  CD BE	 	 	       	INT 	0BEH       	;
+ 0134  B0 7E	 	 	      	MOV 	AL,7EH 	  	; CW for 8253
+ 0136  BA 8C07	 	 	        MOV 	DX,8C07H	;
+ 0139  EE	 	 	        OUT 	DX,AL  	 	;
+ 	 	 	 	        	 	 	
+ 013A  B0 24	 	 	        MOV 	AL,24H 	 	; LSB for cntr1
+	 	 	 	 
+ 013C  BA 8C03	 	 	        MOV 	DX,8C03H 	;
+ 013F  EE	 	 	        OUT 	DX,AL  	 	; of 8253
+ 	 	 	 	
+ 0140  B0 F4	 	 	     	MOV 	AL,0F4H  	; MSB for cntr1
+ 0142  BA 8C03	 	 	 	MOV 	DX,8C03H	;
+ 0145  EE	 	 	  	OUT 	DX,AL    	; of 8253
+ 	 	 	 	
+ 0146  EB 5A 90	 	 	   	JMP 	DSPLY   	; jmp to displa
+	 	 	 	y
+ 	 	 	 	
+ 0149  26: A0 1003	 	LOOP1: 	MOV 	AL,ES:[1003H]   ; Load flag
+ 014D  3C 00	 	 	        CMP 	AL,00H    	; Is 1 Sec over
+	 	 	 	?
+ 014F  74 F8	 	 	        JZ 	LOOP1       	; if not go bac
+	 	 	 	k
+ 	 	 	 	   	                        ; Load sec afte
+	 	 	 	r 
+ 0151  26: A0 1002	 	 	MOV 	AL,ES:[1002H]   ; 1 sec
+ 0155  04 01	 	 	   	ADD 	AL,01H    	; Add 1 to sec.
+ 0157  27	 	 	     	DAA    	        	; 
+ 0158  3C 60	 	 	     	CMP 	AL,60H   	; Is 1min over?
+ 015A  74 0D	 	 	    	JZ 	NXT1   	        ; If yes goto N
+	 	 	 	XT1
+ 	 	 	 	          	                ; If no store s
+	 	 	 	ec.
+ 015C  26: A2 1002	 	 	MOV 	ES:[1002H],AL	;
+ 0160  B0 00	 	 	        MOV 	AL,00H          ; Reset  flag t
+	 	 	 	o 0 
+ 0162  26: A2 1003	 	 	MOV 	ES:[1003H],AL	;
+ 0166  EB 3A 90	 	 	  	JMP 	DSPLY   	; JMP to displa
+	 	 	 	y
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	
+ 0169  B0 00	 	 	NXT1:  	MOV 	AL,00H          ; As 1 Min over
+ 016B  26: A2 1002	 	 	MOV 	ES:[1002H],AL   ; Sec cntr  00 
+ 016F  26: A0 1001	 	 	MOV 	AL,ES:[1001H]   ; Increment Min
+ 0173  04 01	 	 	   	ADD 	AL,01H    	; cntr by 1
+ 0175  27	 	 	  	DAA     	        ;
+ 0176  3C 60	 	 	  	CMP 	AL,60H     	; Is 1 hour ove
+	 	 	 	r?
+ 0178  74 0D	 	 	   	JZ 	NXT2    	; If  yes goto
+ 	 	 	 	                                ; NXT2
+ 017A  26: A2 1001	 	   	MOV 	ES:[1001H],AL   ; If no store m
+	 	 	 	in
+ 017E  B0 00	 	 	    	MOV 	AL,00H          ; Reset flag to
+	 	 	 	 0
+ 0180  26: A2 1003	 	   	MOV 	ES:[1003H],AL	;
+ 0184  EB 1C 90	 	 	        JMP 	DSPLY     	; JMP to displa
+	 	 	 	y
+ 	 	 	 	
+ 0187  B0 00	 	 	NXT2:   MOV 	AL,00H          ; Min cntr  00
+ 0189  26: A2 1001	 	        MOV 	ES:[1001H],AL 	;
+ 018D  26: A0 1000	 	        MOV 	AL,ES:[1000H]	; 
+ 0191  04 01	 	 	        ADD 	AL,01H          ; Increment min
+	 	 	 	  
+ 	 	 	 	               	 	 	; cntr by 1
+ 0193  27	 	 	        DAA                  	;  
+ 0194  3C 13	 	 	      	CMP 	AL,13H          ; If 12 Hrs ove
+	 	 	 	r?
+ 0196  74 46	 	 	      	JZ 	END             ; If yes JMP to
+ 	 	 	 	                                ; END
+ 0198  26: A2 1000	 	        MOV 	ES:[1000H],AL   ; If no store H
+	 	 	 	rs.  
+ 019C  B0 00	 	 	        MOV 	AL,00H          ; Reset flag to
+	 	 	 	 0
+ 019E  26: A2 1003	 	        MOV 	ES:[1003H],AL 
+ 	 	 	 	
+ 01A2  B2 20	 	 	DSPLY:  MOV 	DL,20H  	; Set cursor  
+ 01A4  B4 02	 	 	        MOV 	AH,02H    	; using write. 
+	 	 	 	 
+ 01A6  CD A2	 	 	 	INT 	0A2H    	; leftmost post
+	 	 	 	n.
+ 	 	 	 	
+ 01A8  B0 02	 	 	      	MOV 	AL,02H   	; Display 2 dig
+	 	 	 	it
+ 01AA  26: 8A 16 1000	 	        MOV 	DL,ES:[1000H]   ; Load Hrs cntr
+ 01AF  CD AE	 	 	        INT 	0AEH            ; Display Hrs o
+	 	 	 	n 
+ 	 	 	 	           	 	 	; Display.
+ 01B1  B2 20	 	 	       	MOV 	DL,20H     	; Set cursor to
+	 	 	 	 
+ 01B3  B4 02	 	 	        MOV 	AH,02H     	; 4th char. Pos
+	 	 	 	tn.
+ 01B5  CD A2	 	 	        INT 	0A2H	 	;
+ 	 	 	 	
+ 01B7  B0 02	 	 	        MOV 	AL,02H          ; Display 2 dig
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-4
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+	 	 	 	it
+ 01B9  26: 8A 16 1001	 	        MOV 	DL,ES:[1001H]   ; Load min cntr
+ 01BE  CD AE	 	 	      	INT 	0AEH           	; Display min o
+	 	 	 	n 
+ 	 	 	 	       	 	 	        ; Display.
+ 01C0  B2 20	 	 	        MOV 	DL,20H   	; Set cursor to
+ 01C2  B4 02	 	 	        MOV 	AH,02H   	; 7th char. Pos
+	 	 	 	tn.
+ 01C4  CD A2	 	 	        INT 	0A2H	 	; 
+ 	 	 	 	 	 	 	 	         
+ 01C6  B0 02	 	 	        MOV 	AL,02H          ; Display 2 dig
+	 	 	 	it
+ 01C8  26: 8A 16 1002	 	        MOV 	DL,ES:[1002H]   ; Load sec cntr
+ 01CD  CD AE	 	 	      	INT 	0AEH           	; Display sec o
+	 	 	 	n 
+ 	 	 	 	       	 	 	        ; Display.
+ 01CF  CD AB	 	 	        INT 	0ABH      	; Bring cursor 
+	 	 	 	to
+ 	 	 	 	                        	; 1st position.
+	 	 	 	                                    	
+ 01D1  B4 0B	 	 	        MOV 	AH,0BH	 	;          
+ 01D3  CD A1	 	 	        INT 	0A1H  	 	; Check for key
+	 	 	 	 
+ 01D5  3C 00	 	 	        CMP 	AL,00H    	; press, if no 
+	 	 	 	key   
+ 01D7  75 05	 	 	        JNZ 	END      	; start countin
+	 	 	 	g,
+ 01D9  BB 0149 R	 	        MOV 	BX,OFFSET LOOP1	; Jump to loop
+ 01DC  FF E3	 	 	        JMP 	BX  	 	;
+ 	 	 	 	          
+ 01DE  B0 76	 	 	END:    MOV 	AL,76H 	 	; If key stop 
+ 01E0  BA 8C07	 	 	        MOV 	DX,8C07H	;
+ 01E3  EE	 	 	        OUT 	DX,AL  	 	; counter & jmp
+ 01E4  CD A4	 	 	        INT 	0A4H	 	; to CMD mode. 
+ 01E6  90	 	 	        NOP          	 	;
+ 	 	 	 	
+ 01E7	 	 	 	ISR     PROC 	NEAR
+ 01E7  50	 	 	        PUSH 	AX           	; Save AX
+ 01E8  26: A0 1004	 	        MOV 	AL,ES:[1004H]	;
+ 01EC  FE C0	 	 	        INC 	AL            	;
+ 01EE  3C 28	 	 	        CMP 	AL,28H   	; 25ms * 28H =1
+	 	 	 	sec
+ 01F0  75 0F	 	 	        JNZ 	SKIP1 	       	; jmp to SKIP1
+ 01F2  B0 00	 	 	        MOV 	AL,00H     	;
+ 01F4  26: A2 1004	 	        MOV 	ES:[1004H],AL	; reset INTR ch
+	 	 	 	k 
+ 01F8  B0 01	 	 	        MOV 	AL,01H    	; counter to 0
+ 01FA  26: A2 1003	 	        MOV 	ES:[1003H],AL   ; set flag cntr
+	 	 	 	 =1
+ 01FE  EB 05 90	 	 	        JMP 	SKIP3          	; jmp to SKIP3
+ 0201  26: A2 1004	 	SKIP1:  MOV 	ES:[1004H],AL  	; store INTR ch
+	 	 	 	k counter 
+ 0205  58	 	 	SKIP3:	POP AX     	        ;
+ 0206  CF	 	 	        IRET                   	; return.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-5
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	
+ 0207	 	 	 	ISR     ENDP 
+ 	 	 	 	         
+ 0207	 	 	 	X86NMIRTC 	ENDS
+ 	 	 	 	      END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- 10. Using NMI For RTC.	 	 	 	 	10-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86NMIRTC. . . . . . . . . . . .	0207	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DSPLY. . . . . . . . . . . . . .	L NEAR 	01A2	X86NMIRTC
+END. . . . . . . . . . . . . . .	L NEAR 	01DE	X86NMIRTC
+ISR. . . . . . . . . . . . . . .	N PROC	01E7	X86NMIRTC	Length 
+	 	 	 	=0020
+LOOP1. . . . . . . . . . . . . .	L NEAR 	0149	X86NMIRTC
+NXT1 . . . . . . . . . . . . . .	L NEAR 	0169	X86NMIRTC
+NXT2 . . . . . . . . . . . . . .	L NEAR 	0187	X86NMIRTC
+SKIP1. . . . . . . . . . . . . .	L NEAR 	0201	X86NMIRTC
+SKIP3. . . . . . . . . . . . . .	L NEAR 	0205	X86NMIRTC
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86NMIRTC
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86NMIRTC
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

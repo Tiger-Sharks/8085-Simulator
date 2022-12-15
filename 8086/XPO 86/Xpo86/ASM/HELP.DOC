@@ -1,0 +1,90 @@
+*****™ HO◊ Tœ US≈ THI” DISTRIBUTIOŒ FLOPPŸ≠-808∂ (2©  ***********
+====DON`‘ †EVE“ †REMOV≈ WRIT≈ PROTECTÆ  US≈ THI” A” MASTE“ †FLOPPŸ †IŒ ç
+DRIV≈ A:==
+  PCSERIAL.EX≈≠-YO’ CAŒ CONVER‘ P√ INTœ INTELLIGEN‘ TERMINAL,DOWNLOAƒ-ç
+UPLOAD.HEX FILES FROM AND INTO KIT.PCSERIAL.EXE IS OFFERED FOR THIS.
+ALÃ TH≈ †COMMUNICATIOŒ PARAMETER” AR≈ VIZ.BAUƒ RATE,PARITY,STO– †BIT”
+ET√ AR≈ ALREADŸ SE‘ MATCHIN« THOS≈ OŒ KIT.BEFOR≈ YO’ COMMENC≈ SENDIN«
+FROÕ KI‘ ENSUR≈ THA‘ †KI‘ I” PU‘ IŒ RECEIVIN« MOD≈ USIN« SERILIŒ (I©
+COMMAND.US≈ †HEÿ-INTELHEÿ FORMAT.AL‘ †‘ Tœ COMMENCE.AL‘ À Tœ ABOR‘ 
+(OŒ P√ ONLY).US≈ Fµ TWIC≈ †Tœ CHANG≈ FIL≈ NAM≈ ANƒ DIRECTION.
+
+ KIT_INTS.ASÕ≠-ALÃ TH≈ KI‘ MONITO“ UTILITIE” AR≈ MAD≈ AVAILABL≈ Tœ YO’ ç
+OŒ P√ USIN« †KIT_INTS.ASÕ WHIC» YO’ MAŸ COPŸ ALON« WIT» YOU“ †PROGRAM≈ 
+ONTœ DRIV≈ X:.ASSEMBL≈ THI” FIL≈ ALON« WIT» YOU“ SOURC≈ FIL≈ BŸ USIN«
+ STATEMENT->  INCLUD≈ KIT_INTS.ASÕ     JUS‘ BEFOR≈    END”  STATEMENT.
+ALSœ ENTE“   CALÃ LDINP√   IŒ INITIALISATIOŒ PAR‘ O∆ YOU“ PROGRAME.US≈ ç
+NO◊ EXEC.BA‘ †Tœ †MAK≈ †AŒ EXECUTABL≈ .COÕ /.EX≈ FIL≈ †WHIC» †CAŒ †RUŒ 
+OŒ PC.ONC≈ THROUG» YO’ MAŸ DELET≈ ABOV≈ STATEMENT” ANƒ US≈  SERIAL.BA‘
+Tœ MAK≈ .HEÿ .NO◊ DOWNLOAƒ INTœ KI‘ BATTERŸ RAÕ USIN« PCSERIAÃ A” 
+EXPLAINEƒ ABOVE.
+
+TYBS08.HEÿ≠-THI” ††I” ††CREATEƒ ††BŸ †PASSIN« ††ABOV≈ ††.ASÕ ††THROUG» ç
+SERIAL.BAT.I‘ MAŸ B≈ †DOWNLOADEƒ †INTœ †KI‘ BATTERŸ BACKU– †RAÕ †A‘
+,SAY,1000:000∞ †ANƒ EXECUTEƒ FROÕ 1000:0100.
+US≈ …-SERILIŒ COMMANƒ OŒ KI‘≠-I,CR,CR,1000,CR,0000,CR,0FFF,CR.
+
+TYBS08.COÕ≠-I” TH≈ COÕ FIL≈ O∆ ABOV≈ PROGRAM≈ WHIC» CAŒ WORÀ OŒ PC.TRŸ ç
+8255.™ ≠-ILLUSTRATE” US≈ O∆ 825µ [8800H]
+8259.™ ≠-ILLUSTRATE” US≈ O∆ 8259
+5153.™ ≠-ILLUSTRATE” US≈ O∆ 8251,825≥ 
+
+IO88.HEÿ FIL≈ I” Tœ B≈ DOWNLOADEƒ IŒ UNI∏ KI‘ A‘ TH≈ MEMORŸ LOCATION
+1005:010∞ ,USIN« SERIALIŒ .EXECUT≈ TH≈ PROGRAM” ENTERIN« TH≈ ADDRESSE” ç
+GIVEŒ A” FOLLOWS:  COD≈ SEGÆ  ADDR.
+     1)FO“ 825µ    100µ    :0100
+     2)FO“ 8251/5≥ 100ƒ    :0100
+     3)FO“ 825π    101µ    :0100
+		
+MOTOROLA.ASÕ †≠-THI” †I” †¡ DOWŒ-LOADE“ †PROGRAM≈ †FO“ †TH≈ †'MOTOROL¡ ç
+STANDARƒ HEXß FILE.THI” I” AŒ EXAMPL≈ O∆ HO◊ Tœ US≈ TH≈ INT'” PROVIDEƒ 
+OŒ 'ANSHUMAŒ-86/8∏ O“ V8∂ KITß.USE“ †MAŸ †ASSEMBL≈ THI” PROGRAM≈ USIN«
+'SERIAL.BAT',DOWNLOAƒ †I‘ †A‘ 1000:000∞ OŒ 86/88 KI‘ ANƒ RUŒ I‘ 
+[Gœ 1000:0100› Tœ DOWNLOAƒ ¡ .HEX(MOTOROL¡ STD© FILE
+
+EQUAT.LI¬≠-SAVE” YO’ REMEMBERIN« VARIOU” ASCII`” etc.
+MAC.LI¬ /CRMAC.LI¬≠≠-AR≈ MACRœ FILES.
+
+TERMINAL.ASM/EX≈ I” ANOTHE“ STUDŸ ROUTIN≈ WHIC» CONVERT” IBÕ P√ INTO
+ ¡ INTELLIGEN‘ TERMINAÃ LIK≈ PCSERIAÃ A‘ 240∞ BAUƒ RATE.
+
+****™ REAƒ HELP.DO√ IŒ FLOPPŸ ±  Tœ KNO◊ ABOU‘ RES‘ O∆ TH≈ FILES.
+ 
+
+
+ä
+		INDEX OF SAMPLE PROGRAMMES PROVIDED 
+---------------------------------------------------------------------
+SR NO	|TITLE		| BATTERY BACKED RAM  	| SCRATCH PAD RAM   |
+	| .LST		|STRT  ADDR|END ADDR 	|STRT ADDR|END ADDR |
+	|		| SEG :0100|OFFSET 	| SEG:0100| OFFSET  |
+-------------------------------------------------------------------------
+   1]   |TYBS08		|1000	   |011A	|0110	  |011A	    |
+   	|		|	   |		|	  |	    |
+   2]	|8255		|1005	   |0129	|0115	  |0129	    |
+ 	|		|	   |		|	  |	    |
+   3]   |5153		|100D	   |0175	|011D	  |0175	    |
+        |               |          |            |         |         |   
+   4]   |8259           |1015      |015E        |0125     |015E     |   
+        |               |          |            |         |         |   
+   5]   |MBYADD         |101B      |011A        |012B     |011A	    |
+        |               |          |            |         |         |   
+   6]   |3BADD          |101D      |0141        |012D     |0141     |   
+        |               |          |            |         |         |   
+   7]   |CUSINT         |1022      |0129        |0132     |0129	    |
+        |               |          |            |         |         |   
+   8]   |CNTZ           |1025      |012D        |0135     |012D     |   
+        |               |          |            |         |         |   
+   9]   |LTOHCASE       |1028      |0129        |0138     |0129     |   
+        |               |          |            |         |         |   
+  10]   |INTASC         |102B      |0144        |013B     |0144     |   
+        |               |          |            |         |         |   
+  11]   |BCDHEX         |1030      |014A        |0140     |014A     |   
+        |               |          |            |         |         |   
+        |               |          |            |         |         |   
+        |               |          |            |         |         |   
+        |               |          |            |         |         |   
+        |               |          |            |         |         |   
+        |               |          |            |         |         |   
+---------------------------------------------------------------------
+

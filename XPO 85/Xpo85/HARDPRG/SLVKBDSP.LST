@@ -1,0 +1,31 @@
+                ;SLAVE MICRO KEYBOARD READ.
+ 0000                           CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 0010 =         CPURD:  EQU 10H
+ 036C =         NMOUT:  EQU 036CH
+ 0615 =         DELAY:  EQU 0615H
+ 0497 =         CRONLY: EQU 0497H
+ 6065                   ORG 6065H
+ 6065 CD8A04            CALL CRLF
+ 6068 3E8E      RDKEY:  MVI A,8EH
+ 606A D310              OUT CPURD
+ 606C 110000            LXI D,0000H
+ 606F CD1506            CALL DELAY
+ 6072 DB10              IN CPURD
+ 6074 B7                ORA A
+ 6075 F26860            JP RDKEY
+ 6078 E67F              ANI 7FH
+ 607A CD9704            CALL CRONLY
+ 607D 0602              MVI B,02H
+ 607F 5F                MOV E,A
+ 6080 CD6C03            CALL NMOUT
+ 6083 C36860            JMP RDKEY
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0010  CPURD                048A  CRLF                 0497  CRONLY        
+0002  D                    0615  DELAY                0003  E             
+0004  H                    0005  L                    0006  M             
+036C  NMOUT                6068  RDKEY                
+

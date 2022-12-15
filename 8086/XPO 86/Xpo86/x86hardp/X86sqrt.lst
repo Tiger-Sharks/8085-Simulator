@@ -1,0 +1,82 @@
+1020:0100 B8FF10        MOV     AX,10FF
+1020:0103 89C4          MOV     SP,AX
+1020:0105 0E            PUSH    CS
+1020:0106 1F            POP     DS
+1020:0107 B80000        MOV     AX,0000
+1020:010A 8EC0          MOV     ES,AX
+1020:010C 90            NOP
+1020:010D 90            NOP
+1020:010E 90            NOP
+1020:010F CDAC          INT     AC
+1020:0111 E86C00        CALL    0180
+1020:0114 E89900        CALL    01B0
+1020:0117 BB0010        MOV     BX,1000
+1020:011A 9B            WAIT
+1020:011B 26            ES:
+1020:011C DB07                  FILD    DWORD PTR [BX]
+1020:011E 9B            WAIT
+1020:011F 26            ES:
+1020:0120 DA0F                  FIMUL   DWORD PTR [BX]
+1020:0122 9B            WAIT
+1020:0123 26            ES:
+1020:0124 DB5708                FIST    DWORD PTR [BX+08]
+1020:0127 9B            WAIT
+1020:0128 83C304        ADD     BX,+04
+1020:012B 9B            WAIT
+1020:012C 26            ES:
+1020:012D DB07                  FILD    DWORD PTR [BX]
+1020:012F 9B            WAIT
+1020:0130 26            ES:
+1020:0131 DA0F                  FIMUL   DWORD PTR [BX]
+1020:0133 9B            WAIT
+1020:0134 26            ES:
+1020:0135 DA4704                FIADD   DWORD PTR [BX+04]
+1020:0138 9B            WAIT
+1020:0139 D9FA                  FSQRT
+1020:013B 9B            WAIT
+1020:013C 83C304        ADD     BX,+04
+1020:013F 9B            WAIT
+1020:0140 26            ES:
+1020:0141 DB17                  FIST    DWORD PTR [BX]
+1020:0143 9B            WAIT
+1020:0144 CDAC          INT     AC
+1020:0146 26            ES:
+1020:0147 8B160810      MOV     DX,[1008]
+1020:014B 26            ES:
+1020:014C 8B0E0A10      MOV     CX,[100A]
+1020:0150 B008          MOV     AL,08
+1020:0152 CDAE          INT     AE
+1020:0154 CDB8          INT     B8
+1020:0156 9B            WAIT
+1020:0157 DBE3                  FINIT
+1020:0159 EBB4          JMP     010F
+
+1020:0180 BBA001        MOV     BX,01A0
+1020:0183 BA0000        MOV     DX,0000
+1020:0186 89D1          MOV     CX,DX
+1020:0188 B410          MOV     AH,10
+1020:018A B008          MOV     AL,08
+1020:018C CDB9          INT     B9
+1020:018E 26            ES:
+1020:018F 89160010      MOV     [1000],DX
+1020:0193 26            ES:
+1020:0194 890E0210      MOV     [1002],CX
+1020:0198 C3            RET
+
+1020:01B0 BBA801        MOV     BX,01A8
+1020:01B3 BA0000        MOV     DX,0000
+1020:01B6 89D1          MOV     CX,DX
+1020:01B8 B410          MOV     AH,10
+1020:01BA B008          MOV     AL,08
+1020:01BC CDB9          INT     B9
+1020:01BE 26            ES:
+1020:01BF 89160410      MOV     [1004],DX
+1020:01C3 26            ES:
+1020:01C4 890E0610      MOV     [1006],CX
+1020:01C8 C3            RET
+
+	    SIDE A.	            SIDE B.
+1020:01A0   53 49 44 45 20 41 03 FF-53 49 44 45 20 42 03
+
+
+

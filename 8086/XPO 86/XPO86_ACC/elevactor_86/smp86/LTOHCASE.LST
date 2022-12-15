@@ -1,0 +1,47 @@
+
+;****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+;    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+;    THE SAME FROM 0138:0100[0000:1480] AND EXECUTE. 
+
+;*******CONVERTING A LOWER CASE STRING TO UPPER CASE
+;	--------------------------------------------
+;PASCAL CONSTRUCT--
+;VAR
+;  s		: string[20];
+;  i		: integer;
+;BEGIN
+;  FOR i := 1 TO 20 do
+;	if (ord(s[i] >= ord ('a')) and (ord(s[i] <= ord('z)) then
+;		s[i] := chr(ord(s[i] + ord 'A') - ORD ('a'));
+;END.
+
+;S	DB      20 DUP (?)   LOCATED AT 0100:012A [=0000:112A] IN SCPD
+;			     ENTER HEX NOS BETWEEN 41-7A U/LOWER CASE.
+1028:0100 B8FF10        MOV	AX,10FF    ;INIT OF SP FOR KIT               
+1028:0103 8BE0          MOV	SP,AX                                          
+1028:0105 0E            PUSH	CS         ;INIT FOR DS                        
+1028:0106 1F            POP	DS         ;                                   
+1028:0107 90            NOP	                                               
+1028:0108 90            NOP	                                               
+1028:0109 90            NOP	                                               
+1028:010A B80001        MOV	AX,0100                                        
+1028:010D 8EC0          MOV	ES,AX      ;INIT OF ES                         
+1028:010F B91400        MOV	CX,0014    ;LOOP COUNTER                       
+1028:0112 BE2A01        MOV	SI,012A    ;POINTS TO START OF STRING
+1028:0115 26            ES:	             
+1028:0116 8A04          MOV	AL,[SI]    ;GET NEXT CHARACTER S[I]     
+1028:0118 3C61          CMP	AL,61      ;S[I] >= 'A'?         
+1028:011A 7209          JB	0125       ;NO, NOT LOWER CASSE               
+1028:011C 3C7A          CMP	AL,7A      ;YES, S[I] <= 'Z'?       
+1028:011E 7705          JA	0125       ;NO NOT LOWER CASE                  
+1028:0120 04E0          ADD	AL,E0      ;IT IS LOWER CASE.CONVRT TO 
+					   ;UPPER BY ADDING OFFSET
+1028:0122 26            ES:	           ;                  
+1028:0123 8804          MOV	[SI],AL    ;STORE CHARACTER BACK               
+1028:0125 46            INC	SI         ;BUMP STRING POINTER                
+1028:0126 E2ED          LOOP	0115       ;REPEAT FOR ALL STRING CHRS   
+1028:0128 CDA5          INT	A5          
+
+
+
+

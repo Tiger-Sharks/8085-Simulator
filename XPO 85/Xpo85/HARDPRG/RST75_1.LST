@@ -1,0 +1,56 @@
+                ;RST7.5
+ 0000                           CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 03D8 =         OUTMSG: EQU 03D8H
+ 0615 =         DELAY:  EQU 0615H
+                
+ 6000                   ORG 6000H
+ 6000 212060            LXI H, RST75
+ 6003 225E20            SHLD 205EH
+ 6006 3E1B              MVI A,1BH
+ 6008 30                SIM
+ 6009 213060    LOOP:   LXI H,DBASE1
+ 600C CD8A04            CALL CRLF
+ 600F CDD803            CALL OUTMSG
+ 6012 11FFFF            LXI D,0FFFFH
+ 6015 CD1506            CALL DELAY
+ 6018 FB                EI
+ 6019 C30960            JMP LOOP
+ 601C 00                NOP
+ 601D 00                NOP
+ 601E 00                NOP
+ 601F 00                NOP
+ 6020 213860    RST75:  LXI H,DBASE2
+ 6023 CD8A04            CALL CRLF
+ 6026 CDD803            CALL OUTMSG
+ 6029 11FFFF            LXI D,0FFFFH
+ 602C CD1506            CALL DELAY
+ 602F C9                RET
+ 6030 58        DBASE1: DFB 58H
+ 6031 50                DFB 50H
+ 6032 4F                DFB 4FH
+ 6033 20                DFB 20H
+ 6034 4B                DFB 4BH
+ 6035 49                DFB 49H
+ 6036 54                DFB 54H
+ 6037 03                DFB 03H
+ 6038 52        DBASE2: DFB 52H
+ 6039 53                DFB 53H
+ 603A 54                DFB 54H
+ 603B 20                DFB 20H
+ 603C 37                DFB 37H
+ 603D 2A                DFB 2AH
+ 603E 35                DFB 35H
+ 603F 20                DFB 20H
+ 6040 03                DFB 03H
+                
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+048A  CRLF                 0002  D                    6030  DBASE1        
+6038  DBASE2               0615  DELAY                0003  E             
+0004  H                    0005  L                    6009  LOOP          
+0006  M                    03D8  OUTMSG               6020  RST75         
+

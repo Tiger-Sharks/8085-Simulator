@@ -1,0 +1,177 @@
+TITLE-- VOICE SAMPLING AND REPLAY
+ 	 	 	 	
+ 0000	 	 	 	X86VOICE  	SEGMENT
+
+ASSUME CS:X86VOICE, DS:X86VOICE,ES:X86VOICE
+ 	         	CR55 EQU 8807H
+ 	                PORTA EQU 8801H
+ 	 	 	PORTB EQU 8803H
+ 	                PORTC EQU 8805H
+ 0100	 	 	ORG 100H	;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 22 90	 STRT: 	JMP 	SKIP_DATA  ;SKIP LOOK UP/ DATA BASES IF ANY
+ 	 	 	 	
+ 0103  41 43 51 55 49 52  MSG1:  DB "ACQUIRE ",03H
+       45 20 03	 	 	
+ 010C  52 45 50 4C 41 59  MSG2:  DB "REPLAY ",03H
+       20 03	 	 	
+ 0114  50 52 45 53 53 20  MSG3:   DB "PRESS A OR ESC ",03H
+       41 20 4F 52 20 45	
+       53 43 20 03	 	
+ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE STACK OF YOUR PROGRAM FROM MONITORS,
+DS AS SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON BY MONITOR.
+YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MORE MOVE`S.
+BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE THEY ARE
+SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0124  B8 11F0	 SKIP_DATA : MOV AX,11F0H    
+ 0127  8B E0	 	     MOV SP,AX  ;Init of SP,DS(=CS).ES,SS=0000 
+ 0129  0E	             PUSH CS    ;Fetch Present CS in AX
+ 012A  58	 	     POP  AX    ;And Load Into DS Since DS=CS 	
+ 012B  8E D8	 	     MOV  DS,AX   
+ 	 	 	 	 	 	 	        
+ 012D  90	 	     NOP    
+ 012E  90	 	     NOP   ;Place CALL in place of 3 NOP`S
+ 012F  90	 	     NOP     
+ 	 	 	 	
+ 0130  8B C8	   MOV	CX,AX      ;Seg addr of ISR for IR0
+ 0132  B0 B6	   MOV 	AL,0B6H    ;Init the 8253 in 
+ 0134  BA 8C07	   MOV 	DX,8C07H   ;counter 2 mode 3
+ 0137  EE	   OUT 	DX,AL	
+ 0138  B0 0B	   MOV  AL,0BH  ;Load LSB count of
+ 013A  BA 8C05	   MOV 	DX,8C05H ;timer for 1KHz freq.
+ 013D  EE	   OUT  DX,AL
+ 013E  B0 02	   MOV  AL,02H  ;Load MSB count of
+ 0140  EE	   OUT 	DX,AL	;timer for 1KHZ freq. 
+ 0141  BE 020E R   MOV	SI,OFFSET ISR 	;Offeset addr  
+ 0144  B0 93	   MOV	AL,93H	  ;Init of 0000:0258H-5BH Bytes so 
+ 	 	 	 	  ;On Interrupt IR6 "INT 96,97..
+ 	 	                  ;are exeuted.
+ 0146  CD BE	  INT	0BEH                                 
+ 0148  B0 13	  MOV	AL,13H 	 ;Edge,Single	
+ 	 	 	 	 ;ICW1 A1=0                         
+ 014A  BA 9400	  MOV	DX,9400H                            
+ 014D  EE	  OUT	DX,AL                              
+ 014E  B0 90	  MOV	AL,90H	 ;ISR of IR0 =INT 90H etc.
+ 0150  BA 9402    MOV	DX,9402H ;A1=1	
+ 0153  EE	  OUT	DX,AL    ;ICW2	
+ 0154  B0 01	  MOV	AL,01H	 ;8086,Normal EOI,Non Buffered,
+ 	                         ;Non Special,Nest
+ 0156  EE	  OUT	DX,AL	 ;ICW4,A1=1
+ 0157  B0 F7	  MOV	AL,0F7H	 ;Enable IR6.Apply L to H Pulse 
+ 				 ;to IR6 you may use Step switch.
+ 0159  EE         OUT	DX,AL 	 ;OCW1                             
+ 	 	 	 	     
+ 015A  CD AC STADC:INT 0ACH   	;Clear to new line
+ 015C  BB 0103 R   MOV BX,OFFSET MSG1	;Pointer to message 
+ 	 	 	 	 	;table Endingin ETX
+ 015F  CD AF	  INT 0AFH 	 	;Display massage.	
+ 0161  BF 1000	  MOV DI,1000H
+ 0164  BA 8807    MOV DX,CR55  ;Init port A,B
+ 0167  B0 81	  MOV AL,81H   ;C(upper) as OP
+ 0169  EE	  OUT DX,AL    ;C(lower) as IP                        
+	 	 	 	  
+ 016A  BA 8803	  MOV DX,PORTB
+ 016D  B0 00	  MOV AL,00H
+ 016F  EE	  OUT DX,AL                              
+ 0170  BA 8807    MOV DX,CR55
+ 0173  B0 09	  MOV AL,09H   ;Set PC4(ALE) bit
+ 0175  EE	  OUT DX,AL    ;high                          
+ 0176  B0 08	  MOV AL,08H   ;Set PC4 bit to
+ 0178  EE	  OUT DX,AL    ;latch                          
+ 0179  B0 83	  MOV AL,83H   ;Set portB as IP
+ 017B  EE	  OUT DX,AL    ;rest same as before                   
+	 	 	 	       
+ 017C  B3 00  START: MOV BL,00H
+ 017E  BA 8807 COVN: MOV DX,CR55  ;Set PC6(start of
+ 0181  B0 0D	     MOV AL,0DH   ;convertion)
+ 0183  EE	     OUT DX,AL                              
+ 0184  B0 0C	     MOV AL,0CH
+ 0186  EE	     OUT DX,AL                              
+ 0187  BA 8805	     MOV DX,PORTC
+ 018A  EC	BACK:IN AL,DX    ;Check PC1(EOC) low                     
+	 	 	 	     
+ 018B  24 02	     AND AL,02H  ;to insure convertion
+ 018D  75 FB	     JNZ BACK                               
+ 018F  EC    COVNCHK:IN AL,DX    ;Convertion really                      
+	 	 	 	    
+ 0190  24 02	 AND AL,02H  ;Completed
+ 0192  74 FB	 JZ COVNCHK  ;Yes, then set                          
+ 0194  B0 0B	 MOV AL,0BH  ;PC5(OE) to read
+ 0196  BA 8807	 MOV DX,CR55
+ 0199  EE	 OUT DX,AL                              
+ 019A  BA 8803   MOV DX,PORTB ;Read digital data
+ 019D  EC	 IN AL,DX                              
+ 019E  26: 88 05 MOV ES:[DI],AL;Store at ES:[DI]
+ 01A1  BA 8807	 MOV DX,CR55   
+ 01A4  B0 0A	 MOV AL,0AH    
+ 01A6  EE	 OUT DX,AL                              
+ 01A7  47	 INC DI    ;Chcek for last location
+ 01A8  83 FF F0	 CMP DI,0FFF0H
+ 01AB  FB        STI       ;if not wait for interrupt
+ 01AC  75 03	 JNZ LOOP1
+ 01AE  EB 09 90	 JMP DACST  ;if yes start DAC
+ 	 	 	 	
+ 01B1  80 FB FF	LOOP1:CMP BL,0FFH
+ 01B4  75 FB	      JNZ LOOP1
+ 01B6  FA	      CLI
+ 01B7  EB C3	      JMP   START
+ 	 	 	 	
+;DAC starts here
+ 	 	 	 	
+ 01B9  CD AC  DACST:  INT 0ACH        ;Clear to new line
+ 01BB  BB 010C R      MOV BX,OFFSET MSG2 ;Pointer to message table
+ 	 	 	 	 	 ;Endingin ETX
+ 01BE  CD AF	      INT 0AFH          ;Display massage.
+ 01C0  CD AC	      INT 0ACH          ;Clear to new line
+ 	 	 	 	
+ 01C2  BB 0114 R     MOV BX,OFFSET MSG3	;Pointer to message table 
+ 	 	 	 	 	;Ending in ETX
+ 01C5  CD AF	     INT 0AFH           ;Display massage.
+ 01C7  BF 1000 DACAG:  MOV DI,1000H
+ 01CA  B0 80	       MOV AL,80H     ;INIT 8255 WITH PORT A,B
+ 01CC  BA 8807	      MOV DX,8807H   ;& C(UPPER) O/P MODE
+ 01CF  EE	      OUT DX,AL
+ 01D0  B0 00	      MOV AL,00H	;Give digital code for
+ 01D2  BA 8805	      MOV DX,PORTC   ;gain selection of 
+ 01D5  EE	      OUT DX,AL	;LS amplifer
+ 01D6  B3 00   AGAIN:MOV BL,00H	;set a flag
+ 01D8  26: 8A 05     MOV AL,ES:[DI];read digital data
+ 01DB  BA 8801	     MOV DX,PORTA;from memory to 
+ 01DE  EE	     OUT DX,AL	;convert it to Analog data
+ 01DF  47	     INC DI	 ;increment pointer and 
+ 01E0  8B C7	     MOV AX,DI	;check whether last location
+ 01E2  3D FFF0       CMP AX,0FFF0H;is reached.
+ 01E5  FB	 	 STI	  ;set interrupt
+ 01E6  75 1B	 	JNZ SELF  ;if not wait for interrupt 
+ 01E8  FA	 	CLI
+ 01E9  B4 0B	 	MOV AH,0BH ;ckeck for key press
+ 01EB  CD A1	 	INT 0A1H   ;if no key is pressed
+ 01ED  3C FF	 	CMP AL,0FFH ;start DAC again
+ 01EF  75 D6	 	JNZ DACAG   ;else check whether
+ 01F1  B4 08	 	MOV AH,08H  ;key A is pressed
+ 01F3  CD A1	 	INT 0A1H   ;if A is pressed start ADC
+ 01F5  3C 41	 	CMP AL,41H ;if key Esc is pressed go
+ 01F7  75 03	 	JNZ  L2	   ;to command mode.
+ 01F9  E9 015A R	JMP STADC
+ 01FC  3C 1B	   L2:  CMP AL,1BH
+ 01FE  75 C7	        JNZ DACAG
+ 0200  EB 0A 90	 	JMP ENDPGM
+ 0203  8A C3	  SELF: MOV AL,BL
+ 0205  3C FF	 	CMP AL,0FFH                          
+ 0207  75 FA	 	JNZ SELF
+ 0209  FA	 	CLI
+ 020A  EB CA	 	JMP AGAIN
+ 020C  CD A3	 ENDPGM:INT 0A3H
+;ISR for 8259--IR6.Presently mapped to INT 96H by ICW2.
+ 	 	 	 	 	 	 	         
+ 020E  FA   ISR:    CLI
+ 020F  B3 FF 	    MOV BL,0FFH
+ 0211  B0 20 	    MOV     AL,20H
+ 0213  BA 9400	   MOV	DX,9400H                            
+ 0216  EE	   OUT	DX,AL      ;OCW2--Non Specific
+ 0217  CF	   IRET	                                   
+ 	 			
+ 0218	 	 X86VOICE   ENDS
+ 	 	   END      STRT
+

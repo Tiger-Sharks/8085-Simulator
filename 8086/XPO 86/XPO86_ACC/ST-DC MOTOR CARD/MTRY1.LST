@@ -1,0 +1,32 @@
+
+ 	 	 	 	;PROGRAM FOR THE STEPPER MOTOR ANTICLOCKWISE
+ 	 	 	 	;NOTE:MOVE VALUE IN CX 4000H TO MAKE A ROTATION
+ 0000	 	 	 	 	 	STEPPER SEGMENT
+ 	 	 	 	 	 	ASSUME CS:STEPPER
+ = 8006	 	 	 	 	 	CR55 EQU 8006H
+ = 8000	 	 	 	 	 	PORTA EQU 8000H
+ 0100	 	 	 	 	 	ORG 0100H
+ 0100  B9 8000	 	 	   STRT:MOV CX,8000H 
+ 0103  B0 80	 	 	 	 	MOV AL,80H    ;Init.Part A,B of
+	 	 	 	 8255
+ 0105  BA 8006	 	 	 	 	MOV DX,CR55   ;Port C as outputport
+ 0108  EE	 	 	 	 	    OUT DX,AL
+ 0109  B0 00	 	 	 	 	MOV AL,00H    
+ 010B  BA 8000	 	 	 	 	MOV DX,PORTA  
+ 010E  EE	 	 	 	 	    OUT DX,AL
+ 010F  B0 03	 	 	  AGAIN:MOV AL,03H  ;1st phase code
+ 0111  EE	 	 	            OUT DX,AL
+ 0112  CD AA	 	 	 	 	INT 0AAH    ;delay routine
+ 0114  B0 09	 	 	 	 	MOV AL,09H  ;2nd phase code
+ 0116  EE	 	 	            OUT DX,AL   
+ 0117  CD AA	 	 	 	 	INT 0AAH
+ 0119  B0 0C	 	 	 	 	MOV AL,0CH  ;3rd phase code
+ 011B  EE	 	 	            OUT DX,AL
+ 011C  CD AA	 	 	 	 	INT 0AAH
+ 011E  B0 06	 	 	 	 	MOV AL,06H  ;4th phase code
+ 0120  EE	 	 	            OUT DX,AL
+ 0121  CD AA	 	 	 	 	INT 0AAH
+ 0123  EB EA	 	 	 	 	JMP AGAIN   ;begin rotation again
+ 0125	 	 	 	            STEPPER ENDS
+ 	 	 	 	                END STRT
+

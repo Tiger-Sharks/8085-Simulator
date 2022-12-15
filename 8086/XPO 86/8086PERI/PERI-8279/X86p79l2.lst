@@ -1,0 +1,105 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-24-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST 3
+ 	 	 	 	
+ 	 	 	 	       TITLE--USING 8279 PERIWARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 133C:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;How 8279 responds in Sensor Matrix Mode is ill
+	 	 	 	ustrated here.  
+ 	 	 	 	;In this experiment we have used encoded Scan S
+	 	 	 	ensor Matrix Mode. 
+ 	 	 	 	;In this mode the internal debounce logic is in
+	 	 	 	hibited. On 
+ 	 	 	 	;detection of  any change in the Sensor status 
+	 	 	 	IRQ line goes high.
+ 	 	 	 	;Status of the Sensor  is directly inputted to 
+	 	 	 	the Sensor RAM. 
+ 	 	 	 	;Each row in the Sensor RAM corresponds to the 
+	 	 	 	row in the matrix
+ 	 	 	 	;being scanned.
+ 	 	 	 	
+ 0000	 	 	 	X86P79L3  SEGMENT
+ 	 	 	 	
+ 	 	 	 	        ASSUME CS:X86P79L3, DS:X86P79L3 ,ES:X86
+	 	 	 	P79L3
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	PUSH CS	 	;Init for DS
+ 0109  58	 	 	POP  AX	 	;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	NOP	 	;In PC using
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8279 PERIWARE.	 	 	 	 	 	11-24-99    
+
+
+ 010D  90	 	 	NOP	 	;CALL in place
+ 010E  90	 	 	NOP	 	;of 3 NOP`S
+ 	 	 	 	
+ 010F  B0 04	 	 	MOV  AL,04H     ;Control Word to set
+ 0111  BA 01E2	 	 	MOV  DX,01E2H   ;encoded Scan Sensor
+ 0114  EE	 	 	OUT  DX,AL      ;Matrix mode.
+ 0115  B0 45	 	 	MOV  AL,45H     ;C/W to read 6th row of 
+ 0117  EE	 	 	OUT  DX,AL      ;Sensor RAM.
+ 	 	 	 	
+ 0118	 	 	 	READ:
+ 0118  BA 01E0	 	 	MOV  DX,01E0H
+ 011B  EC	 	 	IN   AL,DX      ;Read Sensor RAM.
+ 011C  EE	 	 	OUT  DX,AL
+ 011D  EB F9	 	 	JMP  READ       ;Back to check Sensor 
+ 	 	 	 	                ;value change.
+ 	 	 	 	
+ 011F	 	 	 	X86P79L3  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-24-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P79L3 . . . . . . . . . . . .	011F	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+READ . . . . . . . . . . . . . .	L NEAR 	0118	X86P79L3
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P79L3
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P79L3
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

@@ -1,0 +1,230 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- TRAF3	 	 	 	 	 	 	07-26-:0    
+
+
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	        PAGE,70
+ 	 	 	 	        TITLE-- TRAF3
+ 	 	 	 	;
+ 0000	 	 	 	TRAF3     SEGMENT
+ 	 	 	 	        ASSUME CS:TRAF3, DS:TRAF3 ,ES
+	 	 	 	:TRAF3
+ 0100	 	 	 	 	ORG 100H	 	;COM 
+	 	 	 	FORMAT IS RECOMMENDED.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA	 	
+ 	 	 	 	 	;SKIP LOOK UP/ DATA BASES IF 
+	 	 	 	ANY
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [T
+	 	 	 	O SEPARATE STACK OF YOUR PROGRAME FRO
+	 	 	 	M
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES AR
+	 	 	 	E SET TO 0000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING
+	 	 	 	 A FEW MORE MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TO
+	 	 	 	UCH SEGMENT REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE IN
+	 	 	 	STRUCTIONS AS SHOWN IN COMMENT FIELD.
+	 	 	 	  
+ 0103  B8 11FF	 	 	SKIP_DATA:MOV AX,11FFH	 	
+ 	 	 	 	 	;INIT OF SP FOR KIT
+ 0106  8B E0	 	 	STRT1:  MOV SP,AX                    
+	 	 	 	   ;MOV AX,AX   ON PC
+ 0108  0E	 	 	 	PUSH CS	 	 	
+ 	 	 	 	 	;THIS IS THE BEST WAY TO LOAD
+	 	 	 	 DS
+ 0109  1F	 	 	 	POP DS	 	 	
+ 	 	 	 	 	;WITH SEGMENT VALUE.
+ 010A  90	 	 	 	NOP	 	 	
+ 	 	 	 	 	;LOAD KIT INT S (A0-BF) IN PC
+	 	 	 	 USING
+ 010B  90	 	 	 	NOP	 	 	
+ 	 	 	 	 	;CALL LDINPC
+ 010C  90	 	 	        NOP        ;PLACE ABOVE CALL 
+	 	 	 	IN PLACE OF 3 NOP`S
+ 010D  B0 80	 	 	        MOV AL,80H                   
+	 	 	 	   ;SET ALL PORTS
+ 010F  BA 8006	 	 	        MOV DX,8006H                 
+	 	 	 	   ;OF LOWER 8255 AS
+ 0112  EF	 	 	        OUT DX,AX                    
+	 	 	 	   ;OUTPUT PORTS
+ 0113  B0 61	 	 	START:  MOV AL,61H                   
+	 	 	 	  ;TURN ALL RED SIGNALS
+ 0115  BA 8000	 	 	        MOV DX,8000H                 
+	 	 	 	   ;"ON"
+ 0118  EE	 	 	        OUT DX,AL
+
+ 0119  B0 68	 	 	        MOV AL,68H
+ 011B  BA 8002	 	 	        MOV DX,8002H
+ 011E  EE	 	 	        OUT DX,AL
+ 011F  B0 86	 	 	        MOV AL,86H
+ 0121  BA 8004	 	 	        MOV DX,8004H
+ 0124  EE	 	 	        OUT DX,AL
+ 0125  B0 60	 	 	        MOV AL,60H
+ 0127  BA 8000	 	 	        MOV DX,8000H                 
+ 012A  EE	 	 	        OUT DX,AL
+ 012B  B0 48	 	 	        MOV AL,48H
+ 012D  BA 8002	 	 	        MOV DX,8002H
+ 0130  EE	 	 	        OUT DX,AL
+ 0131  B0 64	 	 	        MOV AL,64H                   
+ 0133  BA 8000	 	 	        MOV DX,8000H
+ 0136  EE	 	 	        OUT DX,AL
+ 0137  B0 58	 	 	        MOV AL,58H
+ 0139  BA 8002	 	 	        MOV DX,8002H
+ 013C  EE	 	 	        OUT DX,AL                    
+013D  E8 0267 R	 	        CALL DELAY1                  
+0140  B0 60	 	 	        MOV AL,60H
+ 0142  BA 8000	 	 	        MOV DX,8000H                 
+ 0145  EE	 	 	        OUT DX,AL
+ 0146  B0 48	 	 	        MOV AL,48H
+ 0148  BA 8002	 	 	        MOV DX,8002H
+ 014B  EE	 	 	        OUT DX,AL
+ 014C  B0 62	 	 	        MOV AL,62H                   
+014E  BA 8000	 	 	        MOV DX,8000H
+ 0151  EE	 	 	        OUT DX,AL                     	 	 	 
+ 0152  E8 0260 R	 	       CALL DELAY2                   
+ 0155  B0 60	 	 	        MOV AL,60H                   
+ 0157  BA 8000	 	 	        MOV DX,8000H
+ 015A  EE	 	 	        OUT DX,AL
+ 015B  B0 61	 	 	        MOV AL,61H
+ 015D  BA 8000	 	 	        MOV DX,8000H
+ 0160  EE	 	 	        OUT DX,AL
+ 0161  B0 68	 	 	        MOV AL,68H                   
+ 0163  BA 8002	 	 	        MOV DX,8002H                 
+ 0166  EE	 	 	        OUT DX,AL                    
+ 0167  E8 0260 R	 	       CALL DELAY2                   
+ 016A  B0 41	 	 	        MOV AL,41H                   
+016C  BA 8000	 	 	        MOV DX,8000H
+ 016F  EE	 	 	        OUT DX,AL
+ 0170  B0 06	 	 	        MOV AL,06H
+ 0172  BA 8004	 	 	        MOV DX,8004H
+ 0175  EE	 	 	        OUT DX,AL
+ 0176  B0 49	 	 	        MOV AL,49H                   
+ 0178  BA 8000	 	 	        MOV DX,8000H                 
+ 017B  EE	 	 	        OUT DX,AL
+ 017C  B0 26	 	 	        MOV AL,26H
+ 017E  BA 8004	 	 	        MOV DX,8004H
+ 0181  EE	 	 	        OUT DX,AL
+ 0182  E8 0267 R	 	      CALL DELAY1                    
+ 0185  B0 41	 	 	        MOV AL,41H                   
+ 0187  BA 8000	 	 	        MOV DX,8000H
+ 018A  EE	 	 	        OUT DX,AL
+ 018B  B0 06	 	 	        MOV AL,06H
+ 018D  BA 8004	 	 	        MOV DX,8004H
+ 0190  EE	 	 	        OUT DX,AL
+ 0191  B0 51	 	 	        MOV AL,51H                   
+ 0193  BA 8000	 	 	        MOV DX,8000H                 
+ 0196  EE	 	 	        OUT DX,AL
+ 0197  B0 46	 	 	        MOV AL,46H
+ 0199  BA 8004	 	 	        MOV DX,8004H
+ 019C  EE	 	 	        OUT DX,AL
+ 019D  E8 0260 R	 	      CALL DELAY2                    
+ 01A0  B0 41	 	 	        MOV AL,41H                   
+ 01A2  BA 8000	 	 	        MOV DX,8000H
+ 01A5  EE	 	 	        OUT DX,AL
+ 01A6  B0 06	 	 	        MOV AL,06H
+ 01A8  BA 8004	 	 	        MOV DX,8004H
+ 01AB  EE	 	 	        OUT DX,AL
+ 01AC  B0 61	 	 	        MOV AL,61H                   
+ 01AE  BA 8000	 	 	        MOV DX,8000H
+ 01B1  EE	 	 	        OUT DX,AL
+ 01B2  B0 86	 	 	        MOV AL,86H
+ 01B4  BA 8004	 	 	        MOV DX,8004H
+ 01B7  EE	 	 	        OUT DX,AL
+ 01B8  E8 0260 R	 	       CALL DELAY2                   
+ 01BB  B0 60	 	 	        MOV AL,60H                   
+ 01BD  BA 8002	 	 	        MOV DX,8002H
+ 01C0  EE	 	 	        OUT DX,AL
+ 01C1  B0 82	 	 	        MOV AL,82H
+ 01C3  BA 8004	 	 	        MOV DX,8004H
+ 01C6  EE	 	 	        OUT DX,AL
+ 01C7  B0 62	 	 	        MOV AL,62H                   
+ 01C9  BA 8002	 	 	        MOV DX,8002H                 
+ 01CC  EE	 	 	        OUT DX,AL
+ 01CD  B0 92	 	 	        MOV AL,92H
+ 01CF  BA 8004	 	 	        MOV DX,8004H
+ 01D2  EE	 	 	        OUT DX,AL
+ 01D3  E8 0267 R	 	      CALL DELAY1                    
+ 01D6  B0 60	 	 	        MOV AL,60H                   
+ 01D8  BA 8002	 	 	        MOV DX,8002H
+ 01DB  EE	 	 	        OUT DX,AL
+ 01DC  B0 82	 	 	        MOV AL,82H
+ 01DE  BA 8004	 	 	        MOV DX,8004H
+ 01E1  EE	 	 	        OUT DX,AL                    
+ 01E2  B0 64	 	 	        MOV AL,64H                   
+ 01E4  BA 8002	 	 	        MOV DX,8002H                 
+ 01E7  EE	 	 	        OUT DX,AL                    
+ 01E8  B0 8A	 	 	        MOV AL,8AH
+ 01EA  BA 8004	 	 	        MOV DX,8004H
+ 01ED  EE	 	 	        OUT DX,AL
+ 01EE  E8 0260 R	 	        CALL DELAY2
+ 01F1  B0 60	 	 	        MOV AL,60H
+ 01F3  BA 8002	 	 	        MOV DX,8002H                 
+ 01F6  EE	 	 	        OUT DX,AL                    
+ 01F7  B0 82	 	 	        MOV AL,82H                   
+ 01F9  BA 8004	 	 	        MOV DX,8004H                 
+ 01FC  EE	 	 	        OUT DX,AL
+ 01FD  B0 68	 	 	        MOV AL,68H
+ 01FF  BA 8002	 	 	        MOV DX,8002H
+ 0202  EE	 	 	        OUT DX,AL
+ 0203  B0 86	 	 	        MOV AL,86H
+ 0205  BA 8004	 	 	        MOV DX,8004H
+ 0208  EE	 	 	        OUT DX,AL
+ 0209  E8 0260 R	 	       CALL DELAY2                   
+ 020C  B0 21	 	 	        MOV AL,21H
+ 020E  BA 8000	 	 	        MOV DX,8000H                 
+ 0211  EE	 	 	        OUT DX,AL                    
+ 0212  B0 28	 	 	        MOV AL,28H                   
+ 0214  BA 8002	 	 	        MOV DX,8002H                 
+ 0217  EE	 	 	        OUT DX,AL
+ 0218  B0 29	 	 	        MOV AL,29H
+ 021A  BA 8002	 	 	        MOV DX,8002H
+ 021D  EE	 	 	        OUT DX,AL
+ 021E  B0 87	 	 	        MOV AL,87H
+ 0220  BA 8004	 	 	        MOV DX,8004H
+ 0223  EE	 	 	        OUT DX,AL
+ 0224  E8 0267 R	 	       CALL DELAY1                   
+ 0227  B0 21	 	 	        MOV AL,21H
+ 0229  BA 8002	 	 	        MOV DX,8002H
+ 022C  EE	 	 	        OUT DX,AL
+ 022D  B0 86	 	 	        MOV AL,86H      
+ 022F  BA 8004	 	 	        MOV DX,8004H
+ 0232  EE	 	 	        OUT DX,AL                    
+ 0233  B0 A1	 	 	        MOV AL,0A1H                  
+ 0235  BA 8000	 	 	        MOV DX,8000H                 
+ 0238  EE	 	 	        OUT DX,AL
+ 0239  B0 A8	 	 	        MOV AL,0A8H
+ 023B  BA 8002	 	 	        MOV DX,8002H
+ 023E  EE	 	 	        OUT DX,AL
+ 023F  E8 0260 R	 	       CALL DELAY2               
+ 0242  B0 21	 	 	        MOV AL,21H
+ 0244  BA 8000	 	 	        MOV DX,8000H   
+ 0247  EE	 	 	        OUT DX,AL                    
+ 0248  B0 28	 	 	        MOV AL,28H                	   
+ 024A  BA 8002	 	 	        MOV DX,8002H                 
+ 024D  EE	 	 	        OUT DX,AL
+ 024E  B0 61	 	 	        MOV AL,61H
+ 0250  BA 8000	 	 	        MOV DX,8000H
+ 0253  EE	 	 	        OUT DX,AL
+ 0254  B0 68	 	 	        MOV AL,68H
+ 0256  BA 8002	 	 	        MOV DX,8002H
+ 0259  EE	 	 	        OUT DX,AL
+ 025A  E8 0260 R	 	        CALL DELAY2
+ 025D  E9 0113 R	 	        JMP START
+ 0260  CD AA	 	 	DELAY2:INT 0AAH
+ 0262  CD AA	 	 	        INT 0AAH
+ 0264  CD AA	 	 	        INT 0AAH
+ 0266  C3	 	 	        RET
+ 0267  E8 0260 R	 	DELAY1: CALL DELAY2
+ 026A  E8 0260 R	 	        CALL DELAY2
+ 026D  E8 0260 R	 	        CALL DELAY2
+ 0270  E8 0260 R	 	        CALL DELAY2
+ 0273  E8 0260 R	 	        CALL DELAY2
+ 0276  C3	 	 	        RET
+ 0277	 	 	 	TRAF3    ENDS                    
+	 	 	 	
+ 	 	 	 	         END STRT
+

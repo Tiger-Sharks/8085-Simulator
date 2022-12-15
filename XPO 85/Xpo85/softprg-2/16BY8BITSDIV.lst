@@ -1,0 +1,157 @@
+ AS V1.42 Beta [Bld 56] - source file 16BY8BITSDIV.asm - page 1 - 2/14/2008 9:57:39
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     	
+       3/       0 :                     ; The program demonstrates unsigned 16 bit by 8 bit division.
+       4/       0 :                     ; A 16 bit number (Stored at locations 2101:2100)h is divided
+       5/       0 :                     ; by an eight bit number (Stored at location 2102)h.
+       6/       0 :                     ; The result is stored at locations (2104:2103)h
+       7/       0 :                     ; The remainder is available at (2106:2105)h
+       8/       0 :                     ; Note:-The processor when loading 16-bits operand does the higer
+       9/       0 :                             ;memory location frist and then lower memory.So frist 
+      10/       0 :                     		;instruction of the program 'LHLD 2100H',end up loading
+      11/       0 :                     		;H with FF and L with 0FH when value at memory location
+      12/       0 :                     		;2100h=0FH and 2101=FFH
+      13/       0 :                     	
+      14/       0 :                     ; R7 == C
+      15/       0 :                     ; R6:R5 = HL
+      16/       0 :                     ; R4 = B
+      17/       0 :                     
+      18/       0 :                     ; R3 = 2106H	
+      19/       0 :                     ; R2 = 2105H	;REMAINDER IN 2106:2105
+      20/       0 :                     
+      21/       0 :                     ; R1 = 2104H
+      22/       0 :                     ; R0 = 2103H	;ANSWER IN 2104:2103
+      23/       0 :                     	
+      24/    68C7 :                     	ORG 68C7H			;FIVE BYTE GAP
+      25/    68C7 :                     	START:
+      26/    68C7 : 2A 00 21            		LHLD 2100H		;GET 16 BIT DIVIDEND TO HL
+      27/    68CA : 3A 02 21            		LDA 2102H		;GET 8 BIT DIVISOR
+      28/    68CD : 47                  		MOV B,A			;DIVISOR IN B
+      29/    68CE :                     		
+      30/    68CE : 0E 10               		MVI C,10H		;BIT COUNTER (16 BITS IN DIVIDEND)
+      31/    68D0 :                     		
+      32/    68D0 : 3E 00               		MVI A,00H
+      33/    68D2 : 32 03 21            		STA 2103H
+      34/    68D5 : 32 04 21            		STA 2104H
+      35/    68D8 : 32 05 21            		STA 2105H
+      36/    68DB : 32 06 21            		STA 2106H		;ANSWER AND REMAINDER INITIALISED TO ZERO
+      37/    68DE :                     		
+      38/    68DE :                     	DIVLOOP_16BY8:
+      39/    68DE : 37                  		STC
+      40/    68DF : 3F                  		CMC				;CLEAR CARRY
+      41/    68E0 : 7D                  		MOV A,L
+      42/    68E1 : 17                  		RAL
+      43/    68E2 : 6F                  		MOV L,A
+      44/    68E3 :                     		
+      45/    68E3 : 7C                  		MOV A,H
+      46/    68E4 : 17                  		RAL
+      47/    68E5 : 67                  		MOV H,A			;MSb OF DIVIDEND TO CARRY
+      48/    68E6 :                     		
+      49/    68E6 : 3A 05 21            		LDA 2105H
+      50/    68E9 : 17                  		RAL
+      51/    68EA : 32 05 21            		STA 2105H
+      52/    68ED :                     		
+      53/    68ED : 3A 06 21            		LDA 2106H
+      54/    68F0 : 17                  		RAL
+      55/    68F1 : 32 06 21            		STA 2106H		;PARTIAL REMAINDER LOCATIONS
+      56/    68F4 :                     		
+      57/    68F4 :                     	TRIAL_SUB:
+      58/    68F4 : 37                  		STC
+      59/    68F5 : 3F                  		CMC
+      60/    68F6 :                     		
+ AS V1.42 Beta [Bld 56] - source file 16BY8BITSDIV.asm - page 2 - 2/14/2008 9:57:39
+
+
+      61/    68F6 : 3A 05 21            		LDA 2105H
+      62/    68F9 : 98                  		SBB B
+      63/    68FA : 57                  		MOV D,A			;TEMPORARY STORE
+      64/    68FB : 3A 06 21            		LDA 2106H
+      65/    68FE : 1E 00               		MVI E,0			;8085 DOES NOT HAVE IMMEDIATE SUBTRACT OPERATION.
+      66/    6900 : 9B                  		SBB E			;16BIT - 8BIT SUBTRACTION
+      67/    6901 :                     		
+      68/    6901 :                     ;IF 2106:2105 < B SHIFT ZERO TO ANSWER AND DO NOT UPDATE REMAINDER
+      69/    6901 :                     ;IF 2106:2105 >= B THEN 2106:2105 = (2106:2105)-B AND SHIFT ONE IN ANSWER
+      70/    6901 :                     ;IF (2106:2105) - B PRODUCES BORROW SHIFT IN ZERO
+      71/    6901 :                     ;ELSE UPDATE REMAINDER AND SHIFT IN ONE
+      72/    6901 :                     
+      73/    6901 : D2 1B 69            		JNC DIVIDE16
+      74/    6904 :                     	NO_DIVIDE16:
+      75/    6904 : 37                  		STC
+      76/    6905 : 3F                  		CMC
+      77/    6906 :                     		
+      78/    6906 : 3A 03 21            		LDA 2103H
+      79/    6909 : 17                  		RAL
+      80/    690A : 32 03 21            		STA 2103H
+      81/    690D : 3A 04 21            		LDA 2104H
+      82/    6910 : 17                  		RAL
+      83/    6911 : 32 04 21            		STA 2104H
+      84/    6914 : 0D                  		DCR C
+      85/    6915 : C2 DE 68            		JNZ DIVLOOP_16BY8
+      86/    6918 : C3 35 69            		JMP DIVIDE_DONE
+      87/    691B :                     		
+      88/    691B :                     	DIVIDE16:
+      89/    691B : 32 06 21            		STA 2106H
+      90/    691E : 7A                  		MOV A,D
+      91/    691F : 32 05 21            		STA 2105H
+      92/    6922 :                     		
+      93/    6922 : 37                  		STC
+      94/    6923 : 3A 03 21            		LDA 2103H
+      95/    6926 : 17                  		RAL
+      96/    6927 : 32 03 21            		STA 2103H
+      97/    692A : 3A 04 21            		LDA 2104H
+      98/    692D : 17                  		RAL
+      99/    692E : 32 04 21            		STA 2104H
+     100/    6931 : 0D                  		DCR C
+     101/    6932 : C2 DE 68            		JNZ DIVLOOP_16BY8
+     102/    6935 :                     		
+     103/    6935 :                     	DIVIDE_DONE:
+     104/    6935 : CF                  		RST 1
+     105/    6936 :                     
+     106/    6936 :                     ; Last address used by program = ????H
+     107/    6936 :                     
+     108/    6936 :                     
+     109/    6936 :                     
+ AS V1.42 Beta [Bld 56] - source file 16BY8BITSDIV.asm - page 3 - 2/14/2008 9:57:39
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/14/2008 - |
+ DIVIDE16 :                    691B C |  DIVIDE_DONE :                 6935 C |
+ DIVLOOP_16BY8 :               68DE C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *NO_DIVIDE16 :                 6904 C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       68C7 C |
+*TIME :                     9:57:39 - | *TRIAL_SUB :                   68F4 C |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     34 symbols
+     31 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file 16BY8BITSDIV.asm - page 4 - 2/14/2008 9:57:39
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+    109 lines source file
+      2 passes
+      0 errors
+      0 warnings

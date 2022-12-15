@@ -1,0 +1,44 @@
+ 0000                                       CPU "8085.TBL"
+ 0000           	                    HOF"INT8"
+ 6000                                       ORG 6000H
+                
+                      
+ 6000 310021                                LXI  SP,2100H
+ 6003 3E89                                  MVI  A,89H
+ 6005 D30B                                  OUT  0BH
+ 6007 0EEF                           BACK:  MVI C,0EFH
+ 6009 CD1660                                CALL RUT1
+ 600C 0E7F      			    MVI C,7FH
+ 600E CD2160                                CALL RUT2
+ 6011 D309                                  OUT 09H
+ 6013 C30760                                JMP BACK
+ 6016 79                             RUT1:  MOV A,C
+ 6017 D308                                  OUT 08H
+ 6019 DB0A                                  IN 0AH
+ 601B EEFF                                  XRI 0FFH
+ 601D E60F                                  ANI 0FH
+ 601F 47                                    MOV B,A
+                                            
+ 6020 C9                                    RET
+ 6021 79                             RUT2:  MOV A,C
+ 6022 D308                                  OUT 08H
+ 6024 DB0A                                  IN 0AH
+ 6026 EEFF                                  XRI 0FFH
+ 6028 1E04                                  MVI E,04H
+ 602A 17                             LABLE1:RAL
+ 602B 1D                                    DCR E
+ 602C C22A60                                JNZ LABLE1
+ 602F E6F0                                  ANI 0F0H
+ 6031 B0                                    ORA B
+                                            
+ 6032 C9                                    RET
+                                    
+                            
+                                      
+                                         
+                	END
+0007  A                    0000  B                    6007  BACK          
+0001  C                    0002  D                    0003  E             
+0004  H                    0005  L                    602A  LABLE1        
+0006  M                    6016  RUT1                 6021  RUT2          
+

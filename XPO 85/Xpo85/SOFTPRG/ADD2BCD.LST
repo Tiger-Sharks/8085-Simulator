@@ -1,0 +1,38 @@
+                ;ADDITION OF 2 BCD NUMBERS
+ 0000           		CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 036C =         NMOUT:  EQU 036CH
+ 0497 =         CRONLY: EQU 0497H
+ 0013 =         CMDWDP: EQU 0013H
+ 2100 =         DATA1:   EQU 2100H
+ 62F0                   ORG 62F0H
+ 62F0 31F027            LXI SP,27F0H
+ 62F3 AF                XRA A
+ 62F4 57                MOV D,A
+ 62F5 210021            LXI H,DATA1
+ 62F8 7E                MOV A,M
+ 62F9 23                INX H
+ 62FA 46                MOV B,M
+ 62FB 80                ADD B
+ 62FC 27                DAA
+ 62FD DC0C63            CC CARRY
+ 6300 5F                MOV E,A
+ 6301 CD8A04            CALL CRLF
+ 6304 0604              MVI B,04H
+ 6306 CD6C03            CALL NMOUT
+ 6309 CD1300            CALL CMDWDP
+ 630C 14        CARRY:  INR D
+ 630D C9                RET
+                
+                
+                
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+630C  CARRY                0013  CMDWDP               048A  CRLF          
+0497  CRONLY               0002  D                    2100  DATA1         
+0003  E                    0004  H                    0005  L             
+0006  M                    036C  NMOUT                
+

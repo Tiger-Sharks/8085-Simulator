@@ -1,0 +1,142 @@
+000000000000
+.+++++++++++++++++++++++++++++++++................000000
++..
++0000000000000000000
++++++++++++++++++++++++++++++ +++++++++
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0000000000000000000000000+++
+IBM Personal Computer MACRO Assembler   Version 2+.
++00 
+ +++++++++++++++++++++++++++++++++++++++++	Page	1-1
+	+ +++++++++	 	 	 	 	 	 	02-20-:4    
+
+
+1	 	 	 	 	;OPTOISOLATED RELAY CARD (DATE 20/2/04)
+2	 	 	 	 	;Processor interface is provided via 26
+	 	 	 	 pin FRC.
+3	 	 	 	 	;PROGRAM FOR SQUARE GENERATION
+4	 0000	 	 	 	             IO SEGMENT
+5	 	 	 	 	             ASSUME CS:IO
+6	 = 8006	 	 	 	                CR55 EQU 8006H
+7	 = 8002	 	 	 	                PORTB EQU 8002H
+8	 = 8004	 	 	 	                PORTC EQU 8004H
+9	 = 8000	 	 	 	                PORTA EQU 8000H
+10	 0100	 	 	 	                 ORG 100H
+11	 0100  B8 0000	 	 	               MOV AX,0000H
+12	 0103  8E C0	 	 	               MOV ES,AX               
+	 	 	 	               
+13	 0105  8E D0	 	 	               MOV SS,AX               
+	 	 	 	               
+14	 0107  B8 11F0	 	 	               MOV AX,11F0H  ;Init .SP
+15	 010A  8B E0	 	 	               MOV SP,AX               
+	 	 	 	               
+16	 010C  0E	 	 	               PUSH CS       ;Set CS=DS
+	 	 	 	                          
+17	 010D  1F	 	 	               POP DS
+18	 	 	 	 	
+19	 010E  BA 8006	 	 	               MOV DX,CR55  ;Init port 
+	 	 	 	A,B
+20	 0111  B0 80	 	 	               MOV AL,80H   ;C as OP
+21	 0113  EE	 	 	               OUT DX,AL               
+	 	 	 	               
+22	 	 	 	 	
+23	 0114  BA 8000	 	 	         STRT: MOV DX,PORTA
+24	 0117  B0 55	 	 	               MOV AL,55H   ;o/p data
+25	 0119  EE	 	 	               OUT DX,AL    ;on port A
+26	 011A  BA 8004	 	 	               MOV DX,PORTC
+27	 011D  B0 D0	 	 	               MOV AL,0D0H  ;& C(upper)
+	 	 	 	 
+28	 011F  EE	 	 	               OUT DX,AL    
+29	 0120  B9 FFFF	 	 	               MOV CX,0FFFFH
+30	 0123  CD AA	 	 	               INT 0AAH     ;CALL DELAY
+31	 0125  BA 8000	 	 	               MOV DX,PORTA
+32	 0128  B0 AA	 	 	               MOV AL,0AAH  ;toggle dat
+	 	 	 	a
+33	 012A  EE	 	 	               OUT DX,AL    ;o/p to por
+	 	 	 	t A
+34	 012B  BA 8004	 	 	               MOV DX,PORTC
+35	 012E  B0 E0	 	 	               MOV AL,0E0H  ;& C(upper)
+	 	 	 	 
+36	 0130  EE	 	 	               OUT DX,AL    
+37	 0131  B9 FFFF	 	 	               MOV CX,0FFFFH
+38	 0134  CD AA	 	 	               INT 0AAH     ;CALL DELAY
+39	 0136  B4 0B	 	 	               MOV AH,0BH
+40	 0138  CD A1	 	 	               INT 0A1H     ;READ K/B
+41	 013A  3C 00	 	 	               CMP AL,00H   ;if key pre
+	 	 	 	ssed
+42	 013C  75 02	 	 	               JNZ EXIT     ;exit
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	02-20-:4    
+
+
+43	 013E  EB D4	 	 	               JMP STRT     ;else conti
+	 	 	 	nue
+44	 0140  CD A3	 	 	        EXIT:  INT 0A3H     ;COMMAND MO
+	 	 	 	DE
+45	 	 	 	 	                     
+46	 0142	 	 	 	        IO ENDS
+47	 	 	 	 	               END STRT
+
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	02-20-:4    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+IO . . . . . . . . . . . . . . .	0142	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+CR55 . . . . . . . . . . . . . .	Number	8006	
+EXIT . . . . . . . . . . . . . .	L NEAR 	0140	IO
+PORTA. . . . . . . . . . . . . .	Number	8000	
+PORTB. . . . . . . . . . . . . .	Number	8002	
+PORTC. . . . . . . . . . . . . .	Number	8004	
+STRT . . . . . . . . . . . . . .	L NEAR 	0114	IO
+
+50096 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

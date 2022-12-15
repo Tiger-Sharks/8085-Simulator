@@ -1,0 +1,79 @@
+                
+                ;TITLE : PROGRAM TO FINDOUT SQUARE OF A NUMBER.
+                
+                ;TO PREPARE A LOOKUP TABLE FOR A SQUARE OF ONE DIGIT DECIMAL NUMBER
+                ;READ A ONE DIGIT DECIMAL NUMBER FROM A KEYBOARD OBTAIN ITS SQUARE
+                ;FROM THE LOOKUP TABLE. DISPLAY THE DIGIT IN THE ADDRESS FIELD AND 
+                ;ITS SQUARE IN DATA FIELD.
+                
+                ;A PROGRAM TAKES INPUT FROM KEBOARD IN ASCII FORMAT.SUBSTRACTS 30H FROM 
+                ;IT AND CONVRTS IT TO A DECIMAL NUMBER.ADDS THAT NUMBER IN STARTING ADDRESS
+                ;OF LOOKUP TABELE AND GETS ADDRESS OF THE SQUIRE OF THE NUMBER.READS IT
+                ;AND DISPLAYS NUMBER IN ADDRESS FIELD AND SQUARE IN DATA FIELD.  
+                
+                ;STARTING ADDRESS OF ASCII STRING IS = ENTER:
+                ;STARTING ADDRESS OF LOOKUP TABLE = LOOKUP:
+                
+                ;INPUT TO PROGRAM FROM KEYBOARD
+                
+                ;OUTPUT OF PROGRAM ON DISPLAY
+                
+ 0000                                  CPU "8085.TBL"  ;CPU USED IS 8085.
+ 0000                                  HOF "INT8"      ;INTELHEX 8 BIT FORMAT USED.
+                                    
+ 048A =                          CRLF:     EQU 048AH   ;CLEAR DISPLAY & LINE FEED.
+ 036C =                          NMOUT:    EQU 036CH   ;DISPLAY THE NUMBER.
+ 0013 =                          CMDWDP:   EQU 0013H   ;RETURN TO COMMAND MODE WITHOUT 
+                                                       ;DISTURBING DISPLAY.  
+ 03D8 =                          OUTMSG:   EQU 03D8H   ;OUT MASSAGE TO DISPLAY.
+ 2075 =                          READ:     EQU 2075H   ;READ A ASCII NUMBER OF KEY;
+ 2078 =                          WRITE:    EQU 2078H   ;DISPLAY THE CHAR. OF ASCII CODE.
+                  
+ 63C0                              ORG 63C0H
+                
+ 63C0 CD8A04                       CALL CRLF           ;CLEAR DISPLAY.
+ 63C3 21F963                       LXI H,ENTER         ;ADDRESS OF ASCII STRING "ENTER"
+ 63C6 CDD803                       CALL OUTMSG         ;DISPLAY "ENTER"
+                
+ 63C9 CD7520                 START:CALL READ           ;READ ASCII CODE OF NUMBER.
+ 63CC D630                         SUI 30H             ;GET A ACTUAL NUMBER
+ 63CE 4F                           MOV C,A             ;SAVE IN C REG.
+                
+ 63CF 210064                       LXI H,LOOKUP        ;STARTING ADDRESS OF THE LOOKUP
+ 63D2 85                           ADD L               ;ADD NUM. AND GET ADDRESS OF
+ 63D3 6F                           MOV L,A             ;SQUARE OF NUMBER.
+ 63D4 7E                           MOV A,M
+ 63D5 CD8A04                       CALL CRLF
+ 63D8 1600                         MVI D,00H
+ 63DA 59                           MOV E,C
+ 63DB 0602                         MVI B,02H
+ 63DD CD6C03                       CALL NMOUT          ;DISPLAY THE NUM. IN ADDRESS FIELD
+ 63E0 3E20                         MVI A,20H           ;ASCII CODE OF SPACE CHAR.
+ 63E2 CD7820                       CALL WRITE           ;DISPLAY 4 SPACE CHAR.
+ 63E5 CD7820                       CALL WRITE
+ 63E8 CD7820                       CALL WRITE
+ 63EB CD7820                       CALL WRITE
+                                   ;JMP START
+ 63EE 5E                           MOV E,M
+ 63EF 1600                         MVI D,00H
+ 63F1 0602                         MVI B,02H
+ 63F3 CD6C03                       CALL NMOUT          ;DISPLAY THE SQUIRE IN DATA FIELD.
+ 63F6 C31300                       JMP CMDWDP         ;GOTO COMMAND MODE WITHOUT
+                                                       ;DISTURBING DISPLAY.
+                           
+ 63F9 454E544552           ENTER:  DFB "ENTER ",03H     ;ASCII STRING ENTER.
+ 6400 00010409             LOOKUP: DFB 00H,01H,04H,09H ;STARTING ADDRESS OF LOOKUP TABLE.                 
+ 6404 16253649            LOOKUP1: DFB 16H,25H,36H,49H
+ 6408 6481                LOOKUP2: DFB 64H,81H   
+                ;END OF PROGRAM   
+                               
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0013  CMDWDP               048A  CRLF                 0002  D             
+0003  E                    63F9  ENTER                0004  H             
+0005  L                    6400  LOOKUP               6404  LOOKUP1       
+6408  LOOKUP2              0006  M                    036C  NMOUT         
+03D8  OUTMSG               2075  READ                 63C9  START         
+2078  WRITE                
+

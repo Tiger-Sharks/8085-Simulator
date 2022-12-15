@@ -1,0 +1,73 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000        SCPD EQU 0000H   ;Scratch Pad Location.
+ = 1000      ARRAY2 EQU 1000H ;Address for ARRAY2
+ 	 	 	 	
+ ;This programme gives copy a block from memory location
+;Array1 to Array2
+; Array1 has been store  from memory location 1000:0103H to
+;1000:010CH.
+;Result will be stored from memory location 0000:1000H to 0000:100AH
+;User can check using substitute command.
+
+ 	 	 	 	                                    
+ 0000	 	 	 	              COPY SEGMENT
+ 	 	 	 	              ASSUME  CS:COPY,DS:COPY,ES:COPY
+ 0100	 	 	 	              ORG 100H        ;com format is re
+	 	 	 	commanded.
+ 0100  EB 0A 90	 	 	   START:JMP SKIP_DATA        ;skip lookup/data
+	 	 	 	 bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 
+ 	 	 	 	
+ 0103  10 20 30 40 50 60	             ARRAY1 DB 10H,20H,30H,40H,50H,60H,
+	 	 	 	70H,80H,90H
+       70 80 90	 	 	
+ 010C	 	 	 	   SKIP_DATA:
+ 010C  B8 10FF	 	 	                MOV AX,10FFH            
+ 010F  8B E0	 	 	                MOV SP,AX           ;Init SP re
+	 	 	 	gister.
+ 0111  0E	 	 	                PUSH CS
+ 0112  1F	 	 	                POP DS              ;Init DS re
+	 	 	 	gister.
+ 0113  B8 0000	 	 	                MOV AX,SCPD         ;To specify
+	 	 	 	 SCPD location on kit.
+ 0116  8E C0	 	 	                MOV ES,AX
+ 0118  BE 0103 R	 	                MOV SI,OFFSET ARRAY1;Address of
+	 	 	 	 Array1 in SI.
+ 011B  BF 1000	 	 	                MOV DI,ARRAY2       ;Address of
+	 	 	 	 Array2 in DI.
+ 011E  B9 000A	 	 	                MOV CX,0AH          ;No of elem
+	 	 	 	ents=10.
+ 0121	 	 	 	 	BACK:	
+
+ 0121  32 C0	 	 	                XOR AL,AL           ;Clear AX.
+ 0123  8A 04	 	 	                MOV AL,[SI]         ;Get a byte
+	 	 	 	 from array1.
+ 0125  26: 88 05	 	                MOV ES:[DI],AL      ;Copy to ar
+	 	 	 	ray2.
+ 0128  46	 	 	                INC SI              ;Incriment 
+	 	 	 	source.
+ 0129  47	 	 	                INC DI              ;and destin
+	 	 	 	ation pointers.
+ 012A  E2 F5	 	 	                LOOP BACK           ;Repeat if 
+	 	 	 	 CX<>0
+ 012C  CD A5	 	 	                INT 0A5H            ;Return to 
+	 	 	 	command mode.
+ 012E	 	 	 	 COPY ENDS                          ;If you are
+	 	 	 	 running your
+ 	 	 	 	 END START                          ;software o
+	 	 	 	n PC insert
+

@@ -1,0 +1,138 @@
+ AS V1.42 Beta [Bld 56] - source file dac.asm - page 1 - 12/15/2010 17:50:02
+
+
+       1/       0 :                     ;*******************************************************************************
+       2/       0 :                     ;Header: 		Sample program for B
+       3/       0 :                     
+       4/       0 :                     ;Monitor utilities used in this program
+       5/       0 :                         cpu     8085
+       6/       0 :                        
+       7/       0 : =615H               DELAY	EQU			0615H
+       8/       0 :                     
+       9/       0 :                     ;Addresses of 8255 control register, ports etc.
+      10/       0 : =8H                 PORTA			equ		08H	; This is address of 8255 PORTA
+      11/       0 : =9H                 PORTB			equ		09H	; This is address of 8255 PORTB
+      12/       0 : =AH                 PORTc			equ		0AH	; This is address of 8255 PORTC
+      13/       0 : =BH                 CW8255        	equ		0BH	; This is address of 8255 control word
+      14/       0 :                     ;~~~~~~~~~~~~~~~~~~~~~~Start of main program~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      15/       0 :                     
+      16/    7000 :                     						ORG 7000H
+      17/    7000 : 31 00 21            START:		lxi SP,2100H; init stack pointer.
+      18/    7003 : 3E 82               			 mvi A,	82H ; 8255 SET IN I/O MODE	
+      19/    7005 : D3 0B               			 out 0BH
+      20/    7007 : 3E 80               			 mvi A, 80H
+      21/    7009 : D3 0A               			 out 0AH
+      22/    700B : 21 69 70            			 lxi H, MSG1			
+      23/    700E : 06 03               			 mvi B,03H
+      24/    7010 : 0E 10               			 mvi c, 10H
+      25/    7012 : 16 0F               			 mvi D, 0FH
+      26/    7014 : 1E FF               			 mvi E, 0FFH
+      27/    7016 : CD 8A 04            			 call 048AH
+      28/    7019 : CD 76 04            			 call 0476H
+      29/    701C : 7A                  			 mov A,D
+      30/    701D : E6 0F               			 ani 0FH
+      31/    701F : 57                  			 mov D,A
+      32/    7020 : D5                  			 push D
+      33/    7021 : 21 70 70            			 lxi H, MSG2
+      34/    7024 : 06 02               			 mvi B, 02H
+      35/    7026 : 1E 01               			 mvi E, 01H
+      36/    7028 : CD 8A 04            			 call 048AH
+      37/    702B : CD 76 04            			 call 0476H
+      38/    702E : 16 00               			 mvi D, 00H
+      39/    7030 : C1                  			 pop B
+      40/    7031 : 21 00 00            	loop1:  lxi H, 0000H
+      41/    7034 : 7D                  	loop2:	mov A,L
+      42/    7035 : D3 08               			out 08H
+      43/    7037 : 7C                  			mov A, H
+      44/    7038 : E6 7F               			ani 7FH
+      45/    703A : D3 0A               			out 0AH
+      46/    703C : F6 80               			ori 80H
+      47/    703E : D3 0A               			out 0AH
+      48/    7040 : CD 15 06            			call 0615H
+      49/    7043 : 23                  			inx H
+      50/    7044 : 0B                  			dcx B
+      51/    7045 : 79                  			mov A,C
+      52/    7046 : B0                  			ora B
+      53/    7047 : C2 34 70            			jnz loop2
+      54/    704A : 03                  	loop3:	inx B
+      55/    704B : 7D                  			mov A,L
+      56/    704C : D3 08               			out 08H
+      57/    704E : 7C                  			mov A,H
+      58/    704F : E6 7F               			ani 7FH
+      59/    7051 : D3 0A               			out 0AH
+      60/    7053 : F6 80               			ori 80H
+ AS V1.42 Beta [Bld 56] - source file dac.asm - page 2 - 12/15/2010 17:50:02
+
+
+      61/    7055 : D3 0A               			out 0AH
+      62/    7057 : CD 15 06            			call 0615H
+      63/    705A : 2B                  			dcx H
+      64/    705B : 7D                  			mov A,L
+      65/    705C : B4                  			ora H
+      66/    705D : C2 4A 70            			jnz loop3
+      67/    7060 : CD 72 20            			call 2072H
+      68/    7063 : DA 31 70            			jc loop1
+      69/    7066 : C3 13 00            			jmp 0013H	
+      70/    7069 :                     		
+      71/    7069 :                     		MSG1:
+      72/    7069 : 48                  		DB 48H
+      73/    706A : 45                  		DB 45H
+      74/    706B : 49                  		DB 49H
+      75/    706C : 47                  		DB 47H
+      76/    706D : 48                  		DB 48H
+      77/    706E : 54                  		DB 54H
+      78/    706F : 03                  		DB 03H
+      79/    7070 :                     		
+      80/    7070 :                     		MSG2:
+      81/    7070 : 50                  		DB 50H
+      82/    7071 : 45                  		DB 45H
+      83/    7072 : 52                  		DB 52H
+      84/    7073 : 49                  		DB 49H
+      85/    7074 : 4F                  		DB 4FH
+      86/    7075 : 44                  		DB 44H
+      87/    7076 : 03                  		DB 03H
+ AS V1.42 Beta [Bld 56] - source file dac.asm - page 3 - 12/15/2010 17:50:02
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *CW8255 :                         B - |
+*DATE :                  12/15/2010 - | *DELAY :                        615 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+ LOOP1 :                       7031 C |  LOOP2 :                       7034 C |
+ LOOP3 :                       704A C | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+ MSG1 :                        7069 C |  MSG2 :                        7070 C |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *PORTA :                          8 - |
+*PORTB :                          9 - | *PORTC :                          A - |
+*RELAXED :                        0 - | *START :                       7000 C |
+*TIME :                    17:50:02 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     39 symbols
+     34 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file dac.asm - page 4 - 12/15/2010 17:50:02
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.02 seconds assembly time
+
+     87 lines source file
+      2 passes
+      0 errors
+      0 warnings

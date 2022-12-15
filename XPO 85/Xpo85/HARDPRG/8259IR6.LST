@@ -1,0 +1,71 @@
+                
+ 0000                   CPU "8085.TBL"          ;ASMBLR DRCTV TO SLECT 8031 SET.
+ 0000           	HOF "INT8"		;HEDER INFOM FOR INTELHEX O/P FIL. 
+ 6205                   ORG 6205H
+ 0497 =         CRONLY: EQU 0497H
+ 03D8 =         OUTMSG: EQU 03D8H
+ 0615 =         DELAY:  EQU 0615H
+ 048A =         CRLF:   EQU 048AH
+ 027B =         WRTENB: EQU 027BH
+ 029D =         WRTDSB: EQU 029DH
+ 6278 =         IR6VECT: EQU 6278H
+ 0013 =         CMDWDP:  EQU 0013H
+ 6205 3E5F              MVI A,5FH
+ 6207 30                SIM
+ 6208 3E76              MVI A,76H
+ 620A D320              OUT 20H
+ 620C 3E62              MVI A,62H
+ 620E D321              OUT 21H
+ 6210 3EBF              MVI A,0BFH
+ 6212 D321              OUT 21H
+ 6214 CD7B02            CALL WRTENB
+ 6217 217862            LXI H,IR6VECT
+ 621A 3EC3              MVI A,0C3H
+ 621C 77                MOV M,A
+ 621D 213A62            LXI H,IR6
+ 6220 227962            SHLD IR6VECT+1
+ 6223 CD9D02            CALL WRTDSB
+ 6226 00        LOOP:   NOP
+ 6227 214B62            LXI H,DBAS1
+ 622A CD8A04            CALL CRLF
+ 622D CDD803            CALL OUTMSG
+ 6230 11FFFF            LXI D,0FFFFH
+ 6233 CD1506            CALL DELAY
+ 6236 FB                EI
+ 6237 C32662            JMP LOOP
+ 623A 215362    IR6:    LXI H,DBAS2
+ 623D CD8A04            CALL CRLF
+ 6240 CDD803            CALL OUTMSG
+ 6243 CD1506            CALL DELAY
+ 6246 3E20              MVI A,20H
+ 6248 D320              OUT 20H
+ 624A C9                RET
+ 624B 58        DBAS1:  DFB 58H
+ 624C 50                DFB 50H
+ 624D 4F                DFB 4FH
+ 624E 20                DFB 20H
+ 624F 4B                DFB 4BH
+ 6250 49                DFB 49H
+ 6251 54                DFB 54H
+ 6252 03                DFB 03H
+ 6253 38        DBAS2:  DFB 38H
+ 6254 32                DFB 32H
+ 6255 35                DFB 35H
+ 6256 39                DFB 39H
+ 6257 03                DFB 03H
+                
+                
+                
+                
+                
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0013  CMDWDP               048A  CRLF                 0497  CRONLY        
+0002  D                    624B  DBAS1                6253  DBAS2         
+0615  DELAY                0003  E                    0004  H             
+623A  IR6                  6278  IR6VECT              0005  L             
+6226  LOOP                 0006  M                    03D8  OUTMSG        
+029D  WRTDSB               027B  WRTENB               
+

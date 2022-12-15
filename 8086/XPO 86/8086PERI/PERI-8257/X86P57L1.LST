@@ -1,0 +1,156 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8257 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST  1
+ 	 	 	 	
+ 	 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	 	TITLE--USING 8257 PERIW
+	 	 	 	ARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 138A:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;This program is written to illustrate the work
+	 	 	 	ing of 8257 DMA controller in DMA 
+ 	 	 	 	;Read Mode. In this Mode 8257 will transfer dat
+	 	 	 	a from memory to peripheral. 
+ 	 	 	 	;During the initialization the output of 8 bit 
+	 	 	 	port remains low. During that 
+ 	 	 	 	;time 8257  works in Slave Mode. Once the initi
+	 	 	 	alization is complete 8257 takes 
+ 	 	 	 	;the control of the Bus and starts acting in th
+	 	 	 	e Master Mode. It transfers data 
+ 	 	 	 	;directly to the peripheral device without furt
+	 	 	 	her intervention of the CPU.
+ 	 	 	 	
+ 0000	 	 	 	X86P57L1  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P57L1, DS:X86P57L1 ,ES:X86
+	 	 	 	P57L1
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH  ;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX     ;On PC
+ 0108  0E	 	 	PUSH CS	       ;Init for DS
+ 0109  58	 	 	POP  AX	       ;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX     ;(A0-BF) 
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8257 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 010C  90	 	 	NOP	       ;In PC using
+ 010D  90	 	 	NOP	       ;CALL in place
+ 010E  90	 	 	NOP	       ;of 3 NOP`S
+ 	 	 	 	
+ 010F  B9 C000	 	 	MOV  CX,0C000H
+ 0112  B8 0000	 	 	MOV  AX,0000H  ; Load 1st data byte in the memo
+	 	 	 	ry
+ 0115  8B F0	 	 	MOV  SI,AX 
+ 0117  B0 55	 	 	MOV  AL,55H
+ 0119  CD B0	 	 	INT  0B0H
+ 011B  B8 0002	 	 	MOV  AX,0002H  ; Load 2nd data byte in the memo
+	 	 	 	ry.
+ 011E  8B F0	 	 	MOV  SI,AX
+ 0120  B0 AA	 	 	MOV  AL,0AAH
+ 0122  CD B0	 	 	INT  0B0H
+ 	 	 	 	
+ 0124  B0 00	 	 	MOV  AL,00H
+ 0126  BA 01F0	 	 	MOV  DX,01F0H
+ 0129  EE	 	 	OUT  DX,AL	; Out the Control Word to reset
+	 	 	 	 F/L FF.
+ 012A  B0 01	 	 	MOV  AL,01H
+ 012C  BA 01EA	 	 	MOV  DX,01EAH
+ 012F  EE	 	 	OUT  DX,AL	; Out the required terminal cou
+	 	 	 	nt LSB to 
+ 	 	 	 	 	 	; ch2
+ 0130  B0 80	 	 	MOV  AL,80H
+ 0132  EE	 	 	OUT  DX,AL	; Out the MSB of terminal count
+	 	 	 	 to ch2
+ 	 	 	 	 	 	; DMA Read Mode is also initial
+	 	 	 	ised.
+ 0133  B0 00	 	 	MOV  AL,00H
+ 0135  BA 01E8	 	 	MOV  DX,01E8H
+ 0138  EE	 	 	OUT  DX,AL	; Out the DMA starting address 
+	 	 	 	LSB for 
+ 	 	 	 	 	 	; ch2.
+ 0139  B0 B0	 	 	MOV  AL,0B0H
+ 013B  EE	 	 	OUT  DX,AL	; Out the DMA starting address 
+	 	 	 	MSB for 
+ 	 	 	 	 	 	; ch2
+ 013C  B0 01	 	 	MOV  AL,01H
+ 013E  BA 01EE	 	 	MOV  DX,01EEH
+ 0141  EE	 	 	OUT  DX,AL	; Out the terminal count LSB fo
+	 	 	 	r ch3.
+ 0142  B0 80	 	 	MOV  AL,80H	
+ 0144  EE	 	 	OUT  DX,AL	; Out the terminal count MSB fo
+	 	 	 	r ch3.
+ 	 	 	 	 	 	; DMA Read Mode is also initial
+	 	 	 	ized.
+ 0145  B0 00	 	 	MOV  AL,00H
+ 0147  BA 01EC	 	 	MOV  DX,01ECH
+ 014A  EE	 	 	OUT  DX,AL	; Out the DMA starting address 
+	 	 	 	LSB for 
+ 	 	 	 	 	 	; ch3.
+ 014B  B0 B0	 	 	MOV  AL,0B0H	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8257 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 014D  EE	 	 	OUT  DX,AL	; Out the DMA starting address 
+	 	 	 	MSB for 
+ 	 	 	 	 	 	; ch3.
+ 014E  B0 84	 	 	MOV  AL,84H
+ 0150  BA 01F0	 	 	MOV  DX,01F0H
+ 0153  EE	 	 	OUT  DX,AL	; Out the Control Word to enabl
+	 	 	 	e ch2 and 
+ 	 	 	 	 	 	;  set Auto Load Mode also.
+ 0154  CD A5	 	 	INT 0A5H	; Return to Command Mode.
+ 	 	 	 	
+ 0156	 	 	 	X86P57L1  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8257 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P57L1 . . . . . . . . . . . .	0156	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P57L1
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P57L1
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

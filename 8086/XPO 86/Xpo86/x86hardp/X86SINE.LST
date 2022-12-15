@@ -1,0 +1,69 @@
+1030:0100 B8FF10        MOV     AX,10FF
+1030:0103 89C4          MOV     SP,AX
+1030:0105 0E            PUSH    CS
+1030:0106 1F            POP     DS
+1030:0107 B80000        MOV     AX,0000
+1030:010A 8EC0          MOV     ES,AX
+1030:010C 90            NOP
+1030:010D 90            NOP
+1030:010E 90            NOP
+1030:010F 26            ES:
+1030:0110 A11010        MOV     AX,[1010]
+1030:0113 D1E8          SHR     AX,1
+1030:0115 26            ES:
+1030:0116 A31010        MOV     [1010],AX
+1030:0119 9B            WAIT
+1030:011A 26            ES:
+1030:011B DF061010              FILD    WORD PTR [1010]
+1030:011F 26            ES:
+1030:0120 C7061210B400  MOV     WORD PTR [1012],00B4
+1030:0126 9B            WAIT
+1030:0127 26            ES:
+1030:0128 DF061210              FILD    WORD PTR [1012]
+1030:012C 9B            WAIT
+1030:012D DEF9                  FDIVP   ST(1),ST
+1030:012F 9B            WAIT
+1030:0130 D9EB                  FLDPI
+1030:0132 9B            WAIT
+1030:0133 DEC9                  FMULP   ST(1),ST
+1030:0135 9B            WAIT
+1030:0136 D9F2                  FPTAN
+1030:0138 9B            WAIT
+1030:0139 D9C0                  FLD     ST(0)
+1030:013B 9B            WAIT
+1030:013C D8C9                  FMUL    ST,ST(1)
+1030:013E 9B            WAIT
+1030:013F D9C2                  FLD     ST(2)
+1030:0141 9B            WAIT
+1030:0142 D8CB                  FMUL    ST,ST(3)
+1030:0144 9B            WAIT
+1030:0145 DEC1                  FADDP   ST(1),ST
+1030:0147 9B            WAIT
+1030:0148 DEF9                  FDIVP   ST(1),ST
+1030:014A 9B            WAIT
+1030:014B DEC9                  FMULP   ST(1),ST
+1030:014D 9B            WAIT
+1030:014E D9C0                  FLD     ST(0)
+1030:0150 9B            WAIT
+
+1030:0151 DEC1                  FADDP   ST(1),ST
+1030:0153 26            ES:
+1030:0154 C70614101027  MOV     WORD PTR [1014],2710
+1030:015A 9B            WAIT
+1030:015B 26            ES:
+1030:015C DF061410              FILD    WORD PTR [1014]
+1030:0160 9B            WAIT
+1030:0161 DEC9                  FMULP   ST(1),ST
+1030:0163 9B            WAIT
+1030:0164 D9FC                  FRNDINT
+1030:0166 9B            WAIT
+
+1030:0167 26            ES:
+1030:0168 DF361610              FBSTP   TBYTE PTR [1016]
+1030:016C 9B            WAIT
+1030:016D CDAC          INT     AC
+1030:016F 26            ES:
+1030:0170 8B161610      MOV     DX,[1016]
+1030:0174 B004          MOV     AL,04
+1030:0176 CDAE          INT     AE
+1030:0178 CDA4          INT     A4

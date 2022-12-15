@@ -1,0 +1,154 @@
+ AS V1.42 Beta [Bld 56] - source file TRAPRTC1.ASM - page 1 - 2/14/2008 17:59:54
+
+
+       1/       0 :                             CPU 8085
+       2/       0 :                             
+       3/       0 : =2072H              TEST:   EQU 2072H
+       4/       0 : =48AH               CRLF:   EQU 048AH
+       5/       0 : =36CH               NMOUT:  EQU 036CH
+       6/       0 : =13H                CMDWDP: EQU 0013H
+       7/       0 : =497H               CRONLY: EQU 0497H
+       8/       0 : =2078H              WRITE:  EQU 2078H
+       9/    6130 :                             ORG 6130H
+      10/    6130 : 31 F0 27                    LXI SP,27F0H
+      11/    6133 : CD 8A 04                    CALL CRLF
+      12/    6136 : AF                          XRA A
+      13/    6137 : 32 00 21                    STA 2100H
+      14/    613A : 32 01 21                    STA 2101H
+      15/    613D : 32 02 21                    STA 2102H
+      16/    6140 : 32 03 21                    STA 2103H
+      17/    6143 : 32 04 21                    STA 2104H
+      18/    6146 : 3E C3                       MVI A,0C3H
+      19/    6148 : 32 51 20                    STA 2051H
+      20/    614B : 21 DE 61                    LXI H,ISR
+      21/    614E : 22 52 20                    SHLD 2052H
+      22/    6151 : 3E 7E                       MVI A,7EH
+      23/    6153 : D3 1B                       OUT 1BH
+      24/    6155 : 3E 24                       MVI A,24H
+      25/    6157 : D3 19                       OUT 19H
+      26/    6159 : 3E F4                       MVI A,0F4H
+      27/    615B : D3 19                       OUT 19H
+      28/    615D : C3 AC 61                    JMP DSPLY
+      29/    6160 : 3A 03 21            LOOP:   LDA 2103H
+      30/    6163 : FE 00                       CPI 00H
+      31/    6165 : CA 60 61                    JZ LOOP
+      32/    6168 : 3A 02 21                    LDA 2102H
+      33/    616B : C6 01                       ADI 01H
+      34/    616D : 27                          DAA
+      35/    616E : FE 60                       CPI 60H
+      36/    6170 : CA 7D 61                    JZ NXT1
+      37/    6173 : 32 02 21                    STA 2102H
+      38/    6176 : AF                          XRA A
+      39/    6177 : 32 03 21                    STA 2103H
+      40/    617A : C3 AC 61                    JMP DSPLY
+      41/    617D : AF                  NXT1:   XRA A
+      42/    617E : 32 02 21                    STA 2102H
+      43/    6181 : 3A 01 21                    LDA 2101H
+      44/    6184 : C6 01                       ADI 01H
+      45/    6186 : 27                          DAA
+      46/    6187 : FE 60                       CPI 60H
+      47/    6189 : CA 96 61                    JZ NXT2
+      48/    618C : 32 01 21                    STA 2101H
+      49/    618F : AF                          XRA A
+      50/    6190 : 32 03 21                    STA 2103H
+      51/    6193 : C3 AC 61                    JMP DSPLY
+      52/    6196 : AF                  NXT2:   XRA A
+      53/    6197 : 32 01 21                    STA 2101H
+      54/    619A : 3A 00 21                    LDA 2100H
+      55/    619D : C6 01                       ADI 01H
+      56/    619F : 27                          DAA
+      57/    61A0 : FE 13                       CPI 13H
+      58/    61A2 : CA D6 61                    JZ END
+      59/    61A5 : 32 00 21                    STA 2100H
+      60/    61A8 : AF                          XRA A
+ AS V1.42 Beta [Bld 56] - source file TRAPRTC1.ASM - page 2 - 2/14/2008 17:59:54
+
+
+      61/    61A9 : 32 03 21                    STA 2103H
+      62/    61AC : 06 02               DSPLY:  MVI B,02H
+      63/    61AE : 3A 00 21                    LDA 2100H
+      64/    61B1 : 5F                          MOV E,A
+      65/    61B2 : CD 6C 03                    CALL NMOUT
+      66/    61B5 : 3E 20                       MVI A,20H
+      67/    61B7 : CD 78 20                    CALL WRITE
+      68/    61BA : 3A 01 21                    LDA 2101H
+      69/    61BD : 5F                          MOV E,A
+      70/    61BE : CD 6C 03                    CALL NMOUT
+      71/    61C1 : 3E 20                       MVI A,20H
+      72/    61C3 : CD 78 20                    CALL WRITE
+      73/    61C6 : 3A 02 21                    LDA 2102H
+      74/    61C9 : 5F                          MOV E,A
+      75/    61CA : CD 6C 03                    CALL NMOUT
+      76/    61CD : CD 97 04                    CALL CRONLY
+      77/    61D0 : CD 72 20                    CALL TEST
+      78/    61D3 : DA 60 61                    JC LOOP
+      79/    61D6 : 3E 76               END:    MVI A,76H
+      80/    61D8 : D3 1B                       OUT 1BH
+      81/    61DA : C3 13 00                    JMP CMDWDP
+      82/    61DD : 00                          NOP
+      83/    61DE : C5                  ISR:    PUSH B
+      84/    61DF : D5                          PUSH D
+      85/    61E0 : E5                          PUSH H
+      86/    61E1 : F5                          PUSH PSW
+      87/    61E2 : 3A 04 21                    LDA 2104H
+      88/    61E5 : 3C                          INR A
+      89/    61E6 : FE 28                       CPI 28H
+      90/    61E8 : C2 F8 61                    JNZ SKIP1
+      91/    61EB : 3E 00                       MVI A,00H
+      92/    61ED : 32 04 21                    STA 2104H
+      93/    61F0 : 3E 01                       MVI A,01H
+      94/    61F2 : 32 03 21                    STA 2103H
+      95/    61F5 : C3 FB 61                    JMP SKIP3
+      96/    61F8 : 32 04 21            SKIP1:  STA 2104H
+      97/    61FB : F1                  SKIP3:  POP PSW
+      98/    61FC : E1                          POP H
+      99/    61FD : D1                          POP D
+     100/    61FE : C1                          POP B
+     101/    61FF : C9                          RET
+     102/    6200 :                             END
+ AS V1.42 Beta [Bld 56] - source file TRAPRTC1.ASM - page 3 - 2/14/2008 17:59:54
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+ CMDWDP :                        13 - | *CONSTPI :        3.141592653589793 - |
+ CRLF :                         48A - |  CRONLY :                       497 - |
+*DATE :                   2/14/2008 - |  DSPLY :                       61AC C |
+ END :                         61D6 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+ ISR :                         61DE C | *LISTON :                         1 - |
+ LOOP :                        6160 C | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - |  NMOUT :                        36C - |
+ NXT1 :                        617D C |  NXT2 :                        6196 C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - |  SKIP1 :                       61F8 C |
+ SKIP3 :                       61FB C |  TEST :                        2072 - |
+*TIME :                    17:59:54 - | *TRUE :                           1 - |
+*VERSION :                     142F - |  WRITE :                       2078 - |
+
+     42 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file TRAPRTC1.ASM - page 4 - 2/14/2008 17:59:54
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.01 seconds assembly time
+
+    107 lines source file
+      2 passes
+      0 errors
+      0 warnings

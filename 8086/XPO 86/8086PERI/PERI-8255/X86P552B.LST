@@ -1,0 +1,149 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 	 	 	 	;LIST 2 (B)
+ 	 	 	 	;This program configures the 8255 in Mode 1 (ST
+	 	 	 	ROBed I/O). 
+ 	 	 	 	;Port B is configured as STROBed Output Mode. P
+	 	 	 	C0  here  acts as INTR  so it has ;to be connec
+	 	 	 	ted to RST 5.5. through patch cord.
+ 	 	 	 	;Here PC1 acts as OBF and PC2 as ACK. This prog
+	 	 	 	ram asks for the byte to be ;entered from keybo
+	 	 	 	ard and that byte is written on port B
+ 	 	 	 	
+ 	 	 	 	;Program remains in loop. to come out of it, pr
+	 	 	 	ess ESC or RESET.
+ 	 	 	 	
+ 	 	 	 	PAGE,80
+ 	 	 	 	TITLE--USING 8255 PERIWARE.
+ 	 	 	 	
+ 0000	 	 	 	X86P552B  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P552B, DS:X86P552B ,ES:X86
+	 	 	 	P552B
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/bases if a
+	 	 	 	ny
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	 	PUSH CS	;Init for DS
+ 0109  58	 	 	 	POP  AX	;Load kit INTS 
+ 010A  8E D8	 	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	 	NOP	;In PC using
+ 010D  90	 	 	 	NOP	;CALL in place
+ 010E  90	 	 	 	NOP	;of 3 NOP`S
+ 	 	 	 	
+ 010F  8B C8	 	 	 	MOV CX,AX	 	;Copy code seg.
+ 0111  BE 013E R	 	 	MOV SI,OFFSET ISR055	;ISR addr to be
+	 	 	 	 store in SCPD NMI loc.
+ 0114  B0 90	 	 	 	MOV AL,90H	 	;INT Type 90-97
+	 	 	 	 Through 8259 PIC
+ 0116  CD BE	 	 	 	INT 0BEH	 	;Store in inter
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+	 	 	 	upt area 
+ 	 	 	 	
+ 0118  B0 1B	 	 	 	MOV AL,1BH	 	;CSW FOR Level 
+	 	 	 	INT,interval of 4,single 59
+ 011A  BA 9400	 	 	 	MOV DX,9400H	;8259 ICW1 Addr
+ 011D  EE	 	 	 	OUT DX,AL
+ 011E  B0 90	 	 	 	MOV AL,90H	 	;ISR of IR0=INT
+	 	 	 	 90
+ 0120  BA 9402	 	 	 	MOV DX,9402H	;8259 ICW2 Addr
+ 0123  EE	 	 	 	OUT DX,AL
+ 0124  B0 01	 	 	 	MOV AL,01H	 	;8086,Normal,EO
+	 	 	 	I,Non buffered,Non special,Nest
+ 0126  EE	 	 	 	OUT DX,AL	 	;8259 ICW4
+ 0127  B0 FE	 	 	 	MOV AL,0FEH	 	;Enable IR0
+ 0129  EE	 	 	 	OUT DX,AL	 	;OCW1
+ 	 	 	 	
+ 012A  B8 0000	 	 	 	MOV AX,0000H    ;Set ES to 0000H
+ 012D  8E C0	 	 	      MOV ES,AX
+ 	 	 	 	
+ 012F  B0 B4	 	 	      MOV AL,0B4H            	 ; Control Word
+	 	 	 	 for Mode1, A-input.
+ 0131  BA 01E6	 	 	 	MOV DX,01E6H	;CSW address
+ 0134  EE	 	 	 	OUT DX,AL
+ 0135  B0 05	 	 	 	MOV AL,05H	 	; Enable INTR/P
+	 	 	 	C4.
+ 0137  EE	 	 	 	OUT DX,AL
+ 0138  BA 01E0	 	 	 	MOV DX,01E0H
+ 	 	 	 	
+ 013B  EB 01 90	 	 	      JMP  ISR055	; Go to read byte from 
+	 	 	 	keyboard
+ 	 	 	 	 	; and output to port B.
+ 013E  5B	 	 	ISR055:	POP  BX	; Remove prog. counter from sta
+	 	 	 	ck.
+ 013F  CD AC	 	 	 	INT 0ACH	 	;CRLF, Set curs
+	 	 	 	or to left.
+ 0141  BB 0153 R	 	 	MOV BX,OFFSET MSG	;Pointer for lo
+	 	 	 	ok up table.
+ 0144  B0 02	 	 	 	MOV AL,02H
+ 0146  B4 10	 	 	 	MOV AH,10H
+ 0148  CD B9	 	 	 	INT 0B9H	 	;RCVNO, Routine
+	 	 	 	 to receive number.
+ 014A  8A C2	 	 	        MOV AL,DL
+ 014C  BA 01E2	 	 	 	MOV DX,01E2H
+ 014F  EE	 	 	 	OUT DX,AL	 	; Out data to p
+	 	 	 	ort 3B.
+ 0150  FB	 	 	SELF:   STI                     ;Enable Interru
+	 	 	 	pt.
+ 0151  EB FD	 	 	        JMP SELF                ; SELF Jump.
+ 	 	 	 	 	 	 	 	;ORG  43H  0AH
+ 0153  42 59 54 45 20 20	MSG:  DB  "BYTE    ",03H      ; Look up table A
+	 	 	 	SCII data for "BYTE"
+       20 20 03	 	 	
+ 	 	 	 	                                ; End of text.
+ 	 	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 015C	 	 	 	 	X86P552B  ENDS
+ 	 	 	 	     	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P552B . . . . . . . . . . . .	015C	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ISR055 . . . . . . . . . . . . .	L NEAR 	013E	X86P552B
+MSG. . . . . . . . . . . . . . .	L NEAR 	0153	X86P552B
+SELF . . . . . . . . . . . . . .	L NEAR 	0150	X86P552B
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P552B
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P552B
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

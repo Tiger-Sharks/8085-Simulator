@@ -1,0 +1,109 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+ 	 	 	 	;LIST 1B
+ 	 	 	 	;This program configures the 8255 in Mode 0 (Si
+	 	 	 	mple I/O Mode.) Port B is
+ 	 	 	 	;configured as output port. The program receive
+	 	 	 	s a byte from keyboard and then
+ 	 	 	 	;it is written to port B.
+ 	 	 	 	;Program terminates in Command Mode.
+ 	 	 	 	
+ 	 	 	 	PAGE,80
+ 	 	 	 	TITLE--USING 8255 PERIWARE.
+ 	 	 	 	
+ 0000	 	 	 	X86P551B  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P551B, DS:X86P551B ,ES:X86
+	 	 	 	P551B
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/bases if a
+	 	 	 	ny
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	 	PUSH CS	;Init for DS
+ 0109  58	 	 	 	POP  AX	;Load kit INTS 
+ 010A  8E D8	 	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	 	NOP	;In PC using
+ 010D  90	 	 	 	NOP	;CALL in place
+ 010E  90	 	 	 	NOP	;of 3 NOP`S
+ 	 	 	 	
+ 010F  B0 80	 	 	 	MOV AL,80H	 	; Control Word 
+	 	 	 	for Mode 0, B-output.
+ 0111  BA 01E6	 	 	 	MOV DX,01E6H	; CSW address
+ 0114  EE	 	 	        OUT DX,AL               ; 80H To contro
+	 	 	 	l register.
+ 	 	 	 	
+ 	 	 	 	                        	; Note: Followi
+	 	 	 	ng ISR is used by Mode 0, Mode 1
+ 0115  5B	 	 	ISRO55:	POP  BX	; Remove prog. counter from sta
+	 	 	 	ck.
+ 0116  CD AC	 	 	 	INT 0ACH	 	;CRLF, Set curs
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+	 	 	 	or to left.
+ 0118  BB 0129 R	 	 	MOV BX,OFFSET MSG	;Pointer for lo
+	 	 	 	ok up table.
+ 011B  B0 02	 	 	 	MOV AL,02H
+ 011D  B4 10	 	 	 	MOV AH,10H
+ 011F  CD B9	 	 	 	INT 0B9H	 	;RCVNO, Routine
+	 	 	 	 to receive number.
+ 0121  8A C2	 	 	        MOV AL,DL
+ 0123  BA 01E2	 	 	 	MOV DX,01E2H
+ 0126  EE	 	 	 	OUT DX,AL	 	; Out data to p
+	 	 	 	ort 3B.
+ 0127  CD A4	 	 	 	INT 0A4H	 	; Go to Command
+	 	 	 	 Mode.
+ 	 	 	 	 	 	 	 	
+ 0129  42 59 54 45 20 20	MSG:    DB  "BYTE    ",03H      ; Look up table
+	 	 	 	 ASCII data for "BYTE"
+       20 20 03	 	 	
+ 	 	 	 	                                ; End of text.
+ 	 	 	 	
+ 0132	 	 	 	 	X86P551B  ENDS
+ 	 	 	 	     	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8255 PERIWARE.	 	 	 	 	 	12-06-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P551B . . . . . . . . . . . .	0132	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ISRO55 . . . . . . . . . . . . .	L NEAR 	0115	X86P551B
+MSG. . . . . . . . . . . . . . .	L NEAR 	0129	X86P551B
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P551B
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P551B
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

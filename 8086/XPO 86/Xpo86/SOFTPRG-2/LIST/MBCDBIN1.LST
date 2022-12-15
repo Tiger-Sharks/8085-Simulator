@@ -1,0 +1,129 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+ 	 	 	 	;Program to carry out BCD to Binary conversion.
+ 	 	 	 	;THE STORED CONSTANT NUMBER (23) IN THIS CASE I
+	 	 	 	S INTERPRETED BY THE ASSEMBLER
+ 	 	 	 	;AS HEX (17). SO THE STORED NUMBER IS 17 (IN TH
+	 	 	 	E PROGRAM).
+ 	 	 	 	;THE PROGRAM INTERPRETES THIS NUMBER AS DECIMAL
+	 	 	 	.SO THE PROGRAM SEES THIS
+ 	 	 	 	;NUMBER AS 17 (BASE 10) WHICH IS EQUIVALENT OF 
+	 	 	 	11 (BASE 16).SO THE FINAL
+ 	 	 	 	;ANSWER PRODUCED IS 11.
+ 	 	 	 	;E.G. IF THE STORED NUMBER WERE CHANGED TO (SAY
+	 	 	 	) 64. THIS WILL BE STORED AS
+ 	 	 	 	;40 (BASE 16) BY THE ASSEMBLER. THE PROGRAM WIL
+	 	 	 	L INTERPRET THIS NUMBER AS
+ 	 	 	 	
+ 	 	 	 	; THE BCDBIN PROCEDURE RECEIVES ITS ARGUMENT IN
+	 	 	 	 THE AL REGISTER AND THE
+ 	 	 	 	; CONVERTED NUMBER IS RETURNED IN THE SAME REGI
+	 	 	 	STER.
+ 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KbYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 03 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ 0103  17	 	 	BCD DB 23	 	 	;BCD data to be
+	 	 	 	 converted to binary
+ 0104  ??	 	 	BIN DB ?	 	 	;Converted bina
+	 	 	 	ry data. For input
+ 	 	 	 	 	 	 	 	 	;data o
+	 	 	 	f 23 the output will be 17 (17h = 23d)
+ 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 0105	 	 	 	SKIP_DATA:
+ 0105  B8 10FF	 	 	 	MOV AX,10FFH
+ 0108  8B E0	 	 	 	MOV SP,AX
+ 	 	 	 	 	
+ 010A  B8 0000	 	 	 	MOV AX,0000H
+ 010D  8E D0	 	 	 	MOV SS,AX
+ 010F  8E C0	 	 	 	MOV ES,AX
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+ 	 	 	 	 	
+ 0111  0E	 	 	 	PUSH CS
+ 0112  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 0113  90	 	 	 	NOP
+ 0114  90	 	 	 	NOP
+ 0115  90	 	 	 	NOP
+ 	 	 	 	 	
+ 0116  A0 0103 R	 	 	MOV AL,BCD
+ 0119  E8 0124 R	 	 	CALL BCDBIN
+ 	 	 	 	 	
+ 011C  A2 0104 R	 	 	MOV BIN,AL
+ 011F  A2 0104 R	 	 	MOV BIN,AL
+ 0122  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	 	
+ 	 	 	 	 	
+ 0124	 	 	 	 	BCDBIN PROC NEAR
+ 	 	 	 	 	
+ 0124  9C	 	 	 	PUSHF
+ 0125  53	 	 	 	PUSH BX
+ 0126  51	 	 	 	PUSH CX
+ 0127  8A D8	 	 	 	MOV BL,AL
+ 0129  80 E3 0F	 	 	 	AND BL,0FH
+ 012C  24 F0	 	 	 	AND AL,0F0H
+ 012E  B1 04	 	 	 	MOV CL,04H
+ 0130  D2 C8	 	 	 	ROR AL,CL
+ 0132  B7 0A	 	 	 	MOV BH,0AH
+ 0134  F6 E7	 	 	 	MUL BH
+ 	 	 	 	 	
+ 0136  02 C3	 	 	 	ADD AL,BL
+ 0138  59	 	 	 	POP CX
+ 0139  5B	 	 	 	POP BX
+ 013A  9D	 	 	 	POPF
+ 013B  C3	 	 	 	RET
+ 	 	 	 	 	
+ 013C	 	 	 	 	BCDBIN ENDP
+ 	 	 	 	 	
+ 	 	 	 	
+ 013C	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-09-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	013C	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BCD. . . . . . . . . . . . . . .	L BYTE 	0103	COMSEG
+BCDBIN . . . . . . . . . . . . .	N PROC	0124	COMSEG	Length =0018
+BIN. . . . . . . . . . . . . . .	L BYTE 	0104	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0105	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50092 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

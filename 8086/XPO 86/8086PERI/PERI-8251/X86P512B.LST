@@ -1,0 +1,195 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST  :  2 (B)
+ 	 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	 	TITLE--USING 8251 PERIW
+	 	 	 	ARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 14FA:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;This programme demonstrates 8251 Periware in i
+	 	 	 	ts Synchronous Mode of 
+ 	 	 	 	;operation. It uses External SYNC Detection for
+	 	 	 	 the operation of receiver.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86P512B  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P512B, DS:X86P512B ,ES:X86
+	 	 	 	P512B
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH   ;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX      ;On PC
+ 0108  0E	 	 	PUSH CS	   	;Init for DS
+ 0109  58	 	 	POP  AX	   	;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	NOP	 	;In PC using
+ 010D  90	 	 	NOP	 	;CALL in place
+ 010E  90	 	 	NOP	 	;of 3 NOP`S
+ 	 	 	 	
+ 010F  CD AC	 	 	INT  0ACH	; Set cursor to left position. 
+ 	 	 	 	              	; Clear screen
+ 0111  B0 00	 	 	MOV  AL,00H	; Dummy Code
+ 0113  BA 01E2	 	 	MOV  DX,01E2H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+ 0116  EE	 	 	OUT  DX,AL
+ 0117  CD AC	 	 	INT  0ACH	; Clear screen. Give delay
+ 0119  EE	 	 	OUT  DX,AL	; Dummy Code
+ 011A  CD AC	 	 	INT  0ACH	
+ 011C  EE	 	 	OUT  DX,AL	; Dummy Code
+ 011D  CD AC	 	 	INT  0ACH
+ 011F  B0 40	 	 	MOV  AL,40H
+ 0121  EE	 	 	OUT  DX,AL	; Reset code
+ 0122  CD AC	 	 	INT  0ACH
+ 0124  B0 CC	 	 	MOV  AL,0CCH	; Mode word, Character 
+ 	 	 	 	 	 	; Length=8 Bits
+ 0126  EE	 	 	OUT  DX,AL	; External SYNC detect, no. of 
+ 	 	 	 	 	 	; SYNC Char = 1
+ 0127  CD AC	 	 	INT  0ACH
+ 0129  B0 AA	 	 	MOV  AL, 0AAH	; SYNC Character
+ 012B  EE	 	 	OUT  DX,AL
+ 012C  B0 95	 	 	MOV  AL,95H	; Command word, RxEnable=1, 
+ 	 	 	 	 	 	; TxEnable=1, Error
+ 012E  EE	 	 	OUT  DX,AL	; Reset=1.
+ 012F	 	 	 	LOOP8:	
+ 012F  BA 01E2	 	 	MOV  DX,01E2H
+ 0132  EC	 	 	IN   AL,DX	; Check for transmitter ready.
+ 0133  24 01	 	 	AND  AL,01H	; If no then remain in loop and
+	 	 	 	 
+ 	 	 	 	                ; wait.
+ 0135  3C 01	 	 	CMP  AL,01H
+ 0137  75 F6	 	 	JNZ  LOOP8
+ 	 	 	 	 	 	; Remove programme counter 
+ 	 	 	 	                ; form stack.
+ 0139  CD AC	 	 	INT  0ACH 	; Set cursor to left
+ 013B  BB 0190 R	 	MOV  BX,OFFSET MSGBY ; Pointer for look up tabl
+	 	 	 	e
+ 013E  B0 02	 	 	MOV  AL, 02H
+ 0140  B4 10	 	 	MOV  AH,10H
+ 0142  CD B9	 	 	INT  0B9H	; Routine to receive number
+	 	 	 	 	
+ 0144  8A C2	 	 	MOV  AL,DL
+ 0146  BA 01E0	 	 	MOV  DX,01E0H
+ 0149  EE	 	 	OUT  DX,AL	; Send data to Transmitter Buff
+	 	 	 	er
+ 	 	 	 	
+ 	 	 	 	;Make SYNDET input pin high by connecting it to
+	 	 	 	 Vcc.
+ 	 	 	 	
+ 014A	 	 	 	LOOP9:	
+ 014A  CD AC	 	 	INT  0ACH
+ 014C  BA 01E2	 	 	MOV  DX,01E2H
+ 014F  EC	 	 	IN   AL,DX	; Check for receiver ready
+ 0150  24 02	 	 	AND  AL,02H	; If no then remain in loop and
+	 	 	 	 
+ 	 	 	 	                ; wait.
+ 0152  3C 02	 	 	CMP  AL,02H
+ 0154  75 F4	 	 	JNZ  LOOP9
+ 	 	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+ 0156  CD AC	 	 	INT  0ACH
+ 0158  BA 01E0	 	 	MOV  DX,01E0H
+ 015B  EC	 	 	IN   AL,DX	; Receive the data from receive
+	 	 	 	r 
+ 	 	 	 	                ; output.
+ 015C  E8 0163 R	 	CALL DSPLY	; Displays the byte on seven 
+ 	 	 	 	                ; segments.
+ 015F  EB E9	 	 	JMP  LOOP9
+ 	 	 	 	
+ 0161  CD A4	 	 	INT  0A4H	; Go to Command Mode.
+ 	 	 	 	
+ 0163	 	 	 	DSPLY PROC NEAR
+ 	 	 	 	
+ 0163  51	 	 	PUSH CX 
+ 0164  CD AC	 	 	INT  0ACH
+ 0166  26: A2 1000	 	MOV  ES:[1000H],AL ; Store received data in mem
+	 	 	 	ory
+ 016A  BB 018B R	 	MOV  BX,OFFSET MSGDA	; Pointer for look up t
+	 	 	 	able.
+ 016D  CD AF	 	 	INT  0AFH          ; Calls display routine
+ 016F  B2 20	 	 	MOV  DL,20H	   ;Out ascii space charater
+ 0171  B4 02	 	 	MOV  AH,02H
+ 0173  CD A2	 	 	INT  0A2H
+ 0175  B2 20	 	 	MOV  DL,20H	   ;Out ascii space char.
+ 0177  B4 02	 	 	MOV  AH,02H
+ 0179  CD A2	 	 	INT  0A2H
+ 017B  B0 02	 	 	MOV  AL,02H	   ; Number of digits to be dis
+	 	 	 	played
+ 	 	 	 	 	 	   ; in data segment.
+ 017D  26: 8A 16 1000	 	MOV  DL,ES:[1000H] ; Load the data back to the 
+	 	 	 	ACC
+ 0182  CD AE	 	 	INT  0AEH	   ; NMOUT routine is called
+ 0184  B9 FFFF	 	 	MOV  CX,0FFFFH	   ; Wait to stabilise the disp
+	 	 	 	lay
+ 0187  CD AA	 	 	INT  0AAH          ; Calls delay routine
+ 0189  59	 	 	POP  CX
+ 018A  C3	 	 	RET
+ 	 	 	 	
+ 018B	 	 	 	DSPLY ENDP
+ 	 	 	 	
+ 018B  44 41 54 41 03	 	MSGDA:  DB "DATA", 03H
+ 0190  42 59 54 45 03	 	MSGBY:  DB "BYTE", 03H
+ 	 	 	 	
+ 0195	 	 	 	X86P512B  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8251 PERIWARE.	 	 	 	 	 	12-11-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P512B . . . . . . . . . . . .	0195	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DSPLY. . . . . . . . . . . . . .	N PROC	0163	X86P512B	Length 
+	 	 	 	=0028
+LOOP8. . . . . . . . . . . . . .	L NEAR 	012F	X86P512B
+LOOP9. . . . . . . . . . . . . .	L NEAR 	014A	X86P512B
+MSGBY. . . . . . . . . . . . . .	L NEAR 	0190	X86P512B
+MSGDA. . . . . . . . . . . . . .	L NEAR 	018B	X86P512B
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P512B
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P512B
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

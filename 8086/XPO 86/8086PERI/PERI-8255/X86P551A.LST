@@ -1,0 +1,125 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+ 	 	 	 	;LIST 1A
+ 	 	 	 	;In this program 8255 is operated in Mode 0, Si
+	 	 	 	mple I/O Mode & PortA is ;configured as input p
+	 	 	 	ort.
+ 	 	 	 	;A byte is read from port A and displayed
+ 	 	 	 	
+ 	 	 	 	PAGE 80
+ 	 	 	 	TITLE -- USING 8255 PERIWARE.
+ 0000	 	 	 	X86P55A1  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P55A1, DS:X86P55A1 ,ES:X86
+	 	 	 	P55A1
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/bases if a
+	 	 	 	ny
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	 	PUSH CS	;Init for DS
+ 0109  58	 	 	 	POP  AX	;Load kit INTS 
+ 010A  8E D8	 	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	 	NOP	;In PC using
+ 010D  90	 	 	 	NOP	;CALL in place
+ 010E  90	 	 	 	NOP	;of 3 NOP`S
+ 	 	 	 	 	
+ 010F  B8 0000	 	 	 	MOV AX,0000H	;Load ES as 0000H
+ 0112  8E C0	 	 	 	MOV ES,AX 
+ 0114  B0 90	 	 	 	MOV  AL,90H	 	; Control Word 
+	 	 	 	for Mode 0, A-input
+ 0116  BA 01E6	 	 	 	MOV DX,01E6H	; CSW Address in DX
+ 0119  EE	 	 	 	OUT DX,AL	 	; Write csw (OU
+	 	 	 	T 90 to 01E6H)
+ 011A  BA 01E0	 	 	 	MOV DX,01E0H	; Port A Address in DX
+ 011D  EC	 	 	 	IN  AL,DX	 	; Read port A (
+	 	 	 	IN from 01E0H)
+ 	 	 	 	                 
+ 	 	 	 	;Note: Following ISR will be used by Mode 0,1,2
+	 	 	 	-input.
+ 	 	 	 	
+ 011E	 	 	 	ISR055:
+ 011E  26: A2 1000	 	        MOV ES:[1000H],AL       ; Store receive
+	 	 	 	d data in memory.
+ 0122  CD AC	 	 	        INT 0ACH                ;Clear display
+ 	 	 	 	
+ 0124  BB 0140 R	 	        MOV BX,OFFSET MSG       ;LXI  H,00H  43
+	 	 	 	H, Pointer for look up table.
+ 0127  CD AF	 	 	        INT 0AFH                ;CALL OUTMSG, C
+	 	 	 	alls display routine.
+ 0129  B3 01	 	 	        MOV BL,01H              ; Set counter f
+	 	 	 	or delay.(C)
+ 	 	 	 	
+ 012B  B9 00FF	 	 	LOOP:   MOV CX,00FFH   ;LXI  D,FFH  FFH, Wait t
+	 	 	 	o stabilise the display.
+ 012E  CD AA	 	 	        INT 0AAH                ;CALL DELAY, Ca
+	 	 	 	lls delay routine.
+ 	 	 	 	 	
+ 0130  26: A0 1000	 	        MOV AL,ES:[1000H];Retrive port A receiv
+	 	 	 	ed data for display purpose.
+ 0134  8A D0	 	 	        MOV DL,AL
+ 0136  B0 02	 	 	 	MOV AL,02H	 	; Number of dig
+	 	 	 	its to be
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+ 	 	 	 	 	 	 	 	; displayed in 
+	 	 	 	data segment.
+ 0138  CD AE	 	 	 	INT 0AEH	 	;CALL NMOUT, NM
+	 	 	 	OUT routine is called.
+ 013A  FE CB	 	 	        DEC BL
+ 013C  75 ED	 	 	        JNZ  LOOP
+ 013E  CD A4	 	 	 	INT 0A4H	 	;GOTO Command M
+	 	 	 	ode.
+ 	 	 	 	
+ 0140  50 4F 54 41 20 20	MSG:    DB "POTA  ",03H        ; End of text.
+       03	 	 	
+ 	 	 	 	
+ 0147	 	 	 	 	X86P55A1  ENDS
+ 	 	 	 	     	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING 8255 PERIWARE.	 	 	 	 	 	02-12-:0    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P55A1 . . . . . . . . . . . .	0147	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ISR055 . . . . . . . . . . . . .	L NEAR 	011E	X86P55A1
+LOOP . . . . . . . . . . . . . .	L NEAR 	012B	X86P55A1
+MSG. . . . . . . . . . . . . . .	L NEAR 	0140	X86P55A1
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P55A1
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P55A1
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

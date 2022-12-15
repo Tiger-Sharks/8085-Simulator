@@ -1,0 +1,30 @@
+*****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+     PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+     THE SAME FROM 012B:0100 AND EXECUTE.
+
+***MULTY BYTE ADDITION-THIS EXAMPLE SHOWS THE ADDITION OF TWO VARIABLES.
+   EACH IS A VERY LONG INTEGER STORED IN 8 BYTES AT 0100:0000 AND
+   0100:0010 IN SCRATCH PAD RAM [PL.ENTER CONTENTS BY HAND.],CONTENTS 
+   OF FIRST ARE ADDED TO SECOND VARIABLE.
+
+101B:0100 B80001        MOV	AX,0100                            
+101B:0103 8EC0          MOV	ES,AX                              
+101B:0105 B90800        MOV	CX,0008 	;NO OF BYTES IN EACH 
+						;VARIABLE
+101B:0108 BE0000        MOV	SI,0000 	;OFFSET OF FIRST VARIABL
+101B:010B BF1000        MOV	DI,0010      	;OFFSET OF SECOND
+101B:010E F8            CLC	                ;CLEAR CARRY FOR STARTER
+101B:010F 26            ES:	                                   
+101B:0110 8A04          MOV	AL,[SI]         ;GET NEXT SOURCE BYTE
+101B:0112 26            ES:	                                   
+101B:0113 1005          ADC	[DI],AL         ;ADD TO DESTINATION BYTE
+101B:0115 46            INC	SI                                 
+101B:0116 47            INC	DI                                 
+101B:0117 E2F6          LOOP	010F            ;LOOP TILL CX=0        
+101B:0119 CDA5          INT	A5              ;RETURN TO COMAND= AFTER
+						;SAVING REGISTERS.   
+
+
+
+
+

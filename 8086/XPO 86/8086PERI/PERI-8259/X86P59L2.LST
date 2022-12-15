@@ -1,0 +1,450 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST - 2
+ 	 	 	 	                   PAGE,80
+ 	 	 	 	       TITLE--USING 8259 PERIWARE IN MASTER MAS
+	 	 	 	TER MODE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 1250h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. please 
+ 	 	 	 	;    Enter the same from 0125:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;NOTE : In this program, when ISRM4 Interrupt i
+	 	 	 	s activated, this message 
+ 	 	 	 	;displayed will be of routine ISRS7 since IR4 o
+	 	 	 	f Master is connected to 
+ 	 	 	 	;INTR of Slave. On default, the Slave 8259 give
+	 	 	 	s IR7 the highest priority.
+ 	 	 	 	
+ 	 	 	 	;Here two IC 8259 devices are used in Master-Sl
+	 	 	 	ave combination. The INTR of 
+ 	 	 	 	;Slave is routed through IR4 of Master 8259 to 
+	 	 	 	the microprocessor. Thus a 15 
+ 	 	 	 	;level Interrupt is created. In the main progra
+	 	 	 	m, "XPO" is displayed. In the 
+ 	 	 	 	;Interrupt service routine,"INT M/S  0/1/2/3/4/
+	 	 	 	5/6/7"  is displayed depending 
+ 	 	 	 	;upon the device and the Interrupt number.
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X86P59L2  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P59L2, DS:X86P59L2 ,ES:X86
+	 	 	 	P59L2
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's. but while work
+	 	 	 	ing on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV   AX,10FFH	 	;Initof SP for Kit
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 0106  8B E0	 	 	MOV   SP,AX	 	;On PC
+ 0108  0E	 	 	PUSH  CS	 	;Init for DS
+ 0109  58	 	 	POP   AX	 	;Load kit INTS 
+ 010A  8E D8	 	 	MOV   DS,AX	 	 	;A0-BF) 
+ 010C  90	 	 	NOP	 	 	;In PC using
+ 010D  90	 	 	NOP	 	 	;CALL in place
+ 010E  90	 	 	NOP	 	 	;of 3 NOP`S
+ 	 	 	 	
+ 010F  8B C8	 	 	MOV  CX,AX	 	;Seg Addr Of ISR for IR
+	 	 	 	0
+ 0111  BE 0205 R	 	MOV  SI,OFFSET ISRM0 	;Offset Addr IR0 Master
+	 	 	 	. 
+ 0114  B0 90	 	 	MOV  AL,90H	 	;Init Of 0000:0240H-44H
+	 	 	 	 Bytes So 
+ 	 	 	 	 	 	 	;On Int IR0 "INT 90,91.
+	 	 	 	.
+ 0116  CD BE	 	 	INT  0BEH	 	;are Executed.
+ 	 	 	 	
+ 0118  BE 020C R	 	MOV  SI,OFFSET ISRM1 	;Offset Addr for Int IR
+	 	 	 	1  
+ 011B  B0 91	 	 	MOV  AL,91H	 	;of master. 
+ 011D  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 011F  BE 0213 R	 	MOV  SI,OFFSET ISRM2 	;Offset Addr for Int IR
+	 	 	 	2  
+ 0122  B0 92	 	 	MOV  AL,92H	 	;of master. 
+ 0124  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0126  BE 021A R	 	MOV  SI,OFFSET ISRM3 	;Offset Addr for Int IR
+	 	 	 	3  
+ 0129  B0 93	 	 	MOV  AL,93H	 	;of master. 
+ 012B  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 012D  BE 0221 R	 	MOV  SI,OFFSET ISRM4 	;Offset Addr for Int IR
+	 	 	 	4  
+ 0130  B0 94	 	 	MOV  AL,94H	 	;of master. 
+ 0132  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0134  BE 0228 R	 	MOV  SI,OFFSET ISRM5 	;Offset Addr for Int IR
+	 	 	 	5  
+ 0137  B0 95	 	 	MOV  AL,95H	 	;of master. 
+ 0139  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 013B  BE 022F R	 	MOV  SI,OFFSET ISRM6 	;Offset Addr for Int IR
+	 	 	 	6  
+ 013E  B0 96	 	 	MOV  AL,96H	 	;of master. 
+ 0140  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0142  BE 0236 R	 	MOV  SI,OFFSET ISRM7 	;Offset Addr for Int IR
+	 	 	 	7  
+ 0145  B0 97	 	 	MOV  AL,97H	 	;of master. 
+ 0147  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0149  BE 023D R	 	MOV  SI,OFFSET ISRS0 	;Offset Addr for Int IR
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+	 	 	 	0  
+ 014C  B0 98	 	 	MOV  AL,98H	 	;of slave. 
+ 014E  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0150  BE 0244 R	 	MOV  SI,OFFSET ISRS1 	;Offset Addr for Int IR
+	 	 	 	1  
+ 0153  B0 99	 	 	MOV  AL,99H	 	;of slave. 
+ 0155  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0157  BE 024B R	 	MOV  SI,OFFSET ISRS2 	;Offset Addr for Int IR
+	 	 	 	2  
+ 015A  B0 9A	 	 	MOV  AL,9AH	 	;of slave. 
+ 015C  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 015E  BE 0252 R	 	MOV  SI,OFFSET ISRS3 	;Offset Addr for Int IR
+	 	 	 	3  
+ 0161  B0 9B	 	 	MOV  AL,9BH	 	;of slave. 
+ 0163  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0165  BE 0259 R	 	MOV  SI,OFFSET ISRS4 	;Offset Addr for Int IR
+	 	 	 	4  
+ 0168  B0 9C	 	 	MOV  AL,9CH	 	;of slave. 
+ 016A  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 016C  BE 0261 R	 	MOV  SI,OFFSET ISRS5 	;Offset Addr for Int IR
+	 	 	 	5  
+ 016F  B0 9D	 	 	MOV  AL,9DH	 	;of slave. 
+ 0171  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0173  BE 0269 R	 	MOV  SI,OFFSET ISRS6 	;Offset Addr for Int IR
+	 	 	 	6  
+ 0176  B0 9E	 	 	MOV  AL,9EH	 	;of slave. 
+ 0178  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 017A  BE 0271 R	 	MOV  SI,OFFSET ISRS7 	;Offset Addr for Int IR
+	 	 	 	7  
+ 017D  B0 9F	 	 	MOV  AL,9FH	 	;of slave. 
+ 017F  CD BE	 	 	INT  0BEH	 	
+ 	 	 	 	
+ 0181  B0 11	 	 	MOV  AL,11H
+ 0183  BA 01A0	 	 	MOV  DX,01A0H	 	;ICW1-edge triggered, c
+	 	 	 	ascade,
+ 0186  EE	 	 	OUT  DX,AL             	;interval of 8.
+ 	 	 	 	
+ 0187  B0 90	 	 	MOV  AL,90H	   	;ICW2-Int type
+ 0189  BA 01A2	 	 	MOV  DX,01A2H
+ 018C  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 018D  B0 10	 	 	MOV  AL,10H	   	;ICW3-IR4 of Master has
+	 	 	 	 Slave input.
+ 018F  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 0190  B0 01	 	 	MOV  AL,01H	 	;ICW4-non-buffered, 808
+	 	 	 	6 mode.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-4
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 0192  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 	 	 	 	
+ 0193  B0 11	 	 	MOV  AL,11H	;ICW1 for Slave-edge triggered,
+	 	 	 	 Cascade
+ 0195  BA 01E0	 	 	MOV  DX,01E0H	;interval of 8.
+ 0198  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 0199  B0 98	 	 	MOV  AL,98H	;ICW2 Int type .
+ 019B  BA 01E2	 	 	MOV  DX,01E2H
+ 019E  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 019F  B0 04	 	 	MOV  AL,04H	;ICW3 for Slave.
+ 01A1  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 01A2  B0 01	 	 	MOV  AL,01H	;ICW4 for Slave.
+ 01A4  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 01A5  B0 00	 	 	MOV  AL,00H	;OCW1-Enable all Interrupt 
+ 01A7  EE	 	 	OUT  DX,AL	;pins for both
+ 	 	 	 	 	 	;Master and Slave.
+ 	 	 	 	
+ 	 	 	 	
+ 01A8  BA 01A2	 	 	MOV  DX,01A2H
+ 01AB  EE	 	 	OUT  DX,AL
+ 	 	 	 	
+ 01AC  FB	 	 	STI	 	;Enable Interrupt.
+ 	 	 	 	
+ 01AD	 	 	 	UP1:	 	
+ 01AD  B8 00FF	 	 	MOV  AX,00FFH	;DELAY COUNT
+ 01B0	 	 	 	UP2:   
+ 01B0  B9 00FF	 	 	MOV  CX,00FFH	;DELAY COUNT
+ 01B3  CD AA	 	 	INT  0AAH	;DELAY
+ 01B5  48	 	 	DEC  AX	 	;
+ 01B6  75 F8	 	 	JNZ  UP2	;
+ 01B8  CD AC	 	 	INT  0ACH	;CLEAR DISPLAY
+ 01BA  BB 0279 R	 	MOV  BX,OFFSET MSG01 ;POINTER TO "XPO"
+ 01BD  CD AF	 	 	INT  0AFH	;OUTMSG UTILITY 
+ 01BF  B4 0B	 	 	MOV  AH,0BH	;TEST FOR KEY PRESS
+ 01C1  CD A1	 	 	INT  0A1H	;LOGICAL I/O
+ 01C3  3C FF	 	 	CMP  AL,0FFH
+ 01C5  74 03	 	 	JZ   RDESC	 	
+ 01C7  EB 09 90	 	 	JMP  DN1	 	
+ 01CA	 	 	 	RDESC:
+ 01CA  B4 08	 	 	MOV  AH,08H	;READ KEY
+ 01CC  CD A1	 	 	INT  0A1H	;LOGICAL I/O
+ 01CE  3C 1B	 	 	CMP  AL,1BH
+ 01D0  74 03	 	 	JZ   EXIT
+ 01D2	 	 	 	DN1:
+ 01D2  FB	 	 	STI
+ 01D3  EB D8	 	 	JMP  UP1
+ 01D5	 	 	 	EXIT: 
+ 01D5  CD A3	 	 	INT 0A3H       	;CMD MODE.
+ 01D7  90	 	 	NOP	                                   
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-5
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 01D8  90	 	 	NOP	                                   
+ 01D9  90	 	 	NOP	                                   
+ 01DA  90	 	 	NOP
+ 01DB  90	 	 	NOP
+ 	 	 	 	
+ 01DC	 	 	 	ISR:  
+ 01DC  CD AC	 	 	INT 0ACH	 	; Clear to new line.
+ 01DE  BB 027D R	 	MOV BX, OFFSET MSG02 	; Pointer to message -"
+	 	 	 	INT"
+ 01E1  CD AF	 	 	INT 0AFH	 	; Display the message.
+ 01E3  B2 20	 	 	MOV  DL,20H	 	; Display  space.
+ 01E5  B4 02	 	 	MOV  AH,02H	 	; 02H for logical write
+	 	 	 	.
+ 01E7  CD A2	 	 	INT  0A2H	 	; Logical write.
+ 01E9  8A D5	 	 	MOV  DL,CH	 	; Load the code for Mas
+	 	 	 	ter or Slave.
+ 01EB  CD A2	 	 	INT  0A2H	 	; Logical write.
+ 01ED  B2 20	 	 	MOV  DL,20H	 	; Display  space.
+ 01EF  CD A2	 	 	INT  0A2H	 	; Logical write.
+ 01F1  8A D1	 	 	MOV  DL,CL	 	; Load the code for INT
+	 	 	 	R number.
+ 01F3  CD A2	 	 	INT  0A2H	 	; Logical write.
+ 01F5  B0 20	 	 	MOV  AL,20H	 	; OCW2-non specific EOI
+	 	 	 	.
+ 01F7  BA 01A0	 	 	MOV  DX,01A0H
+ 01FA  EE	 	 	OUT  DX,AL 	
+ 01FB  B0 20	 	 	MOV  AL,20H
+ 01FD  BA 01E0	 	 	MOV  DX,01E0H
+ 0200  EE	 	 	OUT  DX,AL
+ 0201  CF	 	 	IRET
+ 	 	 	 	
+ 0202  90	 	 	NOP
+ 0203  90	 	 	NOP
+ 0204  90	 	 	NOP
+ 	 	 	 	
+ 0205  B1 4D	 	 	ISRM0: MOV  CL,4DH 	; Load the code to disp
+	 	 	 	lay Master.
+ 0207  B5 30	 	 	MOV  CH,30H	 	; Code to display "0"
+ 0209  EB D1	 	 	JMP  ISR	 	; Jump  to display MSG0
+	 	 	 	2.
+ 020B  90	 	 	NOP
+ 	 	 	 	
+ 020C  B1 4D	 	 	ISRM1: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 020E  B5 31	 	 	MOV  CH,31H	 	; Code to display "1".
+ 0210  EB CA	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0212  90	 	 	NOP
+ 	 	 	 	
+ 0213  B1 4D	 	 	ISRM2: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 0215  B5 32	 	 	MOV  CH,32H	 	; Code to display "2".
+ 0217  EB C3	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-6
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 0219  90	 	 	NOP
+ 	 	 	 	
+ 021A  B1 4D	 	 	ISRM3: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 021C  B5 33	 	 	MOV  CH,33H	 	; Code to display "3".
+ 021E  EB BC	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0220  90	 	 	NOP
+ 	 	 	 	
+ 0221  B1 4D	 	 	ISRM4: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 0223  B5 34	 	 	MOV  CH,34H	 	; Code to display "4".
+ 0225  EB B5	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0227  90	 	 	NOP
+ 	 	 	 	
+ 0228  B1 4D	 	 	ISRM5: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 022A  B5 35	 	 	MOV  CH,35H	 	; Code to display "5".
+ 022C  EB AE	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 022E  90	 	 	NOP
+ 	 	 	 	
+ 022F  B1 4D	 	 	ISRM6: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 0231  B5 36	 	 	MOV  CH,36H	 	; Code to display "6"
+ 0233  EB A7	 	 	JMP  ISR	   	; Jump  to display MSG0
+	 	 	 	2.
+ 0235  90	 	 	NOP
+ 	 	 	 	
+ 0236  B1 4D	 	 	ISRM7: MOV  CL,4DH	; Code to display Maste
+	 	 	 	r.
+ 0238  B5 37	 	 	MOV  CH,37H	 	; Code to display "7".
+ 023A  EB A0	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 023C  90	 	 	NOP
+ 	 	 	 	
+ 023D  B1 53	 	 	ISRS0: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 023F  B5 30	 	 	MOV  CH,30H	 	; Code to display "0".
+ 0241  EB 99	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0243  90	 	 	NOP
+ 	 	 	 	
+ 0244  B1 53	 	 	ISRS1: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 0246  B5 31	 	 	MOV  CH,31H	 	; Code to display "1".
+ 0248  EB 92	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 024A  90	 	 	NOP
+ 	 	 	 	
+ 024B  B1 53	 	 	ISRS2: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 024D  B5 32	 	 	MOV  CH,32H	 	; Code to display "2".
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-7
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+ 024F  EB 8B	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0251  90	 	 	NOP
+ 	 	 	 	
+ 0252  B1 53	 	 	ISRS3: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 0254  B5 33	 	 	MOV  CH,33H	 	; Code to display "3".
+ 0256  EB 84	 	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0258  90	 	 	NOP
+ 	 	 	 	
+ 0259  B1 53	 	 	ISRS4: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 025B  B5 34	 	 	MOV  CH,34H	 	; Code to display "4"
+ 025D  E9 01DC R	 	JMP  ISR	 	; Jump  to display MSG0
+	 	 	 	2.
+ 0260  90	 	 	NOP
+ 	 	 	 	
+ 0261  B1 53	 	 	ISRS5: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 0263  B5 35	 	 	MOV  CH,35H	 	; Code to display "5".
+ 0265  E9 01DC R	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0268  90	 	 	NOP
+ 	 	 	 	
+ 0269  B1 53	 	 	ISRS6: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 026B  B5 36	 	 	MOV  CH,36H	 	; Code to display "6".
+ 026D  E9 01DC R	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0270  90	 	 	NOP
+ 	 	 	 	
+ 0271  B1 53	 	 	ISRS7: MOV  CL,53H	; Code to display Slave
+	 	 	 	.
+ 0273  B5 37	 	 	MOV  CH,37H	 	; Code to display "7".
+ 0275  E9 01DC R	 	JMP  ISR	 	; Jump to display MSG02
+	 	 	 	.
+ 0278  90	 	 	NOP
+ 	 	 	 	
+ 0279  58 50 4F 03	 	MSG01: DB  "XPO",03H 	; Database to display "
+	 	 	 	XPO".
+ 	 	 	 	 	 	 	; End of text.
+ 	 	 	 	
+ 027D  49 4E 54 03	 	MSG02: DB  "INT",03H	; Database to display "
+	 	 	 	INT"
+ 	 	 	 	 	 	 	; End of text.
+ 	 	 	 	
+ 	 	 	 	
+ 0281	 	 	 	X86P59L2  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8259 PERIWARE IN MASTER MASTER MODE.	 	 	12-04-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P59L2 . . . . . . . . . . . .	0281	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+DN1. . . . . . . . . . . . . . .	L NEAR 	01D2	X86P59L2
+EXIT . . . . . . . . . . . . . .	L NEAR 	01D5	X86P59L2
+ISR. . . . . . . . . . . . . . .	L NEAR 	01DC	X86P59L2
+ISRM0. . . . . . . . . . . . . .	L NEAR 	0205	X86P59L2
+ISRM1. . . . . . . . . . . . . .	L NEAR 	020C	X86P59L2
+ISRM2. . . . . . . . . . . . . .	L NEAR 	0213	X86P59L2
+ISRM3. . . . . . . . . . . . . .	L NEAR 	021A	X86P59L2
+ISRM4. . . . . . . . . . . . . .	L NEAR 	0221	X86P59L2
+ISRM5. . . . . . . . . . . . . .	L NEAR 	0228	X86P59L2
+ISRM6. . . . . . . . . . . . . .	L NEAR 	022F	X86P59L2
+ISRM7. . . . . . . . . . . . . .	L NEAR 	0236	X86P59L2
+ISRS0. . . . . . . . . . . . . .	L NEAR 	023D	X86P59L2
+ISRS1. . . . . . . . . . . . . .	L NEAR 	0244	X86P59L2
+ISRS2. . . . . . . . . . . . . .	L NEAR 	024B	X86P59L2
+ISRS3. . . . . . . . . . . . . .	L NEAR 	0252	X86P59L2
+ISRS4. . . . . . . . . . . . . .	L NEAR 	0259	X86P59L2
+ISRS5. . . . . . . . . . . . . .	L NEAR 	0261	X86P59L2
+ISRS6. . . . . . . . . . . . . .	L NEAR 	0269	X86P59L2
+ISRS7. . . . . . . . . . . . . .	L NEAR 	0271	X86P59L2
+MSG01. . . . . . . . . . . . . .	L NEAR 	0279	X86P59L2
+MSG02. . . . . . . . . . . . . .	L NEAR 	027D	X86P59L2
+RDESC. . . . . . . . . . . . . .	L NEAR 	01CA	X86P59L2
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P59L2
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P59L2
+UP1. . . . . . . . . . . . . . .	L NEAR 	01AD	X86P59L2
+UP2. . . . . . . . . . . . . . .	L NEAR 	01B0	X86P59L2
+
+50042 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

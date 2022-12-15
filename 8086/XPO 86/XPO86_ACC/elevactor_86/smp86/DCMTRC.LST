@@ -1,0 +1,157 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+DC MOTOR SPEED CONTROLLER (ADC+RELAY CARD)	 	 	05-05-99    
+
+
+ 	 	 	 	
+ 	 	 	 	PAGE,85
+ 	 	 	 	;************************************************
+ 	 	 	 	TITLE  DC MOTOR SPEED CONTROLLER (ADC+RELAY CARD)
+ 	 	 	 	;************************************************
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	DCMTRC  SEGMENT
+ 	 	 	 	
+ 	 	 	 	ASSUME CS:DCMTRC, DS:DCMTRC ,ES:DCMTRC
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H  ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 18 90	 	 	STRT: JMP SKIP_DATA  ;SKIP DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT  YOU  NEED  TO  DO  INIT  FOR SP
+ 	 	 	 	;[TO SEPARATE STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET
+ 	 	 	 	;TO  0000H  AT  POWER  ON  BY  MONITOR.
+ 	 	 	 	;YOU  CAN  OFCOURSE  CHANGE  IT BY ADDING
+ 	 	 	 	;A FEW MORE MOVE`S.BUT WHILE WORKING ON PC
+ 	 	 	 	;YOU CAN NOT TOUCH SEGMENT REGISTERS SINCE
+ 	 	 	 	;THEY ARE SET BY DOS LOADER,SO MANAGE THESE
+ 	 	 	 	;INSTRUCTIONS  AS  SHOWN  IN  COMMENT FIELD.
+ 	 	 	 	
+ 0103  53 54 41 52 54 3F	MSG1:  DB "START?",03H
+       03	 	 	
+ 	 	 	 	
+ 010A  53 50 45 45 44 3F	MSG2:  DB "SPEED?",03H
+       03	 	 	
+ 	 	 	 	
+ 0111  44 49 52 20 52 45	MSG3:  DB "DIR REV?",03H
+       56 3F 03	 	 	
+ 	 	 	 	
+ 011A	 	 	 	SKIP_DATA:
+ 011A  B8 11FF	 	 	MOV AX,11FFH  ;INIT OF SP FOR KIT
+ 011D  8B E0	 	 	MOV SP,AX     ;MOV AX,AX   ON PC
+ 011F  0E	 	 	PUSH CS       ;THIS IS BEST WAY TO LOAD DS
+ 0120  1F	 	 	POP DS        ;WITH SEGMENT VALUE.
+ 0121  B8 0000	 	 	MOV AX,0000H  ;SCPD SEG.
+ 0124  8E C0	 	 	MOV ES,AX
+ 0126  90	 	 	NOP           ;LOAD KIT INT S (A0-BF) IN PC
+ 0127  90	 	 	NOP           ;CALL LDINPC
+ 0128  90	 	 	NOP           ;PLACE ABOVE CALL IN NOP`S
+ 0129  CD AC	 	 	INT 0ACH      ;CLEAR DISPLAY
+ 	 	 	 	
+ 012B  BB 0103 R	 	MOV BX,OFFSET MSG1 ;DISPLAY "START ?"
+ 012E  CD AF	 	 	INT 0AFH           ;MESSAGE OUT
+ 	 	 	 	
+ 0130	 	 	 	TEST:
+ 0130  B4 08	 	 	MOV AH,08H    ;READ
+ 0132  CD A1	 	 	INT 0A1H      ;LOOK FOR KEYBOARD I/P
+ 0134  3C 0D	 	 	CMP AL,0DH    ;CMP KEY PRESS IS ENTER (CR)
+ 0136  74 02	 	 	JZ START
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+DC MOTOR SPEED CONTROLLER (ADC+RELAY CARD)	 	 	05-05-99    
+
+
+ 0138  EB F6	 	 	JMP TEST
+ 	 	 	 	
+ 	 	 	 	;8255 INITIALISATION & ADC.
+ 	 	 	 	
+ 013A	 	 	 	START:
+ 013A  B8 8080	 	 	MOV AX,8080H ;INIT 8255U- A,B,C-O/P.
+ 013D  BA 8006	 	 	MOV DX,8006H
+ 0140  EF	 	 	OUT DX,AX
+ 0141  B8 0101	 	 	MOV AX,0101H ;PC0=1,SMALLEST COUNT.
+ 0144  BA 8004	 	 	MOV DX,8004H
+ 0147  EF	 	 	OUT DX,AX
+ 0148  BA 8000	 	 	MOV DX,8000H
+ 014B  EF	 	 	OUT DX,AX
+ 	 	 	 	
+ 014C	 	 	 	STORE:
+ 014C  26: A3 1000	 	MOV ES:[1000H],AX
+ 	 	 	 	
+ 0150	 	 	 	SPEED:
+ 0150  CD AC	 	 	INT 0ACH     ;CLEAR DISPLAY
+ 0152  BB 010A R	 	MOV BX,OFFSET MSG2 ;DISPLAY "SPEED ?"
+ 0155  B0 02	 	 	MOV AL,02H   ;NO OF DIGIT DISPLAYED
+ 0157  B4 10	 	 	MOV AH,10H   ;FOR HEX NO.SYSTEM
+ 0159  CD B9	 	 	INT 0B9H     ;MESSAGE OUT + RECEIVE NUMBER
+ 	 	 	 	
+ 015B  8A C2	 	 	MOV AL,DL
+ 015D  8A E2	 	 	MOV AH,DL
+ 015F  BA 8000	 	 	MOV DX,8000H ;OUT ENTERED DATA ON PORT A
+ 0162  EF	 	 	OUT DX,AX
+ 	 	 	 	
+ 0163  CD AC	 	 	INT 0ACH     ;CLEAR DISPLAY
+ 	 	 	 	
+ 0165  BB 0111 R	 	MOV BX,OFFSET MSG3 ;DISPLAY "DIR REC ?"
+ 0168  CD AF	 	 	INT 0AFH
+ 	 	 	 	
+ 016A  B4 08	 	 	MOV AH,08H   ;READ
+ 016C  CD A1	 	 	INT 0A1H     ;LOOK FOR KEYBOARD I/P
+ 016E  3C 0D	 	 	CMP AL,0DH   ;COMPARE KEY PRESSED IS ENTER (CR)
+ 0170  75 DE	 	 	JNZ SPEED    ;GOFOR SPEED WITH SAME DIRECTION
+ 0172  B8 2222	 	 	MOV AX,2222H ;SLOW DOWN THE MOTOR
+ 0175  BA 8000	 	 	MOV DX,8000H ;OUT ENTERED DATA ON PORT A
+ 0178  EF	 	 	OUT DX,AX
+ 0179  B9 0FFF	 	 	MOV CX,0FFFH    ;DELAY COUNT
+ 017C  CD AA	 	 	INT 0AAH        ;CALL DELAY
+ 017E  B8 0101	 	 	MOV AX,0101H    ;STOP THE MOTOR
+ 0181  BA 8000	 	 	MOV DX,8000H    ;OUT ENTERED DATA ON PORT A
+ 0184  EF	 	 	OUT DX,AX
+ 0185  26: 8B 16 1000	 	MOV DX,ES:[1000H]
+ 018A  BB 0202	 	 	MOV BX,0202H
+ 018D  33 D3	 	 	XOR DX,BX
+ 018F  81 CA 0101	 	OR DX,0101H
+ 0193  8B C2	 	 	MOV AX,DX
+ 0195  BA 8004	 	 	MOV DX,8004H ;DIR GIVEN TO PORT C OF 8255
+ 0198  EF	 	 	OUT DX,AX
+ 0199  EB B1	 	 	JMP STORE
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+DC MOTOR SPEED CONTROLLER (ADC+RELAY CARD)	 	 	05-05-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;IF YOU ARE RUNNING YOUR SOFTWARE ON PC
+ 	 	 	 	;INSERT HERE -->INCLUDE KIT_INTS.ASM
+ 	 	 	 	;READ FOR MORE INFO TITLE OF KIT_INTS.ASM
+ 	 	 	 	
+ 019B	 	 	 	DCMTRC  ENDS
+ 	 	 	 	END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols-1
+DC MOTOR SPEED CONTROLLER (ADC+RELAY CARD)	 	 	05-05-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+DCMTRC . . . . . . . . . . . . .	019B	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+MSG1 . . . . . . . . . . . . . .	L NEAR 	0103	DCMTRC
+MSG2 . . . . . . . . . . . . . .	L NEAR 	010A	DCMTRC
+MSG3 . . . . . . . . . . . . . .	L NEAR 	0111	DCMTRC
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	011A	DCMTRC
+SPEED. . . . . . . . . . . . . .	L NEAR 	0150	DCMTRC
+START. . . . . . . . . . . . . .	L NEAR 	013A	DCMTRC
+STORE. . . . . . . . . . . . . .	L NEAR 	014C	DCMTRC
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	DCMTRC
+TEST . . . . . . . . . . . . . .	L NEAR 	0130	DCMTRC
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

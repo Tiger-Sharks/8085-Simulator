@@ -1,0 +1,31 @@
+ASSIGNMENT NO:
+;This program gives the EVEN NOS from given series.
+;The series is entered manually at Battery backed memory location 1000:0103H.
+;Result will be stored at scrach pad memory location 0000:1000H.Use SUBSTITUTE
+ MEMORY Command to verify.
+
+1000:0100 EB06          JMP     0108           ;Skip data                                          
+1000:0102 90            NOP                           
+1000:0103 1122          ADC     [BP+SI],SP     ;store 5 no data byte                                       
+1000:0105 334455        XOR     AX,[SI+55]     ;from 0103 to 0107                                         
+1000:0108 B8FF10        MOV     AX,10FF        ;Init sp reg.                              
+1000:010B 89C4          MOV     SP,AX                                
+1000:010D 0E            PUSH    CS             ;store CS                      
+1000:010E 1F            POP     DS             ;Init DS                                              
+1000:010F B80000        MOV     AX,0000        ;Init SCPD                                      
+1000:0112 8EC0          MOV     ES,AX                                     
+1000:0114 B90500        MOV     CX,0005        ;Init counter                                
+1000:0117 BE0301        MOV     SI,0103        ;Init source index                               
+1000:011A BF0010        MOV     DI,1000        ;Init destination index                               
+1000:011D 8A1C          MOV     BL,[SI]                     
+1000:011F 8A04          MOV     AL,[SI]        ;Data byte in AL
+1000:0121 D0C8          ROR     AL,1           ;check LSB for 1
+1000:0123 7204          JB      0129           ;if yes goto skip 
+1000:0125 26            ES:                    ;store result at mem 
+1000:0126 881D          MOV     [DI],BL        ;shown by destination  
+1000:0128 47            INC     DI
+1000:0129 46            INC     SI
+1000:012A 49            DEC     CX             ;continue if cx<>0  
+1000:012B 75F0          JNZ     011D           ;return to command mode
+1000:012D CDA5          INT     A5
+

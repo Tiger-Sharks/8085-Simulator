@@ -1,0 +1,49 @@
+	PAGE 80
+	TITLE--	MULTIBYTE ADDITION WITH THREE VARIALES
+;****FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+;    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+;    THE SAME FROM 012D:0100[0000:13D0] AND EXECUTE.
+;
+;*****MULTY BYTE ADDITION WITH 3 VARIABLES-THIS EXAMPLE SHOWS THE 
+;     ADDITION OF THREE VARIABLES.EACH IS A VERY LONG INTEGER STORED IN
+;     8 BYTES AT 00F0:0103 AND 00F0:010B AND 00F0:0113 IN SCRATCH PAD 
+      RAM =0000:1003,100B,1013[PL.ENTER CONTENTS BY HAND.],CONTENTS OF
+;     FIRST ARE ADDED TO SECOND VARIABLE THEN STORED INTO THIRD VARIABL
+
+101D:0100 EB19          JMP	011B                               
+101D:0102 90            NOP	                                   
+101D:0103 0000          ADD	[BX+SI],AL                         
+101D:0105 0000          ADD	[BX+SI],AL                         
+101D:0107 0000          ADD	[BX+SI],AL                         
+101D:0109 0000          ADD	[BX+SI],AL                         
+101D:010B 0000          ADD	[BX+SI],AL                         
+101D:010D 0000          ADD	[BX+SI],AL                         
+101D:010F 0000          ADD	[BX+SI],AL                         
+101D:0111 0000          ADD	[BX+SI],AL                         
+101D:0113 0000          ADD	[BX+SI],AL                         
+101D:0115 0000          ADD	[BX+SI],AL                         
+101D:0117 0000          ADD	[BX+SI],AL                         
+101D:0119 0000          ADD	[BX+SI],AL                         
+101D:011B B8FF11        MOV	AX,11FF     ;INIT OF SP FOR KIT 
+101D:011E 8BE0          MOV	SP,AX       ;MOV AX,AX   ON PC 
+101D:0120 0E            PUSH	CS          ;INIT FOR DS                    
+101D:0121 1F            POP	DS          ;                                
+101D:0122 B8F000        MOV	AX,00F0     ;INIT FOR ES 
+101D:0125 8EC0          MOV	ES,AX       ;INTO SCPD AT 0000:1000
+101D:0127 B90800        MOV	CX,0008     ;NUMBER OF BYTES IN EACH 
+					    ;VARIABL 
+101D:012A BE0000        MOV	SI,0000     ;INDEX INITIALIZED TO 0          
+101D:012D F8            CLC	                                            
+101D:012E 26            ES:	            
+101D:012F 8A840301      MOV	AL,[SI+0103];GET V1                         
+101D:0133 26            ES:	            ;ADD V2 ALONG WITH  PRV CY      
+101D:0134 12840B01      ADC	AL,[SI+010B]   
+101D:0138 26            ES:	             
+101D:0139 88841301      MOV	[SI+0113],AL;STORE THE RESULT BYTE           
+101D:013D 46            INC	SI          ;BUMP INDEX POINTER               
+101D:013E E2EE          LOOP	012E        ;DECREMENT CX REPEAT TILL 0 
+	                                    ; REPEATED 8 TIMES.
+101D:0140 CDA5          INT	A5          ;RETURN TO SAVING REGS
+
+                                            
+                                            

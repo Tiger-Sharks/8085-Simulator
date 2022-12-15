@@ -1,0 +1,76 @@
+                
+                ; TITLE : TO  ARRANGE N-ONE BYTE NUMBERS IN DESCENDING ORDER USING BUBBLE
+                ;         SORT. N-IS STORED AT LOCATION X i.e.[TNUM] AND NUMBERS START
+                ;         FROM LOCATION X+1 i.e.[START].
+                
+                ;A PROGRAM LOADS TWO COUNTERS. 
+                ;PROGRAM COPIES A NUMBER SPECIFIED BY HL PAIR  COMPAIRS WITH NEXT 
+                ;SUCCESSIVE NUMBER AND STORES SMALL NUMBER OUT OF TWO AT HIGHER MEM. 
+                ;LOCATION AND INCREMENT MEM. POINTER.AT THE END OF FIRST COUNTER SMALLEST 
+                ;NUMBER IS AT THE BOTTOM.DESCRESE SECOND COUNTER SUCCESSIVELY BY ONE 
+                ;AND LOAD FIRST COUNTER WITH VALUE OF SECOND. AT THE END OF SECOND COUNTER 
+                ;YOU WILL GET SORTED ARRAY.
+                
+                ;REGISTER MODIFIED : A,B,C,D,E,H,L.
+                
+                ;MEMORY LOCATION MODIFIED: FROM START(20C1H) TO START+TNUM (20C1+TNUM).
+                                    
+                ;INPUT TO PROGRAM
+                ;TOTAL NUMBERS FOR SORTING AT LOCATION X =START=20C1H
+                ;NUMBERS STORED FOR SORTING IN MEM. FROM X+1 LOCATION ONWARD
+                
+                ;OUTPUT OF PROGRAM
+                ;SORTED NUMBERS FROM LOCATION =START+1=20C2H
+                
+                ;OUTPUT OF PROGRAM
+                
+                
+ 0000                          CPU"8085.TBL"      ;PROGRAM EXECUITABLE ON 8085 CPU
+ 0000                          HOF"INT8"          ;HEX FILE OF INTELHEX FORMAT
+                                    
+                
+                ;MONITOR SUBROUTINE EQUITIES
+                
+                
+                
+ 6370                                ORG 6370H    ;START  PROGRAM FROM 6000H
+                
+                ;START OF PROGRAM
+                
+ 6370 21C020                         LXI H,20C0H  ;TNUM = MEM. LOCATION OF N
+                                                  ;i.e.TOTAL NUMBERS FOR ARRANGING.
+ 6373 56                             MOV D,M      ;COUNTER
+ 6374 46                             MOV B,M      ;COUNTER
+ 6375 23                             INX H
+ 6376 48                   LOOP1:    MOV C,B  
+ 6377 7E                   LOOP:     MOV A,M
+ 6378 23                             INX H
+ 6379 BE                             CMP M 
+ 637A D28363                         JNC LARGE    ;JUMP IF 1st IS LARGE
+                                                        
+ 637D 5F                             MOV E,A
+ 637E 7E                             MOV A,M      ;INTERCHANGE THE NUMBERS
+ 637F 2B                             DCX H        ;IN MEMORY
+ 6380 77                             MOV M,A
+ 6381 23                             INX H
+ 6382 73                             MOV M,E
+                                    
+ 6383 0D                    LARGE:   DCR C
+ 6384 C27763                         JNZ LOOP
+ 6387 21C120                         LXI H,20C1H  ;LOAD STARTING ADDRESS
+ 638A 05                             DCR B
+ 638B C27663                         JNZ LOOP1
+                                     
+ 638E CF                             RST 1
+                            
+                            
+                
+                           
+                
+                ;END OF PROGRAM                              
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    0003  E                    0004  H             
+0005  L                    6383  LARGE                6377  LOOP          
+6376  LOOP1                0006  M                    
+

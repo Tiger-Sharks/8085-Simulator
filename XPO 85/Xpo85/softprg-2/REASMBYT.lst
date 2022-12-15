@@ -1,0 +1,74 @@
+ AS V1.42 Beta [Bld 56] - source file REASMBYT.ASM - page 1 - 2/13/2008 19:00:53
+
+
+       1/       0 :                     		cpu 8085
+       2/       0 :                     	
+       3/       0 :                     ; Re-assembly of a dis-assembled byte.
+       4/       0 :                     ; The dis-assembled nibbles are stores at locations
+       5/       0 :                     ; 2100 and 2101. (Lower:Upper)
+       6/       0 :                     ; The combined result is stored at location 2102.
+       7/       0 :                     ; e.g.
+       8/       0 :                     ; If location 2100:2101 contain 02h and 04h respectively
+       9/       0 :                     ; then when the program completes running location 2102
+      10/       0 :                     ; will have 42h stored.
+      11/       0 :                     
+      12/    6545 :                     		org 6545h		;Two bytes blank after end of previous program
+      13/    6545 :                     	start:
+      14/    6545 : 21 00 21            		lxi h,2100h		;Pointer to lower nibble
+      15/    6548 : 7E                  		mov a,m
+      16/    6549 : E6 0F               		ani 0fh		;mask upper four bits.
+      17/    654B : 47                  		mov b,a			;Store this nibble to b
+      18/    654C :                     		
+      19/    654C : 23                  		inx h			;Point hl pair to higher nibble.
+      20/    654D : 7E                  		mov a,m
+      21/    654E : E6 0F               		ani 0fh			;mask upper four bits
+      22/    6550 : 07                  		rlc
+      23/    6551 : 07                  		rlc				;mov lower four bits to upper four bit
+      24/    6552 : 07                  		rlc				;locations
+      25/    6553 : 07                  		rlc
+      26/    6554 : B0                  		ora b			;OR lower and upper nibbles to form complete byte
+      27/    6555 : 23                  		inx h			;Point hl pair to storage destination location.
+      28/    6556 : 77                  		mov m,a			;Store assembled nibble
+      29/    6557 : CF                  		rst 1				;Stop
+      30/    6558 :                     		
+      31/    6558 :                     ;Last address used by the program is 19A3h = 6563		
+ AS V1.42 Beta [Bld 56] - source file REASMBYT.ASM - page 2 - 2/13/2008 19:00:53
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6545 C |
+*TIME :                    19:00:53 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     29 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file REASMBYT.ASM - page 3 - 2/13/2008 19:00:53
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     31 lines source file
+      1 pass
+      0 errors
+      0 warnings

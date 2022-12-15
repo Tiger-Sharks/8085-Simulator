@@ -1,0 +1,121 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	08-21-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;****FOLLOWING LISTING IS W.R.T. BATTERY BACKED
+	 	 	 	 RAM AT 10000H BUT THIS
+ 	 	 	 	;    PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCA
+	 	 	 	TED AT 00000H .PL. ENTER
+ 	 	 	 	;    THE SAME FROM 0138:0100[0000:1480] AND EXE
+	 	 	 	CUTE. 
+ 	 	 	 	
+ 	 	 	 	;*******CONVERTING A LOWER CASE STRING TO UPPER
+	 	 	 	 CASE
+ 	 	 	 	;	---------------------------------------
+	 	 	 	-----
+ 	 	 	 	;PASCAL CONSTRUCT--
+ 	 	 	 	;VAR
+ 	 	 	 	;  s	 	: string[20];
+ 	 	 	 	;  i	 	: integer;
+ 	 	 	 	;BEGIN
+ 	 	 	 	;  FOR i := 1 TO 20 do
+ 	 	 	 	;	if (ord(s[i] >= ord ('a')) and (ord(s[i
+	 	 	 	] <= ord('z)) then
+ 	 	 	 	;	 	s[i] := chr(ord(s[i] + ord 'A')
+	 	 	 	 - ORD ('a'));
+ 	 	 	 	;END.
+ 	 	 	 	
+ 	 	 	 	;S	DB      20 DUP (?)   LOCATED AT 0100:01
+	 	 	 	2A [=0000:112A] IN SCPD
+ 	 	 	 	;	 	 	     ENTER HEX NOS BETW
+	 	 	 	EEN 41-7A U/LOWER CASE.
+ 	 	 	 	
+ 0000	 	 	 	X86LTOH 	SEGMENT
+ 	 	 	 	ASSUME CS:X86LTOH, DS:X86LTOH ,ES:X86LTOH 
+ 0100	 	 	 	ORG 100H	        ;Com format 
+ 	 	 	 	                        ;is recommended.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA   ;skip look up/ 
+ 	 	 	 	 	 	 	;data bases if any
+ 	 	 	 	;On kit you need to do init for SP[to 
+ 	 	 	 	;separate stack of your program from
+ 	 	 	 	;monitors], DS as shown below. SS,ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You 
+ 	 	 	 	;can of course change it by adding a few 
+ 	 	 	 	;more moves. But while working on pc you 
+ 	 	 	 	;can't touch segment registers since 
+ 	 	 	 	;they are set by dos loader, so manage 
+ 	 	 	 	;these instructions as shown in comment 
+ 	 	 	 	;field.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV	AX,10FFH ;INIT OF SP FOR KIT           
+	 	 	 	    
+ 0106  8B E0	 	 	MOV	SP,AX                                  
+	 	 	 	        
+ 0108  0E	 	 	PUSH	CS       ;INIT FOR DS                  
+	 	 	 	      
+ 0109  1F	 	 	POP	DS       ;                             
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	08-21-99    
+
+
+	 	 	 	      
+ 010A  90	 	 	NOP	                                       
+	 	 	 	        
+ 010B  90	 	 	NOP	                                       
+	 	 	 	        
+ 010C  90	 	 	NOP	                                       
+	 	 	 	        
+ 010D  B8 0100	 	 	MOV	AX,0100H                               
+	 	 	 	         
+ 0110  8E C0	 	 	MOV	ES,AX    ;INIT OF ES                   
+	 	 	 	      
+ 0112  B9 0014	 	 	MOV	CX,0014H ;LOOP COUNTER                 
+	 	 	 	      
+ 0115  BE 012A	 	 	MOV	SI,012AH ;POINTS TO START OF STRING
+ 0118  26: 8A 04	 	LUP:MOV	AL,ES:[SI] ;GET NEXT CHARACTER S[I]    
+	 	 	 	 
+ 011B  3C 61	 	 	CMP	AL,61H 	;S[I] >= 'A'?         
+ 011D  72 09	 	 	JB	NOTL    ;NO, NOT LOWER CASSE           
+	 	 	 	    
+ 011F  3C 7A	 	 	CMP	AL,7AH  ;YES, S[I] <= 'Z'?       
+ 0121  77 05	 	 	JA	NOTL    ;NO NOT LOWER CASE             
+	 	 	 	     
+ 0123  04 E0	 	 	ADD	AL,0E0H ;IT IS LOWER CASE.CONVRT TO 
+ 	 	 	 	 	 	;UPPER BY ADDING OFFSET
+ 0125  26: 88 04	 	MOV	ES:[SI],AL ;STORE CHARACTER BACK       
+	 	 	 	        
+ 0128  46	 	 	NOTL:INC SI     ;BUMP STRING POINTER           
+	 	 	 	     
+ 0129  E2 ED	 	 	LOOP	LUP     ;REPEAT FOR ALL STRING CHRS   
+ 012B  CD A5	 	 	INT	0A5H          
+ 	 	 	 	
+ 012D	 	 	 	X86LTOH	 	ENDS 
+ 	 	 	 	    END 	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	08-21-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86LTOH. . . . . . . . . . . . .	012D	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+LUP. . . . . . . . . . . . . . .	L NEAR 	0118	X86LTOH
+NOTL . . . . . . . . . . . . . .	L NEAR 	0128	X86LTOH
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86LTOH
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86LTOH
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

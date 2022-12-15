@@ -1,0 +1,22 @@
+ 0000                   CPU "8085.TBL"
+ 0000                   HOF "INT8"
+ 75B2                   ORG 75B2H
+ 0008 =                 PORTA: EQU 08H
+ 0009 =                 PORTB: EQU 09H
+ 000B =                 CONTW: EQU 0BH
+ 0013 =                 CMDWDP: EQU 0013H
+ 2072 =                 TEST: EQU 2072H
+ 75B2 3E90              MVI A,90H
+ 75B4 D30B              OUT CONTW
+ 75B6 DB08       BACK:  IN PORTA
+ 75B8 D309              OUT PORTB
+ 75BA CD7220            CALL TEST
+ 75BD D21300            JNC CMDWDP
+ 75C0 C3B675            JMP BACK
+ 0000                   END
+0007  A                    0000  B                    75B6  BACK          
+0001  C                    0013  CMDWDP               000B  CONTW         
+0002  D                    0003  E                    0004  H             
+0005  L                    0006  M                    0008  PORTA         
+0009  PORTB                2072  TEST                 
+

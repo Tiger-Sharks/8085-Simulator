@@ -1,0 +1,9 @@
+
+Warning: No STACK segment
+
+ Start  Stop   Length  Name                   Class
+ 00000H 00124H 0125H  STEPPER                
+
+ Origin   Group
+
+Program entry point at 0000:0100

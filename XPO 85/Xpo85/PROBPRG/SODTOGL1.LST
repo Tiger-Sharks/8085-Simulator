@@ -1,0 +1,22 @@
+                ;TOGGLING OF DTR (8251)
+ 0000                           CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 0615 =         DELAY:  EQU 0615H
+                
+ 64F0                   ORG 64F0H
+ 64F0 3EC0      START:  MVI A,0C0H
+ 64F2 30                SIM
+ 64F3 11FFFF            LXI D,0FFFFH
+ 64F6 CD1506            CALL DELAY
+ 64F9 3E40              MVI A,40H
+ 64FB 30                SIM
+ 64FC 11FFFF            LXI D,0FFFFH
+ 64FF CD1506            CALL DELAY
+ 6502 C3F064            JMP START
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    0615  DELAY                0003  E             
+0004  H                    0005  L                    0006  M             
+64F0  START                
+

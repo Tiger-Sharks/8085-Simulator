@@ -1,0 +1,48 @@
+                
+ 0000           		CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 036C =         NMOUT:  EQU 036CH
+ 0497 =         CRONLY: EQU 0497H
+ 0013 =         CMDWDP: EQU 0013H
+ 2100 =         DATA:   EQU 2100H
+ 2200 =         RESULT: EQU 2200H
+ 62C0                   ORG 62C0H
+ 62C0 31F027            LXI SP,27F0H
+ 62C3 210021            LXI H,DATA
+ 62C6 4E                MOV C,M
+ 62C7 23                INX H
+ 62C8 AF                XRA A
+ 62C9 57                MOV D,A
+ 62CA CDE462    NXTBYT: CALL ADDTN
+ 62CD 23                INX H
+ 62CE 5F                MOV E,A
+ 62CF 0D                DCR C
+ 62D0 C2CA62            JNZ NXTBYT
+ 62D3 210022            LXI H,RESULT
+ 62D6 73                MOV M,E
+ 62D7 23                INX H
+ 62D8 72                MOV M,D
+ 62D9 CD8A04            CALL CRLF
+ 62DC 0604              MVI B,04H
+ 62DE CD6C03            CALL NMOUT
+ 62E1 CD1300            CALL CMDWDP
+ 62E4 86        ADDTN:  ADD M
+ 62E5 D0                RNC
+ 62E6 5F                MOV E,A
+ 62E7 7A                MOV A,D
+ 62E8 C601              ADI 01H
+ 62EA 57                MOV D,A
+ 62EB 7B                MOV A,E
+ 62EC C9                RET
+                
+                
+                
+                	END
+0007  A                    62E4  ADDTN                0000  B             
+0001  C                    0013  CMDWDP               048A  CRLF          
+0497  CRONLY               0002  D                    2100  DATA          
+0003  E                    0004  H                    0005  L             
+0006  M                    036C  NMOUT                62CA  NXTBYT        
+2200  RESULT               
+

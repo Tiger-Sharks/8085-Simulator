@@ -1,0 +1,120 @@
+7255 31 00 21     LXI	SP,2100H
+7258 CD 8A 04     CALL	048AH
+725B 3E FF        MVI	A,FFH
+725D 11 B0 20     LXI	D,20B0H
+7260 01 BF 20     LXI	B,20BFH
+7263 CD C2 05     CALL	05C2H
+7266 11 C0 20     LXI	D,20C0H
+7269 01 CF 20     LXI	B,20CFH
+726C CD C2 05     CALL	05C2H
+726F 3E 07        MVI	A,07H
+7271 32 D0 20     STA	20D0H
+7274 3E 00        MVI	A,00H
+7276 32 D1 20     STA	20D1H
+7279 3E FE        MVI	A,FEH
+727B 32 D2 20     STA	20D2H
+727E D3 08        OUT	08H
+7280 3A D1 20     LDA	20D1H
+7283 4F           MOV	C,A
+7284 21 B0 20     LXI	H,20B0H
+7287 11 C0 20     LXI	D,20C0H
+728A 06 00        MVI	B,00H
+728C 09           DAD	B
+728D 46           MOV	B,M
+728E DB 09        IN	09H
+7290 F6 FC        ORI	FCH
+7292 77           MOV	M,A
+7293 B0           ORA	B
+7294 EB           XCHG
+7295 06 00        MVI	B,00H
+7297 09           DAD	B
+7298 4E           MOV	C,M
+7299 77           MOV	M,A
+729A 2F           CMA
+729B A1           ANA	C
+729C 2F           CMA
+729D FE FF        CPI	FFH
+729F CA DC 72     JZ	72DCH
+72A2 21 04 73     LXI	H,7304H
+72A5 4F           MOV	C,A
+72A6 3A D1 20     LDA	20D1H
+72A9 3C           INR	A
+72AA 47           MOV	B,A
+72AB 7E           MOV	A,M
+72AC B8           CMP	B
+72AD CA C5 72     JZ	72C5H
+72B0 23           INX	H
+72B1 7E           MOV	A,M
+72B2 3C           INR	A
+72B3 C2 B0 72     JNZ	72B0H
+72B6 23           INX	H
+72B7 7E           MOV	A,M
+72B8 FE FF        CPI	FFH
+72BA C2 AB 72     JNZ	72ABH
+72BD 3E 3F        MVI	A,3FH
+72BF CD 78 20     CALL	2078H
+72C2 C3 DC 72     JMP	72DCH
+72C5 23           INX	H
+72C6 7E           MOV	A,M
+72C7 3C           INR	A
+72C8 CA DC 72     JZ	72DCH
+72CB 79           MOV	A,C
+72CC 0F           RRC
+72CD 4F           MOV	C,A
+72CE DA C5 72     JC	72C5H
+72D1 7E           MOV	A,M
+72D2 B7           ORA	A
+72D3 CA BD 72     JZ	72BDH
+72D6 CD 78 20     CALL	2078H
+72D9 C3 C5 72     JMP	72C5H
+72DC 16 00        MVI	D,00H
+72DE 1E 20        MVI	E,20H
+72E0 CD 15 06     CALL	0615H
+72E3 CD 72 20     CALL	2072H
+72E6 DA EE 72     JC	72EEH
+72E9 FE 1B        CPI	1BH
+72EB CA 0C 00     JZ	000CH
+72EE 3A D0 20     LDA	20D0H
+72F1 4F           MOV	C,A
+72F2 3A D1 20     LDA	20D1H
+72F5 B9           CMP	C
+72F6 D2 6F 72     JNC	726FH
+72F9 3C           INR	A
+72FA 32 D1 20     STA	20D1H
+72FD 3A D2 20     LDA	20D2H
+7300 07           RLC
+7301 C3 7B 72     JMP	727BH
+7304 01           DFB   01H    
+7305 45           DFB                 
+7306 32           DFB         
+7307 32           DFB                   
+7308 FF           DFB         
+7309 02           DFB               
+730A 00           DFB
+730B 31           DFB                 
+730C FF           DFB
+730D 03           DFB            
+730E 30           DFB
+730F 34           DFB         
+7310 FF           DFB
+7311 04           DFB            
+7312 00           DFB
+7313 33           DFB          
+7314 FF           DFB
+7315 05           DFB   
+7316 52           DFB           
+7317 36           DFB  
+7318 FF           DFB            
+7319 06           DFB  
+731A 00           DFB   
+731B 35           DFB   
+731C FF           DFB           
+731D 07           DFB        
+731E 39           DFB
+731F 38           DFB
+7320 FF           DFB
+7321 08           DFB
+7322 00           DFB
+7323 37           DFB
+7324 FF           DFB
+7325 FF           DFB

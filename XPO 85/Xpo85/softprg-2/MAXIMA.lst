@@ -1,0 +1,69 @@
+ AS V1.42 Beta [Bld 56] - source file MAXIMA.ASM - page 1 - 2/13/2008 19:00:59
+
+
+       1/       0 :                     	cpu 8085
+       2/       0 :                     	
+       3/       0 :                     	;Program to find maxima in given series of data.
+       4/       0 :                     	;Number of data points is specified at location 2100h
+       5/       0 :                     	;Data points start from location 2102h
+       6/       0 :                     	;The result is stored in location 2101h
+       7/       0 :                     	
+       8/    6690 :                     	org 6690h		;Four bytes blank after previous program
+       9/    6690 :                     	start:
+      10/    6690 : 21 00 21            		lxi h,2100h
+      11/    6693 : 4E                  		mov c,m		;Number of data points to C.
+      12/    6694 : AF                  		xra a		;Clear accumulator
+      13/    6695 : 23                  		inx h
+      14/    6696 :                     	cmp_next:
+      15/    6696 : 23                  		inx h		;Point to first number to compare
+      16/    6697 : BE                  		cmp m		;Compare with accumulator
+      17/    6698 : D2 9C 66            		jnc next	;If current number is larget keep
+      18/    669B : 7E                  		mov a,m		;else declare new number as largest
+      19/    669C :                     	next:
+      20/    669C : 0D                  		dcr c
+      21/    669D : C2 96 66            		jnz cmp_next
+      22/    66A0 : 32 01 21            		sta 2101h	;Store largest number to location 2101h
+      23/    66A3 : CF                  		rst 1
+      24/    66A4 :                     	
+      25/    66A4 :                     ;Last address used by the program 1A36h == 6710	
+ AS V1.42 Beta [Bld 56] - source file MAXIMA.ASM - page 2 - 2/13/2008 19:00:59
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+ CMP_NEXT :                    6696 C | *CONSTPI :        3.141592653589793 - |
+*DATE :                   2/13/2008 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - |  NEXT :                        669C C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6690 C |
+*TIME :                    19:00:59 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     31 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file MAXIMA.ASM - page 3 - 2/13/2008 19:00:59
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     25 lines source file
+      2 passes
+      0 errors
+      0 warnings

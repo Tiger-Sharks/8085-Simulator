@@ -1,0 +1,39 @@
+                
+                ;TITLE : DIVISION TWO ONE BYTE BINARY NUMBER.
+                
+                
+ 0000                              CPU"8085.TBL"   ;CPU USED IS 8085.
+ 0000                              HOF"INT8"       ;INTELHEX 8 BIT FORMAT IS USED.
+                
+                
+ 20C0 =                        REMNDR:  EQU 20C0H
+ 20C1 =                        QUTINT:  EQU 20C1H
+ 6460                               ORG 6460H
+                
+ 6460 3A7B64                        LDA DIVSOR
+ 6463 47                            MOV B,A
+ 6464 3A7C64                        LDA DIVDND
+ 6467 0E00                          MVI C,00H
+ 6469 B8                            CMP B
+ 646A DA7364                        JC LOOP
+ 646D 90                   LOOP1:   SUB B
+ 646E 0C                            INR C
+ 646F B8                            CMP B
+ 6470 D26D64                        JNC LOOP1
+ 6473 32C020                LOOP:   STA REMNDR
+ 6476 79                            MOV A,C
+ 6477 32C120                        STA QUTINT
+ 647A CF                            RST 1
+                
+ 647B 08                    DIVSOR: DFB 08H
+ 647C 42                    DIVDND: DFB 42H
+                     
+                ;END OF PROGRAM
+                                      
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    647C  DIVDND               647B  DIVSOR        
+0003  E                    0004  H                    0005  L             
+6473  LOOP                 646D  LOOP1                0006  M             
+20C1  QUTINT               20C0  REMNDR               
+

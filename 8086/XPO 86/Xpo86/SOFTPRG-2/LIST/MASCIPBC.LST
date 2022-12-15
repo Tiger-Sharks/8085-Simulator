@@ -1,0 +1,102 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	; PROGRAM TO CONVERT ASCII TO PACKED BCD NUMBER
+	 	 	 	.
+ 	 	 	 	; THIS PROGRAM TAKES TWO UNPACKED ASCII NUMBERS
+	 	 	 	 (30H TO 39H) AND CONVERTS
+ 	 	 	 	; THEM TO A SINGLE PACKED BCD NUMBER. SUCH INPU
+	 	 	 	T IS USUALLY RECEIVED ON THE
+ 	 	 	 	; SERIAL PORT FROM USERS.
+ 	 	 	 	; A BCD NUMBER 43 WILL BE REPRESENTED AS 34H,33
+	 	 	 	H IN UNPACKED ASCII
+ 	 	 	 	; REPRESENTATION.
+ 	 	 	 	; TO CONVERT IT TO BCD, SIMPLY SUBTRACT 30H FRO
+	 	 	 	M EACH DIGIT. ROTATE THE UPPER
+ 	 	 	 	; DIGIT LEFT BY FOUR LOCATIONS AND SUBSTITUTE T
+	 	 	 	HE LOWER NIBBLE OF THE BYTE
+ 	 	 	 	; WITH THE LOWER DIGIT.
+ 	 	 	 	 	
+ 0000	 	 	 	COMSEG SEGMENT
+ 	 	 	 	 	ASSUME CS:COMSEG, DS:COMSEG, SS:COMSEG,
+	 	 	 	 ES:COMSEG
+ 	 	 	 	 	
+ 0100	 	 	 	 	ORG 0100H	 	 	;ORG FO
+	 	 	 	R COM STRUCTURED PROGRAMS (ALL SEGMENTS IN ONE 
+	 	 	 	SEGMENT
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	;AND PROGRAM MAXIMUM SIZE 64KBYTES.)
+ 	 	 	 	 	
+ 0100	 	 	 	START:
+ 0100  EB 03 90	 	 	 	JMP SKIP_DATA	 	;SKIP OVER DATA
+	 	 	 	 DECLARATIONS
+ 	 	 	 	
+ 	 	 	 	;--------------DEFINE DATA SIZES AND NAMES-----
+	 	 	 	---
+ 	 	 	 	
+ 0103  36	 	 	NUM1 DB 36H
+ 0104  39	 	 	NUM2 DB 39H	
+ 	 	 	 	
+ 	 	 	 	;--------------END OF DATA DEFINITION----------
+	 	 	 	---
+ 	 	 	 	
+ 0105	 	 	 	SKIP_DATA:	
+ 0105  B8 11F0	 	 	 	MOV  AX,11F0H	 	;Init of SP for
+	 	 	 	 Kit
+ 0108  8B E0	 	 	 	MOV  SP,AX	
+ 010A  B8 0000	 	 	 	MOV AX,0000H
+ 010D  8E C0	 	 	 	MOV ES,AX
+ 010F  8E D0	 	 	 	MOV SS,AX
+ 	 	 	 	
+ 0111  0E	 	 	 	PUSH CS	 	 	;Init for DS
+ 0112  1F	 	 	 	POP DS
+ 	 	 	 	 	
+ 0113  90	 	 	 	NOP	 	 	 	
+ 	 	 	 	 	
+ 0114  90	 	 	 	NOP	 	 	 	
+ 0115  90	 	 	 	NOP
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+ 	 	 	 	 	
+ 0116  A0 0103 R	 	 	MOV AL,BYTE PTR NUM1
+ 0119  8A 1E 0104 R	 	 	MOV BL,BYTE PTR NUM2
+ 011D  24 0F	 	 	 	AND AL,0FH
+ 011F  80 E3 0F	 	 	 	AND BL,0FH
+ 	 	 	 	 	
+ 0122  B1 04	 	 	 	MOV CL,04
+ 0124  D2 C0	 	 	 	ROL AL,CL
+ 	 	 	 	 	
+ 0126  0A C3	 	 	 	OR  AL,BL
+ 0128  CD A5	 	 	 	INT 0A5H
+ 	 	 	 	 	
+ 012A	 	 	 	COMSEG ENDS
+ 	 	 	 	END START
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+	 	 	 	 	 	 	 	04-03-:8    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+COMSEG . . . . . . . . . . . . .	012A	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+NUM1 . . . . . . . . . . . . . .	L BYTE 	0103	COMSEG
+NUM2 . . . . . . . . . . . . . .	L BYTE 	0104	COMSEG
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0105	COMSEG
+START. . . . . . . . . . . . . .	L NEAR 	0100	COMSEG
+
+50088 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

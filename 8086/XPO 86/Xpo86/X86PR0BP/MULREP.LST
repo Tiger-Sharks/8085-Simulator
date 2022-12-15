@@ -1,0 +1,66 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000        SCPD EQU 0000H  ;Scratch Pad Location.
+ = 1000        NUM1 EQU 1000H  ;Address of Multiplicand.
+ = 1001        NUM2 EQU 1001H  ;Address of Multiplier.
+ ;This program gives multiplication by repeated addition
+ ;User can store multiplicand at memory location 0000:1000H
+ ;and multiplier at memory location 0000:1001H.
+ ;Result will be stored at memory location 0000:1010H.
+ ;User can check using substitute comnmand.
+ 	 	 	 	
+ 0000	 	 	 	      MULR SEGMENT
+ 	 	 	 	      ASSUME CS:MULR,DS:MULR
+ 	 	 	 	      ASSUME ES:MULR
+ 0100	 	 	 	               ORG 100H       ;com format is re
+	 	 	 	commanded.
+ 0100  EB 01 90	 	 	         START:JMP SKIP_DATA  ;skip lookup/data
+	 	 	 	 bases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	
+ 	 	 	 	
+ 0103	 	 	 	        SKIP_DATA:
+ 0103  B8 10FF	 	 	                 MOV AX,10FFH
+ 0106  8B E0	 	 	                 MOV SP,AX     ;Init SP registe
+	 	 	 	r.
+ 0108  0E	 	 	                 PUSH CS       ;Init DS registe
+	 	 	 	r.
+ 0109  1F	 	 	                 POP DS
+ 010A  B8 0000	 	 	                 MOV AX,SCPD   ;To specify SCPD
+	 	 	 	 on kit.
+ 010D  8E C0	 	 	                 MOV ES,AX
+ 010F  2B C9	 	 	                 SUB CX,CX       ;CX=0
+ 0111  26: 8A 0E 1001	 	                 MOV CL,ES:NUM2     ;Put multip
+	 	 	 	lier in cl.
+ 0116  80 E9 01	 	 	                 SUB CL,01       ;correct index
+ 0119  26: A0 1000	 	                 MOV AL,ES:NUM1     ;Put multip
+	 	 	 	licand in al
+ 011D	 	 	 	        AGAIN:
+ 011D  26: 02 06 1000	 	                 ADD AL,ES:NUM1     ;add multip
+	 	 	 	licand to sum
+
+
+ 0122  80 D4 00	 	 	                 ADC AH,00H     ;Extend it  to 
+	 	 	 	16-bit index
+ 0125  E2 F6	 	 	                 LOOP AGAIN      ;loop if cx>0
+ 0127  26: A3 1010	 	                 MOV ES:[1010H],AX
+ 012B  CD A5	 	 	                 INT 0A5H        ;Return to com
+	 	 	 	mand mode.
+ 	 	 	 	
+ 012D	 	 	 	MULR ENDS                       ;If you are run
+	 	 	 	ning your software
+ 	 	 	 	END START                       ;on PC insert -
+	 	 	 	--->include.
+

@@ -1,0 +1,152 @@
+cpu "8085.tbl"
+hof"int8"
+CRLF: 048AH
+cronly:equ0497h
+cr55:equ0bh
+porta:equ08h
+portb:equ09h
+portc:equ0ah
+nmout:equ036ch
+test:equ2072h
+read:equ2075h
+jump:equ72c0h
+cmdmod:equ0013h
+outmsg:equ03d8h
+nmin:equ0405h
+hitemp:equ0ea5ch
+lotemp:equ0ea5dh
+tempset:equ0ea5eh
+tempread:equ0ea5fh
+
+org 7700h
+lxi sp,2100h
+call crlf
+lxi h,outmsg1
+call outmsg
+lxi d,0064h
+mvi b,02h
+mvi c,0ah
+call nmin
+call crlf
+mov a,e
+sui 30h
+mov e,a
+jnc msg2
+mvi a,0fh
+lxi d,0062h
+mvi b,02h
+mvi c,0ah
+call nmin
+call crlf
+pop h
+mov a,l
+sta hitemp
+mov a,e
+sta lotemp
+dsply:mvi a,03h
+sta jump
+jmp display
+expt3:lda tempread
+mov d,a
+lda hitemp
+cmp d
+jnc lower
+set 30:mvi a,0ffh
+sta tempset
+jmp dsply
+lower:lda lotemp
+cmp d
+jc dsply
+mvi a,00h
+sta tempset
+jmp dsply
+display:mvi a,81h
+out cr55
+mvi a,00h
+out portb
+mvi a,09h
+out cr55
+mvi a,08h
+out cr55
+mvi a,83h
+out
+lda tempset
+out porta
+start:mvi a,0dh
+out cr55
+mvi a,0ch
+out cr55
+back:in portc
+ani 02h
+jnz back
+back1:in portc
+ani 02h
+jz back1
+mvi a,0bh
+out cr55
+in 09h
+mov e,a
+mvi a,0ah
+out cr55
+push b
+mov b,00h
+mov a,e
+cpi 04h
+jc dsply30
+mvi l,00h
+l4: mvi c,0ah
+div:sui 04h
+cpi 04h
+jc n3
+dcr c
+jnz n5
+inr l
+jmp l4
+n5:jmp div
+n3:mvi a,0ah
+sub c
+mov c,a
+mov a,l
+ani ofh
+rlc
+rlc
+rlc
+rlc
+ani 0f0h
+add c
+cpi 50h
+jc n2
+mvi b,02h
+add b
+daa
+jmp display1
+n2:cpi 25h
+jc display1
+mvi b,01h
+add b
+daa
+jmp display1
+dsply30:mov a,00h
+display1:adi 30h
+daa
+sta tempread
+mov e,a
+mvi b,02h
+call cronly
+call nmout
+pop b
+call test
+jnc cd
+lda jump
+cpi 02h
+jz expt3
+cd:jmp cmdmod
+outmsg1:dfb 53h ;"set pt"
+dfb 45h 54h 20h 50h 54h 03h
+outmsg1:dfb 48 ;"hitemp"
+dfb 49h 54h 45h 4dh 50h 03h
+outmsg3: dfb 4ch ;"lotemp"
+dfb 4ch 54h 45h 4dh 50h 03h
+end
+
+

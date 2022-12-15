@@ -1,0 +1,177 @@
+ AS V1.42 Beta [Bld 56] - source file X85stpr2.ASM - page 1 - 6/18/2008 14:51:04
+
+
+       1/       0 :                     ;Stepper motor interface has been provided through 8255 via 26 pin
+       2/       0 :                     ;FRC cable.Motor can be rotated clockwise or anticlock wise direction 
+       3/       0 :                     ;depending on the content of the location of sequense. Acceleration-
+       4/       0 :                     ;Deacceleration process is also implemented.'STEPR' is a subroutine 
+       5/       0 :                     ;which actually outputs the phase seq. code to the stepper using lookup table.
+       6/       0 :                     
+       7/       0 :                     
+       8/       0 :                                  CPU 8085
+       9/       0 : =8H                 	   PORTA: EQU 08H
+      10/       0 : =BH                         CR55: EQU 0BH
+      11/       0 : =2075H                      READ: EQU 2075H
+      12/       0 : =615H               	   DELAY: EQU 0615H
+      13/       0 : =48AH               	    CRLF: EQU 048AH
+      14/       0 : =3D8H               	  OUTMSG: EQU 03D8H
+      15/       0 : =CH                 	  CMDMOD: EQU 000CH
+      16/       0 : =1BH                        ESC:  EQU 1BH
+      17/    71D2 :                                  ORG 71D2H
+      18/    71D2 : 31 00 21                   START: LXI SP,2100H ;Init. stack pointer
+      19/    71D5 : 3E 80                            MVI A,80H    ;Init. 8255 ports
+      20/    71D7 : D3 0B                            OUT CR55     ;A,B,C as OP ports
+      21/    71D9 : 3E 00                            MVI A,00H	  ;OP disable code to 
+      22/    71DB : D3 08                            OUT PORTA    ;stop motor
+      23/    71DD : CD 8A 04            	 DISPLY: CALL CRLF 
+      24/    71E0 : 21 82 72            			 LXI H,DIR
+      25/    71E3 : CD D8 03            			 CALL OUTMSG
+      26/    71E6 : CD 75 20            	 RDAGAIN: CALL READ
+      27/    71E9 : 47                  	         MOV B,A
+      28/    71EA : FE 46               			 CPI 46H
+      29/    71EC : C2 F7 71            			 JNZ RVD
+      30/    71EF : 3E 01               			 MVI A,01H
+      31/    71F1 : 32 A0 20            			 STA 20A0H 
+      32/    71F4 : C3 0A 72            			 JMP SKIP
+      33/    71F7 : 47                  		 RVD: MOV B,A
+      34/    71F8 : FE 52               		     CPI 52H
+      35/    71FA : CA 05 72            			 JZ SKIP1
+      36/    71FD : FE 1B               			 CPI ESC
+      37/    71FF : C2 E6 71                         JNZ RDAGAIN
+      38/    7202 : C3 0C 00            			 JMP CMDMOD
+      39/    7205 : 3E 00               		SKIP1: MVI A,00H
+      40/    7207 : 32 A0 20            		     STA 20A0H
+      41/    720A : 21 78 72                    SKIP: LXI H,TABLE  ;PTR for phase seq.
+      42/    720D : 1E 10                            MVI E,10H    ;table top
+      43/    720F : 16 20                            MVI D,20H    ;Init delay counter
+      44/    7211 : 0E 10                            MVI C,10H    ;To set 0.25 sec. step
+      45/    7213 : 06 08                      BACK1: MVI B,08H    ;ACLR-DCLR loop count
+      46/    7215 : CD 50 72                   BACK: CALL STPR     ;Half step drive
+      47/    7218 : CD 15 06                        CALL DELAY    ;Output one seq. code
+      48/    721B : 05                              DCR	B         ;Min speed, Max speed
+      49/    721C : C2 15 72                        JNZ	BACK	 
+      50/    721F : 15                              DCR	D	  ;Decrease delay to ACCN.
+      51/    7220 : 0D                              DCR	C	  ;Count doun for ACCN. phase
+      52/    7221 : C2 13 72                        JNZ	BACK1	  ;At count 0 Max. speed
+      53/    7224 : 06 11                           MVI	B,11H	  ;Fix duration step count
+      54/    7226 : CD 50 72                  BACK2: CALL STPR	  ;HL apropriate points
+      55/    7229 : CD 15 06                        CALL DELAY	  ;in phase seq. table
+      56/    722C : 05                              DCR	B         ;DeACCN. phase start
+      57/    722D : C2 26 72                        JNZ	BACK2	 
+      58/    7230 : 0E 10                           MVI	C,10H	  ;DeACCN. count
+      59/    7232 : 06 08                     BACK3: MVI	B,08H
+      60/    7234 : CD 50 72                     L1: CALL STPR
+ AS V1.42 Beta [Bld 56] - source file X85stpr2.ASM - page 2 - 6/18/2008 14:51:04
+
+
+      61/    7237 : CD 15 06                        CALL DELAY
+      62/    723A : 05                              DCR	B
+      63/    723B : C2 34 72                        JNZ	L1	  ;Increase delay to cause
+      64/    723E : 14                              INR	D	  ;DeACCN.
+      65/    723F : 0D                              DCR	C
+      66/    7240 : C2 32 72                        JNZ BACK3      ;DeACCN. phase ends here.
+      67/    7243 : 3E 00                           MVI A,00H     ;Output disable code to
+      68/    7245 : D3 08                           OUT PORTA     ;stop motor
+      69/    7247 : CD 75 20                        CALL READ     ;Any key pressed?
+      70/    724A : FE 1B                           CPI 1BH       ;Is ESC key pressed
+      71/    724C : C2 D2 71                        JNZ START     ;If yes begin rotation
+      72/    724F : CF                              RST 1         ;Again return to command mode
+      73/    7250 :                      
+      74/    7250 :                     ;STPR Routine
+      75/    7250 :                     ;HL pointer is used for phase code table and direction location
+      76/    7250 :                     ;It outputs phase code and adjest HL appropriatly.
+      77/    7250 : D5                        STPR: PUSH D
+      78/    7251 : 7E                             MOV A,M       ;Fetch phase code
+      79/    7252 : D3 08                          OUT PORTA
+      80/    7254 : 3A A0 20                       LDA 20A0H
+      81/    7257 : FE 01                         CPI 01H       ;Jump to clockwise if zero
+      82/    7259 : C2 6A 72                      JNZ NEXT      ;flag not set
+      83/    725C : 23                            INX H         ;Other wise go for anti-
+      84/    725D : 7E                            MOV A,M       ;clock wise
+      85/    725E : FE 00                         CPI 00H       ;Check for OFF code
+      86/    7260 : C2 68 72                      JNZ NEXT1     ;Jump if not end of table
+      87/    7263 : 16 FF                         MVI D,0FFH    ;Subtract 08.
+      88/    7265 : 1E F8                         MVI E,0F8H
+      89/    7267 : 19                     REPEAT: DAD D
+      90/    7268 : D1                      NEXT1: POP D
+      91/    7269 : C9                            RET
+      92/    726A : 2B                       NEXT: DCX H        ;For clockwise.
+      93/    726B : 7E                            MOV A,M
+      94/    726C : FE 00                         CPI 00H      ;Check for end of table
+      95/    726E : C2 68 72                      JNZ NEXT1    ;Jump to continue if not
+      96/    7271 : 16 00                         MVI D,00H    ;Else add 08 to begine.
+      97/    7273 : 1E 08                         MVI E,08H
+      98/    7275 : C3 67 72                     JMP REPEAT
+      99/    7278 :                     ;Phase code table for Half step drive.
+     100/    7278 : 00                            TABLE: DB 00H
+     101/    7279 : 02                                  DB 02H
+     102/    727A : 06                  	            DB 06H
+     103/    727B : 04                                  DB 04H
+     104/    727C : 0C                                  DB 0CH
+     105/    727D : 08                                  DB 08H
+     106/    727E : 09                                  DB 09H
+     107/    727F : 01                                  DB 01H
+     108/    7280 : 03                                  DB 03H
+     109/    7281 : 00                                  DB 00H
+     110/    7282 : 44                  		    DIR: DB 44H
+     111/    7283 : 49                  			    DB 49H
+     112/    7284 : 52                  				DB 52H
+     113/    7285 : 20                  				DB 20H
+     114/    7286 : 20                  				DB 20H
+     115/    7287 : 46                  				DB 46H
+     116/    7288 : 2F                  				DB 2FH
+     117/    7289 : 52                  				DB 52H
+     118/    728A : 03                  				DB 03H
+     119/    728B :                     
+ AS V1.42 Beta [Bld 56] - source file X85stpr2.ASM - page 3 - 6/18/2008 14:51:04
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - |  BACK :                        7215 C |
+ BACK1 :                       7213 C |  BACK2 :                       7226 C |
+ BACK3 :                       7232 C | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+ CMDMOD :                         C - | *CONSTPI :        3.141592653589793 - |
+ CR55 :                           B - |  CRLF :                         48A - |
+*DATE :                   6/18/2008 - |  DELAY :                        615 - |
+ DIR :                         7282 C | *DISPLY :                      71DD C |
+ ESC :                           1B - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+ L1 :                          7234 C | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+ NEXT :                        726A C |  NEXT1 :                       7268 C |
+ OUTMSG :                       3D8 - | *PACKING :                        0 - |
+*PADDING :                        1 - |  PORTA :                          8 - |
+ RDAGAIN :                     71E6 C |  READ :                        2075 - |
+*RELAXED :                        0 - |  REPEAT :                      7267 C |
+ RVD :                         71F7 C |  SKIP :                        720A C |
+ SKIP1 :                       7205 C |  START :                       71D2 C |
+ STPR :                        7250 C |  TABLE :                       7278 C |
+*TIME :                    14:51:04 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     53 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file X85stpr2.ASM - page 4 - 6/18/2008 14:51:04
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.05 seconds assembly time
+
+    119 lines source file
+      2 passes
+      0 errors
+      0 warnings

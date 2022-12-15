@@ -1,0 +1,164 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING 8253 & 8251	 	 	 	 	 	10-02-99    
+
+
+ 	 	 	 	       PAGE,80
+ 	 	 	 	       TITLE-- USING 8253 & 8251
+ 	 	 	 	
+ 	 	 	 	
+ 0000	 	 	 	X865153   	SEGMENT
+ 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X865153, DS:X865153 ,
+	 	 	 	ES:X865153
+ 0100	 	 	 	          	ORG 100H     	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 21 90	 	 	STRT: 	JMP 	SKIP_DATA      	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103  41 4E 53 48 55 4D	MSG: 	DB "ANSHUMAN        SERIAL   LINK  ",03
+	 	 	 	H
+       41 4E 20 20 20 20	
+       20 20 20 20 53 45	
+       52 49 41 4C 20 20	
+       20 4C 49 4E 4B 20	
+       20 03	 	 	
+ 	 	 	 	 	 	
+ 0123	 	 	 	SKIP_DATA:
+ 0123  B8 10FF	 	 	 	MOV     AX,10FFH 	;Init of SP for
+	 	 	 	 kit
+ 0126  8B C0	 	 	        MOV     AX,AX    	;On PC
+ 0128  0E	 	 	        PUSH    CS       	;Init for DS
+ 0129  1F	 	 	        POP     DS  
+ 	 	 	 	                     ;Load Kit INTS (A0-BF) 
+ 012A  90	 	 	        NOP          ;In PC using
+ 012B  90	 	 	        NOP          ;Place CALL in Place of 3 
+	 	 	 	NOP`S
+ 012C  90	 	 	        NOP          ;
+ 	 	 	 	
+ 012D  B9 052D	 	 	        MOV     CX,052DH 	;Init of 8253 c
+	 	 	 	hanel#0
+ 	 	 	 	                           	;Set Baud rate 
+	 	 	 	to 110
+ 	 	 	 	                           	;052DH= Count f
+	 	 	 	or 8253
+ 0130  BA 8C07	 	 	        MOV     DX,8C07H     	;
+ 0133  B0 36	 	 	        MOV     AL,36H	 	;Init Counter 0
+	 	 	 	,
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- USING 8253 & 8251	 	 	 	 	 	10-02-99    
+
+
+ 0135  EE	 	 	        OUT     DX,AL	 	;mode 3.
+ 0136  BA 8C01	 	 	        MOV     DX,8C01H	;
+ 0139  8A C1	 	 	        MOV     AL,CL	 	;set Cntr 0 LSB
+ 013B  EE	 	 	        OUT     DX,AL	 	;
+ 013C  8A C5	 	 	        MOV     AL,CH	 	;set Cntr 0 MSB
+ 013E  EE	 	 	        OUT     DX,AL	 	;
+ 013F  BA 9002	 	 	        MOV     DX,9002H 	;Init of 8251
+ 	 	 	 	                           	;Command Regist
+	 	 	 	er
+ 0142  B0 00	 	 	        MOV     AL,00H   	;Send 0`S to En
+	 	 	 	sure that
+ 	 	 	 	                           	;8251 is in Com
+	 	 	 	mand.
+ 0144  EE	 	 	        OUT     DX,AL	 	;
+ 0145  B9 000F	 	 	        MOV     CX,000FH	;
+ 0148  CD AA	 	 	        INT     0AAH     	;Delay Required
+	 	 	 	 While
+ 	 	 	 	                           	;Doing Init of 
+	 	 	 	8251
+ 014A  EE	 	 	        OUT     DX,AL	 	;
+ 014B  CD AA	 	 	        INT     0AAH	 	;
+ 014D  EE	 	 	        OUT     DX,AL	 	;
+ 014E  CD AA	 	 	        INT     0AAH	 	;
+ 0150  B0 40	 	 	        MOV     AL,40H	 	;
+ 0152  EE	 	 	        OUT     DX,AL	 	;
+ 0153  CD AA	 	 	        INT     0AAH	 	;
+ 0155  B0 CE	 	 	        MOV     AL,0CEH  	;Mode Word-2 St
+	 	 	 	op Bit,
+ 	 	 	 	                           	;No Parity,No o
+	 	 	 	f Bits 8
+ 	 	 	 	 	 	               	;Baud rate fact
+	 	 	 	or *16.
+ 0157  EE	 	 	        OUT     DX,AL	 	;
+ 0158  CD AA	 	 	        INT     0AAH	 	;
+ 015A  B0 37	 	 	        MOV     AL,37H   	;Command Word D
+	 	 	 	TR=0=RTS,
+ 	 	 	 	                           	;T R Enable,Nor
+	 	 	 	mal
+ 015C  EE	 	 	        OUT     DX,AL	 	;
+ 015D  CD AC	 	 	        INT     0ACH     	;Start Sending 
+	 	 	 	And
+ 	 	 	 	                           	;Receiving Alte
+	 	 	 	rnately
+ 015F  BB 0103 R	 	 	MOV     BX,OFFSET MSG 	;Message Pointe
+	 	 	 	r
+ 	 	 	 	
+ 0162  8A 17	 	 	NEXT:   MOV     DL,[BX]	 	;	
+ 0164  80 FA 03	 	 	        CMP     DL,03H   	;End of Transmi
+	 	 	 	tion
+ 0167  74 0F	 	 	        JZ      TEND	 	;
+ 0169  B4 02	 	 	        MOV     AH,02H	 	;
+ 016B  CD A9	 	 	        INT     0A9H     	;Send TO T+D of
+	 	 	 	 8251
+ 016D  43	 	 	        INC     BX	 	;
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+-- USING 8253 & 8251	 	 	 	 	 	10-02-99    
+
+
+ 016E  B4 08	 	 	        MOV     AH,08H	 	;
+ 0170  CD A8	 	 	        INT     0A8H     	;Read The CHR F
+	 	 	 	rom R+D
+ 	 	 	 	                           	;It is Assumed 
+	 	 	 	that PIN 2 & 3
+ 	 	 	 	                           	;of 25 D are sh
+	 	 	 	orted externaly.
+ 0172  B4 02	 	 	        MOV     AH,02H	 	;
+ 0174  CD A2	 	 	        INT     0A2H     	;Display at pre
+	 	 	 	sent consol
+ 0176  EB EA	 	 	        JMP     NEXT	 	;
+ 0178  CD A4	 	 	TEND:   INT     0A4H     	;Return to Comm
+	 	 	 	and mode.
+ 	 	 	 	 	 	 	
+ 	 	 	 	
+ 017A	 	 	 	X865153  	ENDS
+ 	 	 	 	   	END	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING 8253 & 8251	 	 	 	 	 	10-02-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X865153. . . . . . . . . . . . .	017A	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+MSG. . . . . . . . . . . . . . .	L NEAR 	0103	X865153
+NEXT . . . . . . . . . . . . . .	L NEAR 	0162	X865153
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0123	X865153
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X865153
+TEND . . . . . . . . . . . . . .	L NEAR 	0178	X865153
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

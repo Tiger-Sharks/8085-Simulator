@@ -1,0 +1,140 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+ 	 	 	 	
+ 	 	 	 	;LIST 6
+ 	 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	 	TITLE--USING 8279 PERIW
+	 	 	 	ARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 139E:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;In 8279 port A & port B can be used as 2 separ
+	 	 	 	ate 4 bit  ports.
+ 	 	 	 	;CPU can write data to any one of them without 
+	 	 	 	 affecting the 
+ 	 	 	 	;data at other port by masking that port.This i
+	 	 	 	s demonstrated 
+ 	 	 	 	;in this experiment.
+ 	 	 	 	
+ 0000	 	 	 	X86P79L6  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P79L6, DS:X86P79L6 ,ES:X86
+	 	 	 	P79L6
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH  ;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX     ;On PC
+ 0108  0E	 	 	PUSH CS	   ;Init for DS
+ 0109  58	 	 	POP  AX	   ;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	   ;(A0-BF) 
+ 010C  90	 	 	NOP	 	   ;In PC using
+ 010D  90	 	 	NOP	 	   ;CALL in place
+ 010E  90	 	 	NOP	 	   ;of 3 NOP`S
+ 	 	 	 	
+ 	 	 	 	
+ 010F  B0 DF	 	 	MOV  AL,0DFH	; Clear command is issued
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+ 0111  BA 01E2	 	 	MOV  DX,01E2H	
+ 0114  EE	 	 	OUT  DX,AL	
+ 	 	 	 	
+ 0115  B9 0FFF	 	 	MOV CX,0FFFH 	; Call delay to wait for 
+ 0118  CD AA	 	 	INT 0AAH	; clear command  to complete.
+ 	 	 	 	
+ 011A  B0 07	 	 	MOV  AL,07H	; Decoded display Scan-
+ 011C  BA 01E2	 	 	MOV  DX,01E2H	; Mode set.
+ 011F  EE	 	 	OUT  DX,AL	
+ 	 	 	 	
+ 0120  B0 80	 	 	MOV  AL,80H	; Write display RAM 
+ 0122  EE	 	 	OUT  DX,AL	; command.
+ 	 	 	 	
+ 0123  B0 A8	 	 	MOV  AL,0A8H    ; C/W to inhibit port A for 
+ 0125  EE	 	 	OUT  DX,AL	; writing.
+ 	 	 	 	
+ 0126  B0 00	 	 	MOV  AL,00H
+ 0128  BA 01E0	 	 	MOV  DX,01E0H
+ 012B  EE	 	 	OUT  DX,AL	; Write port B corresponding
+ 	 	 	 	                                               
+	 	 	 	                                     ; all 4 se
+	 	 	 	gments lighted.
+ 	 	 	 	
+ 012C  B0 A4	 	 	MOV  AL,0A4H
+ 012E  BA 01E2	 	 	MOV  DX,01E2H
+ 0131  EE	 	 	OUT  DX,AL	; C/W to inhibit port B for 
+ 	 	 	 	 	 	; writing.
+ 0132	 	 	 	WRITE:
+ 0132  B0 00	 	 	MOV  AL,00H
+ 0134  BA 01E0	 	 	MOV  DX,01E0H
+ 0137  EE	 	 	OUT  DX,AL	; Write port A corresponding
+ 	 	 	 	                                               
+	 	 	 	                                     ;  all 4 s
+	 	 	 	egments lighted.
+ 0138  B9 0FFF	 	 	MOV  CX,0FFFH
+ 013B  CD AA	 	 	INT 0AAH	; Call delay for display 
+ 	 	 	 	 	 	; to become stable.
+ 013D  B0 F0	 	 	MOV  AL,0F0H
+ 013F  EE	 	 	OUT  DX,AL	; Write port A Corresponding
+ 	 	 	 	                                               
+	 	 	 	                                     ; all 4 se
+	 	 	 	gments switched off.
+ 	 	 	 	
+ 	 	 	 	
+ 0140  B9 0FFF	 	 	MOV  CX,0FFFH
+ 0143  CD AA	 	 	INT 0AAH	; Call delay for display 
+ 	 	 	 	 	 	; to become stable.
+ 	 	 	 	 	
+ 0145  EB EB	 	 	JMP  WRITE	; Jump back to write port 
+ 	 	 	 	 	 	; A again.
+ 	 	 	 	
+ 0147	 	 	 	X86P79L6  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P79L6 . . . . . . . . . . . .	0147	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P79L6
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P79L6
+WRITE. . . . . . . . . . . . . .	L NEAR 	0132	X86P79L6
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

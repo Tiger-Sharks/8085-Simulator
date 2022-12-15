@@ -1,0 +1,161 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- PACKED BCD 16 DIGIT SUBTRACTION.	 	 	 	08-24-99    
+
+
+ 	 	 	 	        PAGE 70
+ 	 	 	 	
+ 	 	 	 	  TITLE -- PACKED BCD 16 DIGIT SUBTRACTION.
+ 	 	 	 	
+ 	 	 	 	;THIS PROG.SUBTRACTS TWO 16 DIGIT PKED.BCD NOS.
+ 	 	 	 	;FIRST NO.IS AT ADDRESS 000H:[1000H TO 1007H]
+ 	 	 	 	;& SECOND NO. IS AT 0000H:[1010 H TO 1017 H]
+ 	 	 	 	;THE RESULT WILL BE STOREDB TO DESTINATION
+ 	 	 	 	;ADDR 0000H:[1050 H TO 1058 H].
+ 	 	 	 	; [1007 H]....[1001 H] [1000 H] FIRST NO.
+ 	 	 	 	;-
+ 	 	 	 	; [1017 H]....[1011 H] [1010 H] SECOND NO.
+ 	 	 	 	;--------------------------------------------
+ 	 	 	 	; [1057 H]....[1051 H] [1050 H]  RESULT
+ 	 	 	 	; [1058 H] BORROW
+ 	 	 	 	;
+ 	 	 	 	;REG.USED/DESTROYED :- AX,CX,DX,SI,DI ETC.
+ 	 	 	 	;MEM. LOCATIONS MODIFIED :- 1050 H TO 1058 H.
+ 	 	 	 	;
+ 	 	 	 	;COMMON SCRATCH PAD AREA ALLOTED :-
+ 	 	 	 	;SEG.=0000H, ADDR.=1000H ONWARDS.
+ 	 	 	 	;ie 0000:1000 H ONWARDS.
+ 	 	 	 	; 
+ 	 	 	 	; INPUT TO THE PROG. :-
+ 	 	 	 	;  SEG 0000H
+ 	 	 	 	;  ADDR        DATA
+ 	 	 	 	; [1000 H] -- LOWEST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF FIRST NO.
+ 	 	 	 	; [1001 H] -- NEXT SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF FIRST NO.
+ 	 	 	 	;   |          |
+ 	 	 	 	; [1007 H] -- MOST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF FIRST NO.
+ 	 	 	 	;
+ 	 	 	 	; [1010 H] -- LOWEST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF SECOND NO.
+ 	 	 	 	; [1011 H] -- NEXT SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF SECIND NO.
+ 	 	 	 	;   |          |
+ 	 	 	 	; [1017 H] -- MOST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF SECOND NO.
+ 	 	 	 	;
+ 	 	 	 	; OUTPUT OF THE PROG. :-
+ 	 	 	 	;   SEG 0000H
+ 	 	 	 	;   ADDR        DATA
+ 	 	 	 	; [1050 H] -- LOWEST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF RESULT NO.
+ 	 	 	 	; [1051 H] -- NEXT SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF RESULT NO.
+ 	 	 	 	;   |          |
+ 	 	 	 	; [1057 H] -- MOST SIGNIFICANT
+ 	 	 	 	;             2 DIGITS OF RESULT NO.
+ 	 	 	 	; [1058 H] -- IF BORROW THEN 01H ELSE 00H
+ 	 	 	 	
+ 0000	 	 	 	        SUBPBCD  SEGMENT
+ 	 	 	 	        ASSUME CS:SUBPBCD, DS:SUBPBCD
+ 	 	 	 	        ASSUME ES:SUBPBCD
+ 	 	 	 	; 'ASSUME' IS AN ASSEMBLER DIRECTIVE. IT HAS
+ 	 	 	 	; NOTHING TO DO WITH 8086. IT IS ONLY USED
+ 	 	 	 	; TO TELL THE ASSEMBLER (MASM), WHERE THE
+ 	 	 	 	; CODE, DATA, STACK ETC. IS LOCATED.
+ 	 	 	 	; IT IS ONLY A FORMALITY FOR MASM.
+ 	 	 	 	
+ = 0000	 	 	 	SCPD     EQU 0000H ; SCRATCH PAD SEGMENT.
+ = 1000	 	 	 	ADR_1NO  EQU 1000H ; ADDRESS OF 1st NO.
+ = 1010	 	 	 	ADR_2NO  EQU 1010H ; ADDRESS OF 2nd NO.
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- PACKED BCD 16 DIGIT SUBTRACTION.	 	 	 	08-24-99    
+
+
+ = 1050	 	 	 	ADR_RSLT EQU 1050H ; ADDRESS OF RESULT
+ = 0008	 	 	 	BYTENO   EQU 08H   ; NO. OF BYTES TO BE SUB'ED
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H       ;COM FORMAT IS RECOMMENDED.
+ 	 	 	 	
+ 0100	 	 	 	STRT:
+ 0100  EB 01 90	 	 	JMP SKIP_DATA  ;SKIP LOOK UP/DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP TO SEPARATE
+ 	 	 	 	;STACK OF YOUR PROGRAME FROM MONITORS, DS AS
+ 	 	 	 	;SHOWN BELOW.SS,ES ARE SET TO 0000 AT POWER ON
+ 	 	 	 	;BY MONITOR. YOU CAN OFCOURSE CHANGE IT BY
+ 	 	 	 	;ADDING A FEW MORE MOVES. BUT WHILE WORKING ON
+ 	 	 	 	;PC YOU CAN`T TOUCH SEGMENT REGISTERS SINCE
+ 	 	 	 	;THEY ARE SET BY DOS LOADER,SO MANAGE THESE
+ 	 	 	 	;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV AX,10FFH    ; INIT OF SP FOR KIT
+ 0106  8B E0	 	 	MOV  SP,AX      ; <-- MOV AX,AX  ON PC
+ 0108  0E	 	 	PUSH CS         ; INIT FOR DS
+ 0109  1F	 	 	POP DS          ;
+ 010A  90	 	 	NOP             ; TO LOAD KIT INTERRUPTS
+ 010B  90	 	 	NOP             ; (A0-BF) IN PC
+ 010C  90	 	 	NOP             ; REPLACE THE 3 NOPS
+ 	 	 	 	; CALL LDINPC   ; WITH THIS CALL.
+ 010D  B8 0000	 	 	MOV AX,SCPD     ; TO SPECIFY SCPD LOCn ON KIT.
+ 0110  90	 	 	NOP             ; <-- MOV AX,CS  ON PC
+ 0111  8E C0	 	 	MOV ES,AX       ;
+ 0113  BE 1000	 	 	MOV SI,ADR_1NO  ; ADDR. OF 1st NO. IN SI.
+ 0116  BA 1010	 	 	MOV DX,ADR_2NO  ; ADDR. OF 2nd NO. IN DX.
+ 0119  BF 1050	 	 	MOV DI,ADR_RSLT ; ADDR. OF RESULT IN DI.
+ 011C  B9 0008	 	 	MOV CX,BYTENO   ; NO. OF BYTES IN CX.
+ 011F  F8	 	 	CLC             ; CLEAR CARRY
+ 0120	 	 	 	LUP1:           ;
+ 0120  87 D7	 	 	XCHG DX,DI      ; DI=1010H, DX=1050H.
+ 0122  26: 8A 04	 	MOV AL,ES:[SI]  ; TAKE FIRST DATA BYTE.
+ 0125  26: 1A 05	 	SBB AL,ES:[DI]  ; SUBTRACT SECOND NO. BYTE
+ 0128  2F	 	 	DAS             ; DECIMAL ADJUST AFTER SUBn.
+ 0129  87 D7	 	 	XCHG DX,DI      ; DI=1050H, DX=1010H
+ 012B  26: 88 05	 	MOV ES:[DI],AL  ; STORE RESULT TO DESTINATION
+ 012E  47	 	 	INC DI          ;
+ 012F  46	 	 	INC SI          ;
+ 0130  42	 	 	INC DX          ;
+ 0131  E2 ED	 	 	LOOP LUP1       ; REPEAT FOR NO. OF BYTES.
+ 0133  B0 00	 	 	MOV AL,00H      ;
+ 0135  26: 88 05	 	MOV ES:[DI],AL  ;
+ 0138  26: 10 05	 	ADC ES:[DI],AL  ; BORROW = [1058 H]
+ 013B  CD A3	 	 	INT 0A3H        ; GOTO COMMAND = MODE ON KIT.
+ 	 	 	 	                ; ON PC RETURN TO DOS.
+ 	 	 	 	                ; IF YOU ARE RUNNING YOUR
+ 	 	 	 	                ; SOFTWARE ON PC INSERT HERE
+ 	 	 	 	                ; INCLUDE KIT_INTS.ASM
+ 	 	 	 	                ; *******************
+ 	 	 	 	                                
+ 013D	 	 	 	SUBPBCD ENDS     ; READ FOR MORE INFO TITLE OF
+ 	 	 	 	        END STRT ; KIT_INTS.ASM
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- PACKED BCD 16 DIGIT SUBTRACTION.	 	 	 	08-24-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+SUBPBCD. . . . . . . . . . . . .	013D	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+ADR_1NO. . . . . . . . . . . . .	Number	1000	
+ADR_2NO. . . . . . . . . . . . .	Number	1010	
+ADR_RSLT . . . . . . . . . . . .	Number	1050	
+BYTENO . . . . . . . . . . . . .	Number	0008	
+LUP1 . . . . . . . . . . . . . .	L NEAR 	0120	SUBPBCD
+SCPD . . . . . . . . . . . . . .	Number	0000	
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	SUBPBCD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	SUBPBCD
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

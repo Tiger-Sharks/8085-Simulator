@@ -1,0 +1,351 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- LCD86	 	 	 	 	 	 	06-23-99    
+
+
+1	 	 	 	 	
+2	 	 	 	 	
+3	 	 	 	 	
+4	 	 	 	 	
+5	 	 	 	 	        PAGE,70
+6	 	 	 	 	        TITLE-- LCD86
+7	 	 	 	 	;
+8	 0000	 	 	 	LCD86     SEGMENT
+9	 	 	 	 	        ASSUME CS:LCD86, DS:L
+	 	 	 	CD86 ,ES:LCD86
+10	 0100	 	 	 	        ORG 100H   ;COM FORMA
+	 	 	 	T IS RECOMMENDED.
+11	 0100  EB 01 90	 	 	STRT:   JMP SKIP_DATA
+12	 	 	 	 	;SKIP LOOK UP/ DATA BASES IF 
+	 	 	 	ANY
+13	 	 	 	 	;ON KIT YOU NEED TO DO INIT F
+	 	 	 	OR SP
+14	 	 	 	 	;[TO SEPARATE STACK OF YOUR P
+	 	 	 	ROGRAME FROM
+15	 	 	 	 	;MONITORS],DS AS SHOWN BELOW.
+	 	 	 	SS,ES ARE SET
+16	 	 	 	 	;TO 0000 AT POWER ON BY MONIT
+	 	 	 	OR.
+17	 	 	 	 	;YOU CAN OFCOURSE CHANGE IT B
+	 	 	 	Y ADDING A
+18	 	 	 	 	;FEW MORE MOVE`S.
+19	 	 	 	 	;BUT WHILE WORKING ON PC YOU 
+	 	 	 	CAN`T TOUCH
+20	 	 	 	 	;SEGMENT REGISTERS SINCE THEY
+	 	 	 	 ARE
+21	 	 	 	 	;SET BY DOS LOADER,SO MANAGE 
+	 	 	 	THESE
+22	 	 	 	 	;INSTRUCTIONS AS SHOWN IN COM
+	 	 	 	MENT FIELD.
+23	 0103  B8 11FF	 	 	SKIP_DATA:MOV AX,11FFH
+24	 	 	 	 	        ;INIT OF SP FOR KIT
+25	 0106  8B E0	 	 	STRT1:  MOV SP,AX
+26	 	 	 	 	        ;MOV AX,AX   ON PC
+27	 0108  0E	 	 	        PUSH CS
+28	 	 	 	 	        ;THIS IS THE BEST WAY
+	 	 	 	 TO LOAD DS
+29	 0109  1F	 	 	        POP DS
+30	 	 	 	 	        ;WITH SEGMENT VALUE.
+31	 010A  90	 	 	        NOP
+32	 	 	 	 	        ;LOAD KIT INT S (A0-B
+	 	 	 	F) IN PC USING
+33	 010B  90	 	 	        NOP
+34	 	 	 	 	        ;CALL LDINPC
+35	 010C  90	 	 	        NOP
+36	 	 	 	 	        ;PLACE ABOVE CALL IN 
+	 	 	 	PLACE OF 3 NOP`S
+37	 	 	 	 	;THE ACTUAL PROGRAM OF LCD IN
+	 	 	 	TERFACE STARTS BELOW
+38	 010D  B0 30	 	 	LCDINIT: MOV AL,30H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-2
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+39	 010F  E8 023B R	 	         CALL OUTINS
+40	 0112  B9 0BF0	 	 	         MOV CX,0BF0H
+41	 0115  CD AA	 	 	         INT 0AAH     ;CALL D
+	 	 	 	ELAY
+42	 0117  B0 30	 	 	         MOV AL,30H
+43	 0119  E8 023B R	 	         CALL OUTINS
+44	 011C  B9 0BF0	 	 	         MOV CX,0BF0H
+45	 011F  CD AA	 	 	         INT 0AAH
+46	 0121  B0 30	 	 	         MOV AL,30H
+47	 0123  E8 023B R	 	         CALL OUTINS
+48	 0126  E8 025B R	 	         CALL CHKBSY
+49	 0129  B0 38	 	 	         MOV AL,38H
+50	 012B  E8 023B R	 	         CALL OUTINS
+51	 012E  E8 025B R	 	         CALL CHKBSY
+52	 0131  B0 08	 	 	         MOV AL,08H
+53	 0133  E8 023B R	 	         CALL OUTINS
+54	 0136  E8 025B R	 	         CALL CHKBSY
+55	 0139  B0 01	 	 	         MOV AL,01H
+56	 013B  E8 023B R	 	         CALL OUTINS
+57	 013E  E8 025B R	 	         CALL CHKBSY
+58	 0141  B0 06	 	 	         MOV AL,06H
+59	 0143  E8 023B R	 	         CALL OUTINS
+60	 0146  E8 025B R	 	         CALL CHKBSY
+61	 0149  B0 0C	 	 	         MOV AL,0CH
+62	 014B  E8 023B R	 	         CALL OUTINS
+63	 014E  E8 025B R	 	         CALL CHKBSY
+64	 0151  B0 00	 	 	         MOV AL,00H
+65	 0153  0E	 	 	         PUSH CS   ;LEA CX,LI
+	 	 	 	NCUR   ;MOV CHANGED
+66	 0154  59	 	 	         POP CX
+67	 0155  8D 36 029E R	 	         LEA SI,LINCUR
+68	 0159  CD B0	 	 	         INT 0B0H
+69	 015B  8D 1E 029F R	 	DSPRTN:  LEA BX,DATABASE
+70	 015F  8A 07	 	 	DSPRTN1: MOV AL,[BX]
+71	 0161  43	 	 	         INC BX
+72	 0162  8A D0	 	 	         MOV DL,AL
+73	 0164  3C 03	 	 	         CMP AL,03H
+74	 0166  74 05	 	 	         JZ CMDMOD
+75	 0168  E8 016F R	 	         CALL WRRTN
+76	 016B  EB F2	 	 	         JMP DSPRTN1
+77	 016D  CD A3	 	 	CMDMOD:  INT 0A3H
+78	 016F  50	 	 	WRRTN:  PUSH AX
+79	 0170  53	 	 	        PUSH BX
+80	 0171  8A C2	 	 	        MOV AL,DL
+81	 0173  24 7F	 	 	        AND AL,7FH
+82	 0175  3C 0A	 	 	        CMP AL,0AH
+83	 0177  74 40	 	 	        JZ LFRTN
+84	 0179  3C 0D	 	 	        CMP AL,0DH
+85	 017B  74 53	 	 	        JZ CARGRTN
+86	 017D  3C 08	 	 	        CMP AL,08H
+87	 017F  74 1E	 	 	        JZ BSRTN
+88	 0181  8A D0	 	 	        MOV DL,AL
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-3
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+89	 0183  8D 1E 029E R	 	        LEA BX,LINCUR
+90	 0187  8A 07	 	 	        MOV AL,[BX]    ;LDS A
+	 	 	 	L,LINCUR
+91	 0189  24 0F	 	 	        AND AL,0FH
+92	 018B  8A F8	 	 	        MOV BH,AL
+93	 018D  FE C0	 	 	        INC AL
+94	 018F  0E	 	 	        PUSH CS   ;LEA CX,LIN
+	 	 	 	CUR
+95	 0190  59	 	 	        POP CX
+96	 0191  8D 36 029E R	 	        LEA SI,LINCUR
+97	 0195  CD B0	 	 	        INT 0B0H
+98	 0197  8A C2	 	 	        MOV AL,DL
+99	 0199  E8 01E0 R	 	        CALL WRLCD
+100	 019C  5B	 	 	RETURN: POP BX
+101	 019D  58	 	 	        POP AX
+102	 019E  C3	 	 	        RET
+103	 019F  8A D0	 	 	BSRTN:  MOV DL,AL
+104	 01A1  8D 1E 029E R	 	        LEA BX,LINCUR
+105	 01A5  8A 07	 	 	        MOV AL,[BX]
+106	 01A7  0A C0	 	 	        OR AL,AL
+107	 01A9  74 02	 	 	        JZ BSRTN1
+108	 01AB  FE C8	 	 	        DEC AL
+109	 01AD  0E	 	 	BSRTN1: PUSH CS
+110	 01AE  59	 	 	        POP CX
+111	 01AF  8D 36 029E R	 	        LEA SI,LINCUR    ;0I8
+	 	 	 	9086980535
+112	 01B3  CD B0	 	 	        INT 0B0H
+113	 01B5  8A C2	 	 	        MOV AL,DL
+114	 01B7  EB E3	 	 	        JMP RETURN
+115	 01B9  53	 	 	LFRTN:  PUSH BX
+116	 01BA  8A D0	 	 	        MOV DL,AL
+117	 01BC  B3 10	 	 	        MOV BL,10H
+118	 01BE  B7 00	 	 	        MOV BH,00H
+119	 01C0  B0 20	 	 	LFTRN1:  MOV AL,20H
+120	 01C2  E8 01E0 R	 	         CALL WRLCD
+121	 01C5  FE C7	 	 	         INC BH
+122	 01C7  FE CB	 	 	         DEC BL
+123	 01C9  75 F5	 	 	         JNZ LFTRN1
+124	 01CB  8A C2	 	 	         MOV AL,DL
+125	 01CD  5B	 	 	         POP BX
+126	 01CE  EB CC	 	 	         JMP RETURN
+127	 01D0  8A D0	 	 	CARGRTN: MOV DL,AL
+128	 01D2  B0 00	 	 	         MOV AL,00H
+129	 01D4  0E	 	 	         PUSH CS
+130	 01D5  59	 	 	         POP CX
+131	 01D6  8D 36 029E R	 	         LEA SI,LINCUR
+132	 01DA  CD B0	 	 	         INT 0B0H
+133	 01DC  8A C2	 	 	         MOV AL,DL
+134	 01DE  EB BC	 	 	         JMP RETURN
+135	 01E0  50	 	 	WRLCD:   PUSH AX
+136	 01E1  53	 	 	         PUSH BX
+137	 01E2  8A D0	 	 	         MOV DL,AL
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-4
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+138	 01E4  B0 09	 	 	         MOV AL,09H
+139	 01E6  8A F0	 	 	         MOV DH,AL
+140	 01E8  FE CE	 	 	         DEC DH
+141	 01EA  8A C7	 	 	         MOV AL,BH
+142	 01EC  8A FE	 	 	         MOV BH,DH
+143	 01EE  8A D8	 	 	         MOV BL,AL
+144	 01F0  3A C6	 	 	         CMP AL,DH
+145	 01F2  72 37	 	 	         JC WLCSK1
+146	 01F4  8A C6	 	 	         MOV AL,DH
+147	 01F6  02 C7	 	 	         ADD AL,BH
+148	 01F8  8A F0	 	 	         MOV DH,AL
+149	 01FA  8A C3	 	 	         MOV AL,BL
+150	 01FC  3A C6	 	 	         CMP AL,DH
+151	 01FE  72 22	 	 	         JC WLCSK2
+152	 0200  8A C6	 	 	         MOV AL,DH
+153	 0202  02 C7	 	 	         ADD AL,BH
+154	 0204  8A F0	 	 	         MOV DH,AL
+155	 0206  8A C3	 	 	         MOV AL,BL
+156	 0208  3A C6	 	 	         CMP AL,DH
+157	 020A  72 0F	 	 	         JC WLCSK3
+158	 020C  8A C7	 	 	WLCSK4:  MOV AL,BH
+159	 020E  02 C7	 	 	         ADD AL,BH
+160	 0210  8A F0	 	 	         MOV DH,AL
+161	 0212  8A D8	 	 	         MOV BL,AL
+162	 0214  04 40	 	 	         ADD AL,40H
+163	 0216  2A C6	 	 	         SUB AL,DH
+164	 0218  EB 11 90	 	 	         JMP LCDWR
+165	 021B  8A C3	 	 	WLCSK3:  MOV AL,BL
+166	 021D  2A C7	 	 	         SUB AL,BH
+167	 021F  EB 0A 90	 	 	         JMP LCDWR
+168	 0222  8A C3	 	 	WLCSK2:  MOV AL,BL
+169	 0224  04 40	 	 	         ADD AL,40H
+170	 0226  2A C7	 	 	         SUB AL,BH
+171	 0228  EB 01 90	 	 	         JMP LCDWR
+172	 022B	 	 	 	WLCSK1:
+173	 022B  0C 80	 	 	LCDWR:   OR AL,80H
+174	 022D  E8 023B R	 	         CALL OUTINS
+175	 0230  E8 025B R	 	         CALL CHKBSY
+176	 0233  8A C2	 	 	         MOV AL,DL
+177	 0235  E8 0280 R	 	         CALL OUTDT
+178	 0238  5B	 	 	         POP BX
+179	 0239  58	 	 	         POP AX
+180	 023A  C3	 	 	         RET
+181	 023B  52	 	 	OUTINS:  PUSH DX
+182	 023C  8A D8	 	 	         MOV BL,AL
+183	 023E  B0 80	 	 	         MOV AL,80H
+184	 0240  BA 8006	 	 	         MOV DX,8006H
+185	 0243  EE	 	 	         OUT DX,AL
+186	 0244  B0 00	 	 	         MOV AL,00H
+187	 0246  BA 8004	 	 	         MOV DX,8004H
+188	 0249  EE	 	 	         OUT DX,AL
+189	 024A  B0 04	 	 	         MOV AL,04H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-5
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+190	 024C  EE	 	 	         OUT DX,AL
+191	 024D  8A C3	 	 	         MOV AL,BL
+192	 024F  BA 8002	 	 	         MOV DX,8002H
+193	 0252  EE	 	 	         OUT DX,AL
+194	 0253  B0 01	 	 	         MOV AL,01H
+195	 0255  BA 8004	 	 	         MOV DX,8004H
+196	 0258  EE	 	 	         OUT DX,AL
+197	 0259  5A	 	 	         POP DX
+198	 025A  C3	 	 	         RET
+199	 025B  90	 	 	CHKBSY:  NOP
+200	 025C  52	 	 	         PUSH DX
+201	 025D  B0 82	 	 	         MOV AL,82H
+202	 025F  BA 8006	 	 	         MOV DX,8006H
+203	 0262  EE	 	 	         OUT DX,AL
+204	 0263  B0 01	 	 	INDT:    MOV AL,01H
+205	 0265  BA 8004	 	 	         MOV DX,8004H
+206	 0268  EE	 	 	         OUT DX,AL
+207	 0269  B0 05	 	 	         MOV AL,05H
+208	 026B  EE	 	 	         OUT DX,AL
+209	 026C  BA 8002	 	 	         MOV DX,8002H
+210	 026F  EC	 	 	         IN AL,DX
+211	 0270  8A D8	 	 	         MOV BL,AL
+212	 0272  B0 01	 	 	         MOV AL,01H
+213	 0274  BA 8004	 	 	         MOV DX,8004H
+214	 0277  EE	 	 	         OUT DX,AL
+215	 0278  8A C3	 	 	         MOV AL,BL
+216	 027A  0A C0	 	 	         OR AL,AL
+217	 027C  78 E5	 	 	         JS INDT
+218	 027E  5A	 	 	         POP DX
+219	 027F  C3	 	 	         RET
+220	 0280  8A C8	 	 	OUTDT:   MOV CL,AL
+221	 0282  B0 80	 	 	         MOV AL,80H
+222	 0284  BA 8006	 	 	         MOV DX,8006H
+223	 0287  EE	 	 	         OUT DX,AL
+224	 0288  B0 02	 	 	         MOV AL,02H
+225	 028A  BA 8004	 	 	         MOV DX,8004H
+226	 028D  EE	 	 	         OUT DX,AL
+227	 028E  B0 06	 	 	         MOV AL,06H
+228	 0290  EE	 	 	         OUT DX,AL
+229	 0291  8A C1	 	 	         MOV AL,CL
+230	 0293  BA 8002	 	 	         MOV DX,8002H
+231	 0296  EE	 	 	         OUT DX,AL
+232	 0297  B0 03	 	 	         MOV AL,03H
+233	 0299  BA 8004	 	 	         MOV DX,8004H ;PORTC
+234	 029C  EE	 	 	         OUT DX,AL
+235	 029D  C3	 	 	         RET
+236	 029E  00	 	 	LINCUR:  DB 00H
+237	 029F  41	 	 	DATABASE: DB 41H
+238	 02A0  4E	 	 	          DB 4EH
+239	 02A1  53	 	 	          DB 53H
+240	 02A2  48	 	 	          DB 48H
+241	 02A3  55	 	 	          DB 55H
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	1-6
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+242	 02A4  4D	 	 	          DB 4DH
+243	 02A5  41	 	 	          DB 41H
+244	 02A6  4E	 	 	          DB 4EH
+245	 02A7  03	 	 	          DB 03H
+246	 02A8	 	 	 	LCD86     ENDS
+247	 	 	 	 	        END STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page
+	 	 	 	 	Symbols-1
+-- LCD86	 	 	 	 	 	 	06-23
+	 	 	 	-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+LCD86. . . . . . . . . . . . . .	02A8	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BSRTN. . . . . . . . . . . . . .	L NEAR 	019F	LCD86
+BSRTN1 . . . . . . . . . . . . .	L NEAR 	01AD	LCD86
+CARGRTN. . . . . . . . . . . . .	L NEAR 	01D0	LCD86
+CHKBSY . . . . . . . . . . . . .	L NEAR 	025B	LCD86
+CMDMOD . . . . . . . . . . . . .	L NEAR 	016D	LCD86
+DATABASE . . . . . . . . . . . .	L NEAR 	029F	LCD86
+DSPRTN . . . . . . . . . . . . .	L NEAR 	015B	LCD86
+DSPRTN1. . . . . . . . . . . . .	L NEAR 	015F	LCD86
+INDT . . . . . . . . . . . . . .	L NEAR 	0263	LCD86
+LCDINIT. . . . . . . . . . . . .	L NEAR 	010D	LCD86
+LCDWR. . . . . . . . . . . . . .	L NEAR 	022B	LCD86
+LFRTN. . . . . . . . . . . . . .	L NEAR 	01B9	LCD86
+LFTRN1 . . . . . . . . . . . . .	L NEAR 	01C0	LCD86
+LINCUR . . . . . . . . . . . . .	L NEAR 	029E	LCD86
+OUTDT. . . . . . . . . . . . . .	L NEAR 	0280	LCD86
+OUTINS . . . . . . . . . . . . .	L NEAR 	023B	LCD86
+RETURN . . . . . . . . . . . . .	L NEAR 	019C	LCD86
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	LCD86
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	LCD86
+STRT1. . . . . . . . . . . . . .	L NEAR 	0106	LCD86
+WLCSK1 . . . . . . . . . . . . .	L NEAR 	022B	LCD86
+WLCSK2 . . . . . . . . . . . . .	L NEAR 	0222	LCD86
+WLCSK3 . . . . . . . . . . . . .	L NEAR 	021B	LCD86
+WLCSK4 . . . . . . . . . . . . .	L NEAR 	020C	LCD86
+WRLCD. . . . . . . . . . . . . .	L NEAR 	01E0	LCD86
+WRRTN. . . . . . . . . . . . . .	L NEAR 	016F	LCD86
+
+49508 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

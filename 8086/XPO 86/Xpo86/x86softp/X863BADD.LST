@@ -1,0 +1,93 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--	MULTIBYTE ADDITION WITH THREE VARIALES	 	 	08-20-99    
+
+
+ 	 	 	 	 	PAGE 80
+ 	 	 	 	 	TITLE--	MULTIBYTE ADDITION WITH THREE V
+	 	 	 	ARIALES
+ 	 	 	 	
+ 	 	 	 	;*****MULTY BYTE ADDITION WITH 3 VARIABLES-THIS
+	 	 	 	 EXAMPLE SHOWS THE 
+ 	 	 	 	;     ADDITION OF THREE VARIABLES.EACH IS A VER
+	 	 	 	Y LONG INTEGER STORED IN
+ 	 	 	 	;     8 BYTES AT 00F0:0103 AND 00F0:010B AND 00
+	 	 	 	F0:0113 IN SCRATCH PAD 
+ 	 	 	 	;     RAM =0000:1003,100B,1013[PL.ENTER CONTENT
+	 	 	 	S BY HAND.],CONTENTS OF
+ 	 	 	 	;     FIRST ARE ADDED TO SECOND VARIABLE THEN S
+	 	 	 	TORED INTO THIRD VARIABL
+ 	 	 	 	
+ 0000	 	 	 	X863BADD 	SEGMENT
+ 	 	 	 	ASSUME CS:X863BADD, DS:X863BADD ,ES:X863BADD 
+ 	 	 	 	
+ 0100	 	 	 	ORG 100H	          ;Com format 
+ 	 	 	 	                          ;is recommended.
+ 0100  EB 01 90	 	 	STRT:	JMP SKIP_DATA   ;skip look up/ 
+ 	 	 	 	 	 	 	    ;data bases if any
+ 	 	 	 	;On kit you need to do init for SP[to 
+ 	 	 	 	;separate stack of your program from
+ 	 	 	 	;monitors], DS as shown below. SS,ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You 
+ 	 	 	 	;can of course change it by adding a few 
+ 	 	 	 	;more moves. But while working on pc you 
+ 	 	 	 	;can't touch segment registers since 
+ 	 	 	 	;they are set by dos loader, so manage 
+ 	 	 	 	;these instructions as shown in comment 
+ 	 	 	 	;field.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 11FF	 	 	MOV	AX,11FFH     ;INIT OF SP FOR KIT 
+ 0106  8B E0	 	 	MOV	SP,AX        ;MOV AX,AX   ON PC 
+ 0108  0E	 	 	PUSH	CS           ;INIT FOR DS              
+	 	 	 	      
+ 0109  1F	 	 	POP	DS           ;                         
+	 	 	 	       
+ 010A  B8 00F0	 	 	MOV	AX,00F0H     ;INIT FOR ES 
+ 010D  8E C0	 	 	MOV	ES,AX        ;INTO SCPD AT 0000:1000
+ 010F  B9 0008	 	 	MOV	CX,0008H     ;NUMBER OF BYTES IN EACH 
+ 	 	 	 	 	 	     ;VARIABL 
+ 0112  BE 0000	 	 	MOV	SI,0000H     ;INDEX INITIALIZED TO 0   
+	 	 	 	       
+ 0115  F8	 	 	CLC	                                       
+	 	 	 	     
+ 0116  26: 8A 84 0103	 	LUP:MOV	AL,ES:[SI+0103H];GET V1                
+	 	 	 	         
+ 	 	 	 	 	             ;ADD V2 ALONG WITH  PRV CY
+	 	 	 	      
+ 011B  26: 12 84 010B	 	ADC	AL,ES:[SI+010BH]   
+ 0120  26: 88 84 0113	 	MOV	ES:[SI+0113H],AL;STORE THE RESULT BYTE 
+	 	 	 	          
+ 0125  46	 	 	INC	SI          ;BUMP INDEX POINTER        
+	 	 	 	       
+ 0126  E2 EE	 	 	LOOP	LUP         ;DECREMENT CX REPEAT TILL 0
+	 	 	 	 
+ 	 	 	 	 	            ;REPEATED 8 TIMES.
+ 0128  CD A5	 	 	INT	0A5H        ;RETURN TO SAVING REGS
+ 	 	 	 	
+ 012A	 	 	 	X863BADD	ENDS 
+ 	 	 	 	    END 	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--	MULTIBYTE ADDITION WITH THREE VARIALES	 	 	08-20-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X863BADD . . . . . . . . . . . .	012A	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+LUP. . . . . . . . . . . . . . .	L NEAR 	0116	X863BADD
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X863BADD
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X863BADD
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

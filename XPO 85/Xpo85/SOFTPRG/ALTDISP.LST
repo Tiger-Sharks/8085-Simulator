@@ -1,0 +1,37 @@
+                ;DISPLAY 00 & FF ALTERNATELY ON DISPLAY
+                
+ 0000           		CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 048A =         CRLF:   EQU 048AH
+ 036C =         NMOUT:  EQU 036CH
+ 0615 =         DELAY:  EQU 0615H
+ 0497 =         CRONLY: EQU 0497H
+ 6390                   ORG 6390H
+                
+ 6390 31F027            LXI SP,27F0H
+ 6393 CD8A04            CALL CRLF
+ 6396 1E00      START:  MVI E,00H
+ 6398 0602              MVI B,02H
+ 639A CD6C03            CALL NMOUT
+ 639D 11FFFF            LXI D,0FFFFH
+ 63A0 CD1506            CALL DELAY
+ 63A3 CD9704            CALL CRONLY ;LF
+                        ;LXI D,0FFFFH
+                        ;CALL DELAY
+ 63A6 1EFF              MVI E,0FFH
+ 63A8 CD6C03            CALL NMOUT
+ 63AB 11FFFF            LXI D,0FFFFH
+ 63AE CD1506            CALL DELAY
+ 63B1 CD9704            CALL CRONLY ;LF
+                        ;LXI D,0FFFH
+                        ;CALL DELAY
+ 63B4 C39663            JMP START
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+048A  CRLF                 0497  CRONLY               0002  D             
+0615  DELAY                0003  E                    0004  H             
+0005  L                    0006  M                    036C  NMOUT         
+6396  START                
+

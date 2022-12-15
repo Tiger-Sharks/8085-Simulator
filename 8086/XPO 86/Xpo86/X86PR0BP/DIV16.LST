@@ -1,0 +1,53 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000          SCPD EQU 0000H  ;Scratch Pad Location.
+ = 1000          NUM1 EQU 1000H  ;Address of Dividend.
+ = 1002          NUM2 EQU 1002H  ;Address of Divisor.
+  ;This program gives signed division of given number.
+  ;User can store divident at memory location 0000:1000H and
+  ;divisor at memory location 0000:1002H
+  ;User can see result at memory location 0000:1010H
+ 	 	 	 	
+ 0000	 	 	 	    DIV SEGMENT
+ 	 	 	 	    ASSUME CS:DIV,DS:DIV
+ 	 	 	 	    ASSUME DS:DIV
+ 0100	 	 	 	    ORG 100H                ;com format is reco
+	 	 	 	mmanded.
+ 0100  EB 01 90	 	 	 START:JMP SKIP_DATA        ;skip lookup/data b
+	 	 	 	ases if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field. 	 	 
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	          MOV AX,10FFH
+ 0106  8B E0	 	 	          MOV SP,AX        ;Init SP register.
+ 0108  0E	 	 	          PUSH CS          ;Init DS register.
+ 0109  1F	 	 	          POP DS
+ 010A  B8 0000	 	 	          MOV AX,SCPD
+ 010D  8E C0	 	 	          MOV ES,AX
+ 010F  26: A1 1000	 	          MOV AX,ES:NUM1    ;Move dividend to A
+	 	 	 	X.
+ 0113  26: 8A 0E 1002	 	          MOV CL,ES:NUM2     ;Move divisor to C
+	 	 	 	L.
+ 0118  F6 F9	 	 	          IDIV CL            ;Perform division.
+ 011A  26: A3 1010	 	          MOV ES:[1010H],AX
+ 011E  CD A5	 	 	          INT 0A5H         ;Return to command m
+	 	 	 	ode.
+ 	 	 	 	                           ;If you are running 
+	 	 	 	your software
+ 0120	 	 	 	  DIV ENDS                 ;on PC insert ---->i
+	 	 	 	nclude.
+ 	 	 	 	  END START
+

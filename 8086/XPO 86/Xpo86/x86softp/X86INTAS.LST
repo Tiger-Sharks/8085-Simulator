@@ -1,0 +1,167 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--INT TO ASCII	 	 	 	 	 	 	08-21-99    
+
+
+ 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	TITLE--INT TO ASCII
+ 	 	 	 	 	 	 	 	
+ 	 	 	 	;	CONVERTING AN INTEGER TO ASCII  FORM
+ 	 	 	 	;	------------------------------------
+ 	 	 	 	
+ 0000	 	 	 	X86ITOA	SEGMENT
+ 	 	 	 	 	ASSUME CS:X86ITOA, DS:X86ITOA ,ES:X86IT
+	 	 	 	OA 
+ 0100	 	 	 	 	ORG 100H	 	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 0100  EB 01 90	 	 	STRT: JMP SKIP_DATA	 	;SKIP LOOK UP/
+ 	 	 	 	 	 	 	 	;DATA BASES IF 
+	 	 	 	ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 	 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV	AX,10FFH  ;INIT OF SP FOR KIT          
+ 0106  8B E0	 	 	MOV	SP,AX     ;MOV AX,AX 	 	
+ 0108  0E	 	 	PUSH	CS        ;INIT FOR DS                 
+ 0109  1F	 	 	POP	DS        ;                            
+ 010A  90	 	 	NOP	          ;                            
+ 010B  90	 	 	NOP	          ;                            
+ 010C  90	 	 	NOP	          ;                            
+ 010D  B8 0100	 	 	MOV	AX,0100H  ;                            
+ 0110  8E C0	 	 	MOV	ES,AX     ;IN KIT LOAD EXTRA SEGMENT   
+	 	 	 	      
+ 	 	 	 	 	          ;GET INTEGEER TO AX          
+	 	 	 	     
+ 0112  26: A1 0103	 	MOV	AX,ES:[0103H];DI POINTS TO START  OF AS
+	 	 	 	CII
+ 0116  BF 0105	 	 	MOV	DI,0105H   
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------
+ 	 	 	 	;INTASC CONVERTS THE FOUR DIGIT HEX NUMBER IN A
+	 	 	 	X TO FOUR ASCII DIGITS
+ 	 	 	 	;IN THE MEMORY AREA POINTED TO BY DI. THE MOST 
+	 	 	 	SIGNIFICANT DIGIT IS
+ 	 	 	 	;STORED IN THE LOWEST ADDRESSED MEMORY LOCATION
+	 	 	 	 (@DI).
+ 	 	 	 	;
+ 	 	 	 	;	ENTRY :
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--INT TO ASCII	 	 	 	 	 	 	08-21-99    
+
+
+ 	 	 	 	;	 	AX  = HEX NUMBER
+ 	 	 	 	;	 	DI = POINTER TO ASCII STRING AR
+	 	 	 	EA
+ 	 	 	 	;	EXIT :
+ 	 	 	 	;	 	@DI TO @DI+3 CONTAINS FOUR ASCI
+	 	 	 	I DIGITS.
+ 	 	 	 	;
+ 	 	 	 	;	ALL REGISTERS PRESERVED. FLAGS CLOBBERE
+	 	 	 	D.
+ 	 	 	 	;----------------------------------------------
+	 	 	 	----------------------
+ 	 	 	 	
+ 0119  51	 	 	PUSH	CX        
+ 011A  57	 	 	PUSH	DI        ;SAVE DI WE WILL CHANGE IT 
+ 011B  B9 0004	 	 	MOV	CX,0004H  ;KEEP TRACK OF DIGIT COUNT   
+	 	 	 	   
+ 011E  51	 	 	LUP: PUSH CX       ;SAVE HEX DIGIT COUNT       
+	 	 	 	         
+ 011F  B1 04	 	 	MOV	CL,04H    ;NUMBER OF BITS PER DIG.
+ 	 	 	 	 	 	  ;ROTATE COUNT
+ 0121  D3 C0	 	 	ROL	AX,CL     ;ROTATE AX LEFT BY 4 BITS SO
+ 	 	 	 	 	 	  ;NEXT DIG
+ 	 	 	 	 	 	  ;COMES TO RIGHT NIBBLE OF AL 
+	 	 	 	        
+ 0123  59	 	 	POP	CX        ;RESTORE HEX DIGIT COUNT     
+	 	 	 	        
+ 0124  50	 	 	PUSH	AX        ;SAVE ROTATED HEX NUMBER     
+	 	 	 	        
+ 0125  24 0F	 	 	AND	AL,0FH    ;RETAIN OLY LOWER NIBBLE     
+	 	 	 	        
+ 0127  E8 0135 R	 	CALL	HXAS      ;CONVERT TO ASCII IN AL      
+	 	 	 	        
+ 	 	 	 	  	          ;STORE NEXT ASCII CODE       
+	 	 	 	        
+ 012A  26: 88 05	 	MOV	ES:[DI],AL;RESTORE ROTGATED HEX NUMBER 
+	 	 	 	        
+ 012D  58	 	 	POP	AX        ;BUMP POINTER                
+	 	 	 	        
+ 012E  47	 	 	INC	DI        ;REPEAT FOR ALL 4 HEX DIGITS 
+	 	 	 	     
+ 012F  E2 ED	 	 	LOOP	LUP       ;RESTORE SAVED REGISTERS     
+	 	 	 	        
+ 0131  5F	 	 	POP	DI        ;@DI TO @DI+3 CONTAIN 4 ASCI
+ 0132  59	 	 	POP	CX        ;ALL REGISTERS PRESERVED.    
+	 	 	 	        
+ 0133  CD A5	 	 	INT	0A5H        
+ 	 	 	 	
+ 	 	 	 	
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------
+ 	 	 	 	;HEXASC  CONVERTS THE HEX DIGIT IN THE LOWER NI
+	 	 	 	BBLE O FL TO ITS ASCII
+ 	 	 	 	;REPRESENTATION IN  AL . ON ENTRY THE UPPER NIB
+	 	 	 	BLE MUST BE 0. RESULTS
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-3
+--INT TO ASCII	 	 	 	 	 	 	08-21-99    
+
+
+ 	 	 	 	;ARE UNPREDICTABLE IF IT IS NOT !
+ 	 	 	 	;----------------------------------------------
+	 	 	 	-----------------------
+ 0135	 	 	 	HXAS PROC NEAR
+ 	 	 	 	
+ 0135  3C 09	 	 	CMP 	AL,09H    ;IS THE HEX NUMBER 10 TO 15? 
+	 	 	 	 
+ 0137  77 03	 	 	JA	UP9       ;YES                         
+	 	 	 	 
+ 0139  04 30	 	 	ADD	AL,30H    ;NO, + ASCI BIAS FOR 0 TO 9
+ 013B  C3	 	 	RET	          ;AND EXIT                    
+	 	 	 	 
+ 013C  04 37	 	 	UP9: ADD AL,37H   ;ADD HEX BIAS                
+	 	 	 	 
+ 013E  C3	 	 	RET	          ;AND EXIT	 	      
+ 	 	 	 	
+ 013F	 	 	 	HXAS ENDP
+ 	 	 	 	
+ 013F	 	 	 	X86ITOA	ENDS
+ 	 	 	 	END     STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--INT TO ASCII	 	 	 	 	 	 	08-21-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86ITOA. . . . . . . . . . . . .	013F	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+HXAS . . . . . . . . . . . . . .	N PROC	0135	X86ITOA	Length =000A
+LUP. . . . . . . . . . . . . . .	L NEAR 	011E	X86ITOA
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86ITOA
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86ITOA
+UP9. . . . . . . . . . . . . . .	L NEAR 	013C	X86ITOA
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

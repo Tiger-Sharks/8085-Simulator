@@ -1,0 +1,121 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+ 	 	 	 	;LIST 2
+ 	 	 	 	
+ 	 	 	 	 	 	 	PAGE,80
+ 	 	 	 	 	 	 	TITLE--USING 8279 PERIW
+	 	 	 	ARE.
+ 	 	 	 	
+ 	 	 	 	;****Following listing is w.r.t. battery backed
+	 	 	 	 ram at 138A:0100h but this 
+ 	 	 	 	;    programme can work in scratch pad ram loca
+	 	 	 	ted at 00000h. You can 
+ 	 	 	 	;    Enter the same from 0110:0100 and execute.
+ 	 	 	 	
+ 	 	 	 	;Working of 8257 in DMA Write Mode is illustrat
+	 	 	 	ed in this listing .In this mode
+ 	 	 	 	;8257 moves data from peripheral to the memory.
+	 	 	 	 During the initialization the 
+ 	 	 	 	;DMA controller actsin a Slave Mode set the dat
+	 	 	 	a on the 8 bit port as given in 
+ 	 	 	 	;the list during the Master Mode 8257 enables p
+	 	 	 	ort and writes data in given
+ 	 	 	 	;memory locations.
+ 	 	 	 	
+ 0000	 	 	 	X86P57L2  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P57L2, DS:X86P57L2 ,ES:X86
+	 	 	 	P57L2
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/
+ 	 	 	 	 	 	 	 	;bases if any
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	MOV  AX,10FFH  ;Initof SP for Kit
+ 0106  8B E0	 	 	MOV  SP,AX	   ;On PC
+ 0108  0E	 	 	PUSH CS	   ;Init for DS
+ 0109  58	 	 	POP  AX	   ;Load kit INTS 
+ 010A  8E D8	 	 	MOV  DS,AX	   ;(A0-BF) 
+ 010C  90	 	 	NOP	 	   ;In PC using
+ 010D  90	 	 	NOP	 	   ;CALL in place
+ 010E  90	 	 	NOP	 	   ;of 3 NOP`S
+ 	 	 	 	
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+ 	 	 	 	
+ 010F  B0 00	 	 	MOV  AL,00H
+ 0111  BA 01F0	 	 	MOV  DX,01F0H
+ 0114  EE	 	 	OUT  DX,AL        ; Out the control word reset 
+	 	 	 	the F/L
+ 	 	 	 	 	 	 	; Flipflop.
+ 0115  B0 03	 	 	MOV  AL,03H
+ 0117  BA 01EA	 	 	MOV  DX,01EAH
+ 011A  EE	 	 	OUT  DX,AL	 	; Out the terminal coun
+	 	 	 	t LSB for ch2
+ 011B  B0 40	 	 	MOV  AL,40H
+ 011D  EE	 	 	OUT  DX,AL	 	; Out the terminal coun
+	 	 	 	t MSB for ch2
+ 	 	 	 	 	 	 	; enable DMA Write Mode
+	 	 	 	. 
+ 011E  B0 00	 	 	MOV  AL,00H
+ 0120  BA 01E8	 	 	MOV  DX,01E8H
+ 0123  EE	 	 	OUT  DX,AL	 	; Out the LSB of DMA st
+	 	 	 	arting address 
+ 	 	 	 	 	 	 	; for ch2.
+ 0124  B0 B0	 	 	MOV  AL,0B0H
+ 0126  BA 01E8	 	 	MOV  DX,01E8H
+ 0129  EE	 	 	OUT  DX,AL  	; Out the MSB for DMA starting 
+	 	 	 	address.
+ 012A  B0 44	 	 	MOV  AL,44H
+ 012C  BA 01F0	 	 	MOV  DX,01F0H
+ 012F  EE	 	 	OUT  DX,AL	 	; Out the control word 
+	 	 	 	to enable ch 2. set 
+ 	 	 	 	 	 	 	; the terminal count bi
+	 	 	 	t also.
+ 0130  CD A5	 	 	INT 0A5H	 	; Return to Command Mod
+	 	 	 	e.
+ 	 	 	 	
+ 0132	 	 	 	X86P57L2  ENDS
+ 	 	 	 	     END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+--USING 8279 PERIWARE.	 	 	 	 	 	11-29-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P57L2 . . . . . . . . . . . .	0132	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P57L2
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P57L2
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

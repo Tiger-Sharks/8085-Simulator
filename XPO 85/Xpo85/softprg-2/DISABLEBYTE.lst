@@ -1,0 +1,69 @@
+ AS V1.42 Beta [Bld 56] - source file DISABLEBYTE.ASM - page 1 - 2/13/2008 19:01:27
+
+
+       1/       0 :                     		cpu     8085
+       2/       0 :                     		
+       3/       0 :                     ;Disassemble a byte stored at location 2100h.
+       4/       0 :                     ;Store result to location 2101:2102
+       5/       0 :                     
+       6/    6524 :                     		org 6524h
+       7/    6524 :                     	start:
+       8/    6524 : 21 00 21            		lxi h,2100h		;Pointer to storage location.
+       9/    6527 : 7E                  		mov a,m			;Get byte to A
+      10/    6528 : 47                  		mov b,a			;Keep a copy in Register B
+      11/    6529 :                     		
+      12/    6529 : E6 0F               		ani 0fh			;Mask the upper four bits
+      13/    652B : 23                  		inx h			;increment the HL pair.
+      14/    652C :                     		
+      15/    652C : 77                  		mov m,a			;Store the lower dis-assembled byte to 2101
+      16/    652D : 78                  		mov a,b			;Get the copy from B.
+      17/    652E : 0F                  		rrc				;Rotate four times to get
+      18/    652F : 0F                  		rrc				;Upper four bits to lower four bits.
+      19/    6530 : 0F                  		rrc
+      20/    6531 : 0F                  		rrc
+      21/    6532 : E6 0F               		ani 0fh			;Again mask upper four bits
+      22/    6534 : 23                  		inx h			;Increment HL pair (to 2102h)
+      23/    6535 : 77                  		mov m,a			;Store upper dis-assembled nibble to 2102.
+      24/    6536 : CF                  		rst 1				;Stop
+      25/    6537 :                     		
+      26/    6537 :                     ;Last address used by the program is 198Eh == 6542
+ AS V1.42 Beta [Bld 56] - source file DISABLEBYTE.ASM - page 2 - 2/13/2008 19:01:27
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - | *BIGENDIAN :                      0 - |
+*BRANCHEXT :                      0 - | *CASESENSITIVE :                  0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                   2/13/2008 - |
+*FALSE :                          0 - | *FULLPMMU :                       1 - |
+*HAS64 :                          1 - | *HASDSP :                         0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+*INEXTMODE :                      0 - | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      0 - | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MOMCPU :                      8085 - |
+*MOMCPUNAME :                  8085 - | *NESTMAX :                      100 - |
+*PACKING :                        0 - | *PADDING :                        1 - |
+*RELAXED :                        0 - | *START :                       6524 C |
+*TIME :                    19:01:27 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     29 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file DISABLEBYTE.ASM - page 3 - 2/13/2008 19:01:27
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     26 lines source file
+      1 pass
+      0 errors
+      0 warnings

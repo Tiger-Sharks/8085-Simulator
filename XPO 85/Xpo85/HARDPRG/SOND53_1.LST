@@ -1,0 +1,24 @@
+                ;8253 SOUND GENERATOR.
+ 0000                           CPU "8085.TBL"
+ 0000           		HOF "INT8"
+ 0615 =         DELAY:  EQU 0615H
+                
+ 6090                   ORG 6090H
+ 6090 3EB6      START:  MVI A,0B6H
+ 6092 D31B              OUT 1BH
+ 6094 3E00              MVI A,00H
+ 6096 D31A              OUT 1AH
+ 6098 3E0F              MVI A,0FH
+ 609A D31A              OUT 1AH
+ 609C 11FFFF            LXI D,0FFFFH
+ 609F CD1506            CALL DELAY
+ 60A2 C39060            JMP START
+                
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0002  D                    0615  DELAY                0003  E             
+0004  H                    0005  L                    0006  M             
+6090  START                
+

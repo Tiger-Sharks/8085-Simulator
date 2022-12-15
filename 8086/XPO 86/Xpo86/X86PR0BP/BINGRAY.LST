@@ -1,0 +1,58 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000      SCPD EQU 0000H ;
+ = 1000       NUM EQU 1000H
+
+ ;This program shows  BINARY to  GRAY Code convertion.
+ ;User can store BINARY number at memory locaion 0000:1000H
+ ;Result will be store at memory location 0000:1010H
+ ;User can check using substitute command.
+ 0000	 	 	 	          BING SEGMENT
+ 	 	 	 	          ASSUME CS:BING,DS:BING,ES:BING
+ 0100	 	 	 	                ORG 100H      ;com format is re
+	 	 	 	commended.
+ 0100  EB 0B 90	 	 	        START: JMP SKIP_DATA   ;skip up databas
+	 	 	 	es if any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate of
+ 	 	 	 	;your programme form monitor),DS as shown below
+	 	 	 	.SS,ES are
+ 	 	 	 	;set to 0000H at power on by monitor.you can of
+	 	 	 	 course change
+ 	 	 	 	;it by adding a few more MOVEs .but while worki
+	 	 	 	ng on PC can't
+ 	 	 	 	;touch segment resister since they are set by D
+	 	 	 	OS loader
+ 	 	 	 	;so manage these instructions as shown comment 
+	 	 	 	field.
+ 0103  02 06 07 05 04 0C	           GRAY DB 0010B,0110B,0111B,0101B,0100
+	 	 	 	B,1100B,1101B,1111B,1110B,1010B
+       0D 0F 0E 0A	 	
+ 010D	 	 	 	      SKIP_DATA:
+ 010D  B8 10FF	 	 	                MOV AX,10FFH
+ 0110  8B E0	 	 	                MOV SP,AX     ;Init SP register
+	 	 	 	.
+ 0112  0E	 	 	                PUSH CS       ;Init DS registre
+	 	 	 	.
+ 0113  1F	 	 	                POP DS
+ 0114  B8 0000	 	 	                MOV AX,SCPD  ;To specify SCPD l
+	 	 	 	ocation on kit.
+ 0117  8E C0	 	 	                MOV ES,AX
+ 0119  26: A0 1000	 	                MOV AL,ES:NUM    ;Number to loo
+	 	 	 	k up.
+ 011D  8D 1E 0103 R	 	 	 	LEA BX,GRAY   ;Get start of tab
+	 	 	 	le.
+ 0121  D7	 	 	                XLAT          ;Look up value.
+ 0122  26: A2 1010	 	                MOV ES:[1010H],AL ;Move value f
+	 	 	 	rom AL to result.
+ 0126  CD A5	 	 	                INT 0A5H      ;Return to comman
+	 	 	 	d mode.
+ 0128	 	 	 	  BING ENDS                    ;If you are runn
+
+
+	 	 	 	ig your software
+ 	 	 	 	  END START                   ;on PC insert ---
+	 	 	 	-->include.
+

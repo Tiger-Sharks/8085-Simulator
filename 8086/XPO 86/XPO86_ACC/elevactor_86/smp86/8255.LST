@@ -1,0 +1,37 @@
+******FOLLOWING LISTING IS W.R.T. BATTERY BACKED RAM AT 10000H BUT THIS
+     PROGRAMME CAN WORK IN SCRATCH PAD RAM LOCATED AT 00000H .PL. ENTER
+     THE SAME FROM 0115:0100 AND EXECUTE.
+*****USING 8255--FOLLOWING PROGRAMME ILLUSTRATES HOW TO INIT 3 NO.8255?
+	HOW TO USE 8255 U/M AS 16 BIT IO PORT WHILE 8255 L AS
+	IO PORT CONNECTED TO HIGHER 8 BITS OF DATA BUS ONLY?
+	THE 8255 LOGIC CONTROLLER ACCESSORY  MAY BE CONNECTED
+	TO EITHER OF THE THREE 8255 FRC CONNECTORS USING 26 PIN
+	FRC AND OBSERVE PORTA OF EACH TOGGLING.LEDS FLASH '55'
+	AND 'AA' ALTERNATELY.
+8086 LINE ASSEMBLER/DISASSEMBLER UTILITY 1.0
+COPYRIGHT 1989 --- ANSHUMAN PUNE 411030.
+-U1005:0100
+
+1005:0100 BA0680        MOV	DX,8006   ;CONTROL PORT OF 8255 U/M           
+1005:0103 B88080        MOV	AX,8080   ;CONTROL WORD '80' FOR EACH
+1005:0106 EF            OUT	DX,AX     
+1005:0107 BA0788        MOV	DX,8807   ;C.P OF 8255 L                     
+1005:010A EE            OUT	DX,AL                              
+1005:010B B85555        MOV	AX,5555   ;DATA '55'                      
+1005:010E BA0080        MOV	DX,8000   ;PORTA ADDR OF 8255 U/M              
+1005:0111 EF            OUT	DX,AX                              
+1005:0112 BA0188        MOV	DX,8801   ;PORTA ADDR OF 8255 L
+1005:0115 EE            OUT	DX,AL     ;OUT DX,AH WITH DX=8800 WILL
+					  ;YIELD SAME RESULT.                
+1005:0116 B90070        MOV	CX,7000                            
+1005:0119 CDAA          INT	AA        ;=CALL DELAY                         
+1005:011B B8AAAA        MOV	AX,AAAA   ;DATA 'AA'                         
+1005:011E BA0080        MOV	DX,8000                            
+1005:0121 EF            OUT	DX,AX                              
+1005:0122 BA0188        MOV	DX,8801                            
+1005:0125 EE            OUT	DX,AL                              
+1005:0126 CDAA          INT	AA                                 
+1005:0128 EBE1          JMP	010B                               
+
+
+

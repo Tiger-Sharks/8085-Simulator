@@ -1,0 +1,103 @@
+                77
+                ;TITLE : SUBSTRACTION OF 16 BIT BCD NUMBER.
+                
+                ;TO SUBSTRACT 16 BIT BCD NUMBER STORED FROM LOCATION X FROM ANOTHER
+                ;16 BIT BCD NUMBER STORED AT LOCATION Y.STORE THE RESULT IN LOCATION 
+                ;Z AND DISPLAY THE RESULT IN DATA FIELD OR ADDRESS FIELD.
+                
+                ;100'S COMPLEMENT METHODE IS USED TO SUBSTRACT THE TWO BCD NUMBER.
+                ;A LOWER BYTE OF SECOND OPERAND IS SUBSTRACTED FROM 100 AND YOU WILL 
+                ;GET 100'S COMPLEMENT OF LOWER BYTE OF SECOND OPERAND. ADD IT TO 
+                ;LOWER BYTE OF 1st OPERAND.DAA CONVERTS RESULT TO BCD.IF BARROW
+                ;IS GENERATED i.e. CARRY FLAG IS RESET(CY=0) THEN ADD 01H TO HIGHER
+                ;BYTE OF 2nd OPERAND.DO SAME SUBSTRACTION FOR THE HIGHER BYTE.
+                ;RESULT IS SAVED AT MEM. LOC.RESULTB(20C0H),RESULTH(20C1H),RESULTL
+                ;(20C2H).AND DISPLAYED IN ADDRESS FIELD. 
+                
+                ;INPUT TO PROGRAM :-
+                ;X LOCATION : 604AH
+                ;Y LOCATION : 604CH
+                
+                ;OUTPUT OF PROGRAM :-
+                ;RESULT BARROW AT LOCATION 20C0H
+                ;RESULT HIGHER BYTE AT LOCATION 20C1H
+                ;RESULT LOWER BYTE AT LOCATION 20C2H
+                ;AND DISPLAYED IN ADDRESS FIELD
+                
+                ;REGISTERS MODIFIED ALL
+                
+                
+ 0000                                CPU"8085.TBL"  ;8085 CPU USED. 
+ 0000                                HOF"INT8"      ;INTELHEX 8 BIT FORMAT
+                
+ 048A =                       CRLF:   EQU 048AH     ;CLEAR DISPLAY.   
+ 036C =                       NMOUT:  EQU 036CH     ;OUT NUMBER ON DISPLAY.
+ 0013 =                       CMDWDP: EQU 0013H     ;RETURN TO COMMAND MODE
+                                                    ;WITHOUT DISTURBING DISPLAY.
+                
+ 6410                                ORG 6410H
+                                   
+ 6410 215D64                         LXI H,OPR2L    ;2nd OPERAND LOWER BYTE
+ 6413 5E                             MOV E,M        ;CALCULATE 100'S COMPLEMENT-
+ 6414 3E99                           MVI A,99H      ;SUBSTRACT A NUMBER FROM 100.
+ 6416 93                             SUB E          ;HERE SUBSTRACTED FROM 99 AND-
+ 6417 C601                           ADI 01H        ;ONE IS ADDED.  
+ 6419 5F                             MOV E,A        ;SAVE IN E.
+                
+ 641A 215C64                         LXI H,OPR2H    ;2nd OPERAND HIGHER BYTE
+ 641D 4E                             MOV C,M        ;CALCULATE 100'S COMPLEMENT AS  
+ 641E 3E99                           MVI A,99H      ;DISCRIBED ABOVE.
+ 6420 91                             SUB C
+ 6421 C601                           ADI 01H
+ 6423 4F                             MOV C,A        ;SAVE IN C. 
+                
+ 6424 215B64                         LXI H,OPR1L    ;LOWER BYTE OF 1st OPERAND.
+ 6427 7E                             MOV A,M
+ 6428 83                             ADD E          ;ADD 2nd OPERAND.
+ 6429 27                             DAA            ;ADJUST FOR BCD.
+ 642A 5F                             MOV E,A
+ 642B DA3264                         JC XX          ;IF BARROW IS GENERATED i.e.
+ 642E 79                             MOV A,C        ;IF CARRY FLAGE IS RESET
+ 642F D601                           SUI 01H        ;THEN SUBTRACT 01H FROM HIGHER BYTE
+ 6431 4F                             MOV C,A        ;OF 2nd OPERAND.
+                
+ 6432 215A64                     XX: LXI H,OPR1H    ;HIGHER BYTE OF 1'st OPERAND. 
+ 6435 7E                             MOV A,M
+ 6436 81                             ADD C          ;ADD 100'S COMPLEMENT.
+ 6437 27                             DAA            ;CONVERT TO BCD 
+ 6438 57                             MOV D,A        ;SAVE RESULT
+                            
+ 6439 DA4164                         JC YY          ;SAVE BARROW IN
+ 643C 0E01                           MVI C,01H      ;IN C REGISTER.
+ 643E C34364                         JMP ZZ
+ 6441 0E00                       YY: MVI C,00H
+                                    
+ 6443 79                         ZZ: MOV A,C         
+ 6444 32C020                         STA 20C0H      ;SAVE BARROW TO RESULTB
+ 6447 7A                             MOV A,D
+ 6448 32C120                         STA 20C1H      ;SAVE HIGHER BYTE OF RESULT TO RESULTH
+ 644B 7B                             MOV A,E
+ 644C 32C220                         STA 20C2H      ;SAVE LOWER BYTE OF RESULT TO RESULTL
+                                     
+                
+ 644F CD8A04                         CALL CRLF      ;CLEAR DISPLAY.
+ 6452 0604                           MVI B,04H
+ 6454 CD6C03                         CALL NMOUT     ;OUT RESULT IN ADDRESS FIELD.  
+ 6457 C31300                         JMP CMDWDP    ;RETURN TO COMMAND MODE
+                                                    ;DISTURBING DISPLAY.
+ 645A 82                            OPR1H: DFB 82H  ;HIGHER BYTE OF 1st OPERAND.
+ 645B 82                            OPR1L: DFB 82H  ;LOWER BYTE OF 1nd OPERAND.
+ 645C 48                            OPR2H: DFB 48H  ;HIGHER BYTE OF 2nd OPERAND. 
+ 645D 48                            OPR2L: DFB 48H  ;LOWER BYTE OF 2nd OPERAND.
+                
+                
+                ;END OF PROGRAM
+                
+                	END
+0007  A                    0000  B                    0001  C             
+0013  CMDWDP               048A  CRLF                 0002  D             
+0003  E                    0004  H                    0005  L             
+0006  M                    036C  NMOUT                645A  OPR1H         
+645B  OPR1L                645C  OPR2H                645D  OPR2L         
+6432  XX                   6441  YY                   6443  ZZ            
+

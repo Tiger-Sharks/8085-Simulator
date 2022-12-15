@@ -1,0 +1,53 @@
+                ;REMOVE SHORT LINK 1,2
+                ;OF L15
+                ;AND ALSO REMOVE 6 PIN CONNECTOR WHEN NOT IN USE
+                ;to give a pulse hold an obstacle
+                ;or your little finger between
+                ;IR diode and photo transistor.
+ 0000           CPU "8085.TBL"
+ 0000           HOF"INT8"
+ 048A =         CRLF:EQU 048AH
+ 03D8 =         OUTMSG: EQU 03D8H
+ 01F1 =         TEST: EQU 01F1H
+ 036C =         NMOUT: EQU 036CH
+ 0615 =         DELAY: EQU 0615H
+ 0497 =         CRONLY:EQU 0497H
+ 6000           ORG 6000H	
+ 6000 0E00      MVI C,00H
+ 6002 1600      MVI D,00H
+ 6004 3EB0      MVI A,0B0H	;Initialise counter 2 
+ 6006 D31B      OUT 1BH		;in mode 0
+ 6008 3E1F      MVI A,1FH	;give maximum count LSB
+ 600A D31A      OUT 1AH		; to be counted
+ 600C 3E00      MVI A,00H	;give count MSB
+ 600E D31A      OUT 1AH
+ 6010 CD8A04    CALL CRLF	;clear display
+ 6013 DB1A      SSS:IN 1AH	;read counter LSB
+ 6015 4F        MOV C,A		;and store in C
+ 6016 3E1F      MVI A,1FH	;Substract the count
+ 6018 91        SUB C		;in counter register
+ 6019 4F        MOV C,A		;and store in C
+ 601A DB1A      IN 1AH		;read counter MSB
+ 601C 57        MOV D,A		;and store in D
+ 601D 00        NOP
+ 601E 0C        INR C		;increment the count
+ 601F 59        MOV E,C		;move contents of C 
+ 6020 0602      MVI B,02H	;to B to display the count
+ 6022 CD6C03    CALL NMOUT	;display the count
+ 6025 CD9704    CALL CRONLY	;move th cursor to LHS
+ 6028 79        MOV A,C		;CHECK whether the count
+ 6029 EE1F      XRI 1FH		;has reached last count
+ 602B CA3460    JZ LOOP		;if yes goto command mode		
+ 602E CDF101    CALL TEST	;check for key press
+ 6031 DA1360    JC SSS		;if no key start counting
+ 6034 CF        LOOP:RST 1
+                
+                
+                	END
+0007  A                    0000  B                    0001  C             
+048A  CRLF                 0497  CRONLY               0002  D             
+0615  DELAY                0003  E                    0004  H             
+0005  L                    6034  LOOP                 0006  M             
+036C  NMOUT                03D8  OUTMSG               6013  SSS           
+01F1  TEST                 
+

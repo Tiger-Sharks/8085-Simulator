@@ -1,0 +1,92 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- USING 8255 PERIWARE.	 	 	 	 	 	11-23-99    
+
+
+ 	 	 	 	;LIST 4
+ 	 	 	 	
+ 	 	 	 	;This program configures the 8255 in BSR mode.
+ 	 	 	 	;PC3 is toggled by setting and resetting again 
+	 	 	 	and again.
+ 	 	 	 	;This program remains in loop. To come out of i
+	 	 	 	t press Reset.
+ 	 	 	 	
+ 	 	 	 	PAGE 80
+ 	 	 	 	TITLE -- USING 8255 PERIWARE.
+ 0000	 	 	 	X86P554  SEGMENT
+ 	 	 	 	
+ 	 	 	 	 	ASSUME CS:X86P554, DS:X86P554 ,ES:X86P5
+	 	 	 	54
+ 0100	 	 	 	 	ORG 100H 	;Com format is recommen
+	 	 	 	ded.
+ 0100  EB 01 90	 	 	STRT:	JMP  SKIP_DATA 	;Skip lookup/bases if a
+	 	 	 	ny
+ 	 	 	 	
+ 	 	 	 	;On kit you need to do init for SP [to separate
+	 	 	 	 stack of your 
+ 	 	 	 	;programme from monitors], DS as shown below. S
+	 	 	 	S, ES are 
+ 	 	 	 	;set to 0000 at power on by monitor. You can of
+	 	 	 	 course change 
+ 	 	 	 	;it by adding a few more move's but while worki
+	 	 	 	ng on PC you 
+ 	 	 	 	;can't touch segment registers since they are s
+	 	 	 	et by dos loader, 
+ 	 	 	 	;so manage these instructions as shown in comme
+	 	 	 	nt field.
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV  AX,10FFH	;Initof SP for Kit
+ 0106  8B E0	 	 	 	MOV  SP,AX	;On PC
+ 0108  0E	 	 	 	PUSH CS	;Init for DS
+ 0109  58	 	 	 	POP  AX	;Load kit INTS 
+ 010A  8E D8	 	 	 	MOV  DS,AX	;(A0-BF) 
+ 010C  90	 	 	 	NOP	;In PC using
+ 010D  90	 	 	 	NOP	;CALL in place
+ 010E  90	 	 	 	NOP	;of 3 NOP`S
+ 	 	 	 	 	
+ 010F  B0 80	 	 	 	MOV  AL,80H	 	; Control Word 
+	 	 	 	for port C - output
+ 0111  BA 01E6	 	 	 	MOV DX,01E6H	; CSW Address in DX
+ 0114  EE	 	 	 	OUT DX,AL	 	; Write csw (OU
+	 	 	 	T 90 to 01E6H)
+ 0115  B0 07	 	 	BACK:	MOV AL,07H	 	;Control word t
+	 	 	 	o set PC3.
+ 0117  EE	 	 	 	OUT DX,AL
+ 0118  B9 FFFF	 	 	 	MOV CX,0FFFFH	;Delay count
+ 011B  CD AA	 	 	 	INT 0AAH	 	;Delay routine
+ 	 	 	 	 	
+ 011D  B0 06	 	 	 	MOV AL,06H	 	;Control word t
+	 	 	 	o reset PC3.
+ 011F  EE	 	 	 	OUT DX,AL
+ 0120  B9 FFFF	 	 	 	MOV CX,0FFFFH	;Delay count
+ 0123  CD AA	 	 	 	INT 0AAH	 	;Delay routine
+ 	 	 	 	    
+ 0125  EB EE	 	 	    JMP  BACK
+ 	 	 	 	
+ 0127	 	 	 	 	X86P554  ENDS
+ 	 	 	 	     	END  STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- USING 8255 PERIWARE.	 	 	 	 	 	11-23-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X86P554. . . . . . . . . . . . .	0127	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+BACK . . . . . . . . . . . . . .	L NEAR 	0115	X86P554
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X86P554
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X86P554
+
+50634 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

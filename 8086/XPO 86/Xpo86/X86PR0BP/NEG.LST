@@ -1,0 +1,73 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+	 	 	 	 	 	 	 	02-23-:0    
+
+
+ = 0000      SCPD EQU 0000H      ;Scratch Pad Segment.
+ 	 	 	 	
+;This program gives the number of Negative
+;elements in a given series.
+;The series from memory location 1000:0103H to 1000:010CH
+;Result will be stored at memory location 0000:1000H
+ 	 	 	 	
+ 0000	 	 	 	    NEG SEGMENT
+ 	 	 	 	    ASSUME CS:NEG, DS:NEG
+ 	 	 	 	    ASSUME ES:NEG
+ 0100	 	 	 	        ORG 100H              ;Com Format is re
+	 	 	 	commonded
+ 	 	 	 	
+ 0100  EB 0B 90	 	 	START:JMP SKIP_DATA           ;skip look for
+ 	 	 	 	                              ;up/data base if 
+	 	 	 	any.
+ 	 	 	 	;On kit you need to do initialise for SP(to sep
+	 	 	 	erate stack of
+ 	 	 	 	;your programme from monitor),DS as shown below
+	 	 	 	.SS,ES are set
+ 	 	 	 	;to 0000H at power on by monitor .You can of co
+	 	 	 	urse change it
+ 	 	 	 	;by adding a few more MOVEs,But while working o
+	 	 	 	n PC you can't
+ 	 	 	 	;tuoch segment register since they are set by D
+	 	 	 	OS Loader,so
+ 	 	 	 	;manage these instructions as shown in comment 
+	 	 	 	field.
+ 	 	 	 	
+ 0103  80 81 FF 65 43 23	           LIST DB 80H,81H,0FFH,65H,43H,23H,15H
+	 	 	 	,12H,10H,11H
+       15 12 10 11	 	
+ 010D	 	 	 	 SKIP_DATA:
+ 010D  B8 10FF	 	 	           MOV AX,10FFh       ;Init of SP for k
+	 	 	 	it
+ 0110  8B E0	 	 	           MOV SP,AX          ;
+ 0112  0E	 	 	           PUSH CS            ;Init for DS
+ 0113  1F	 	 	           POP DS             ;
+ 0114  B8 0000	 	 	           MOV AX,SCPD
+ 0117  8E C0	 	 	           MOV ES,AX
+ 0119  BE 0103 R	 	           MOV SI,OFFSET LIST ;Initialise SI re
+	 	 	 	sister
+ 011C  B3 7F	 	 	           MOV BL,07FH        ;Largest +ve numb
+	 	 	 	er for comparision
+ 011E  B9 000A	 	 	           MOV CX,0AH         ;No. of element
+ 0121  B7 00	 	 	           MOV BH,00H         ;No. of neg. elem
+	 	 	 	ent
+ 0123	 	 	 	      BACK:
+ 0123  3A 1C	 	 	          CMP BL,[SI]         ;Is MSB=1
+ 0125  73 02	 	 	          JNC AHEAD
+ 0127  FE C7	 	 	          INC BH              ;Yes,increment co
+
+
+	 	 	 	unt
+ 0129	 	 	 	    AHEAD:                    ;No
+ 0129  46	 	 	          INC SI
+ 012A  E2 F7	 	 	          LOOP BACK
+ 012C  26: 88 3E 1000	 	          MOV ES:[1000H],BH
+ 0131  CD A5	 	 	          INT 0A5H            ;Return to comman
+	 	 	 	d mode kit
+ 	 	 	 	
+ 	 	 	 	                              ;If you are runni
+	 	 	 	ng your
+ 0133	 	 	 	     NEG ENDS                 ;software on PC i
+	 	 	 	nsert
+ 	 	 	 	                              ;----->include
+ 	 	 	 	
+ 	 	 	 	     END START
+

@@ -1,0 +1,310 @@
+                
+ 0000           CPU "8085.TBL"
+ 0000           HOF "INT8"
+ 000B =        CR55:EQU 0BH
+ 0009 =        PORTB:EQU 09H
+ 000A =       PORTC:EQU 0AH
+ 0008 =        PORTA:EQU 08H
+ 03D8 =       OUTMSG:EQU 03D8H
+ 0497 =        CRONLY: EQU 0497H
+ 0476 =        RCVNO:EQU 0476H
+ 048A =       CRLF:EQU 048AH
+ 0615 =        DELAY:EQU 0615H
+ 01F1 =        TEST:EQU 01F1H
+ 000C =        CMDMOD:EQU 000CH
+ 036C =        NMOUT:EQU 036CH
+
+ 7000           		ORG 7000H
+ 7000 3E80      	MVI A,80H;initialialization of 8255
+ 7002 D30B      	OUT CR55
+                
+ 7004 E600      INIT:   ANI 00H
+ 7006 325121    	 STA 2151H ;location for new request
+ 7009 325221    	 STA 2152H ;previous request 
+ 700C 325321    	 STA 2153H ;intermediate floor display
+                
+ 700F 3A5221 FINALPOS:LDA 2152H;get data from look up table
+ 7012 219A71   	        LXIH,DAT_PTA
+ 7015 85        		ADD L     ; get data from look up table 
+ 7016 6F        		MOV L,A ;and send it to port A and also
+ 7017 7E        		MOV A,M ; port B
+ 7018 D308      	OUT PORTA
+ 701A 3A5221    	LDA 2152H
+ 701D 219E71   	LXIH,DAT_PTB
+ 7020 85        		ADD L
+ 7021 6F        		MOV L,A
+ 7022 7E        		MOV A,M
+ 7023 D309      	OUT PORTB
+ 7025 21A871    	LXI H,MSG1 ; display floor position
+ 7028 CD8A04    	CALL CRLF
+ 702B CDD803           CALL OUTMSG
+ 702E 3A5221             LDA 2152H
+ 7031 5F        MOV E,A
+ 7032 0602      MVI B,02H
+ 7034 CD6C03    CALL NMOUT
+ 7037 CD9704    CALL CRONLY
+ 703A 3E89      KEYPRESS:MVI A,89H
+ 703C D30B      OUT CR55
+ 703E DB0A      IN PORTC
+ 7040 F663      ORI 63H
+ 7042 47        MOV B,A
+ 7043 3E80      MVI A,80H
+ 7045 D30B      OUT CR55
+ 7047 3E00      MVI A,00H
+ 7049 D30A      OUT PORTC
+ 704B 78        MOV A,B
+ 704C FEE3      CPI 0E3H
+ 704E CA4571    JZ DANGER
+ 7051 78        MOV A,B
+ 7052 FE63      CPI 63H
+ 7054 CA0F70    JZ FINALPOS
+                
+ 7057 FE67      SEC_FLR:CPI 67H
+ 7059 C26470    JNZ FRST_FLR
+ 705C 3E02      MVI A,02H
+ 705E 325121    STA 2151H
+ 7061 C38370    JMP  DIRECTION
+                
+ 7064 78        FRST_FLR: MOV A,B
+ 7065 FE6B      CPI 6BH
+ 7067 C27270    JNZ GND_FLR
+ 706A 3E01      MVI A,01H
+ 706C 325121    STA 2151H
+ 706F C38370    JMP  DIRECTION
+                
+ 7072 78        GND_FLR:MOV A,B
+ 7073 FE73      CPI 73H
+ 7075 C28070    JNZ WRONG_REQ
+ 7078 3E00      MVI A,00H
+ 707A 325121    STA 2151H
+ 707D C38370    JMP  DIRECTION
+                
+ 7080 C30470    WRONG_REQ:JMP INIT
+                
+ 7083 3A5221    DIRECTION:LDA 2152H
+ 7086 57        MOV D,A
+ 7087 3A5121    LDA 2151H
+ 708A 92        SUB D
+ 708B CAA970    JZ SWAP
+ 708E DAB270    JC DOWN
+ 7091 3D        DCR A
+ 7092 325321    STA 2153H
+                ;up direction leds should glow.
+                
+ 7095 3E01      STRT_UP_DIR:MVI A,01H ;FLAG FOR DELAY=01
+ 7097 320521    STA 2105H
+ 709A 21B371    LXI H,MSG2
+ 709D CD8A04    CALL CRLF
+ 70A0 CDD803    CALL OUTMSG
+ 70A3 CD9704    CALL CRONLY
+ 70A6 CDD770    CALL DLY
+                
+ 70A9 3A5121    SWAP:LDA 2151H
+ 70AC 325221    STA 2152H
+ 70AF C30F70    JMP FINALPOS
+                
+ 70B2 3F        DOWN:CMC
+ 70B3 3A5221    LDA 2152H
+ 70B6 47        MOV B,A
+ 70B7 3A5121    LDA 2151H
+ 70BA 4F        MOV C,A
+ 70BB 48        MOV C,B
+ 70BC 47        MOV B,A
+ 70BD 79        MOV A,C
+ 70BE 90        SUB B
+ 70BF 3D        DCR A
+ 70C0 325321    STA 2153H
+                
+ 70C3 3E00      ST_DN_DIR:MVI A,00H
+ 70C5 320521    STA 2105H
+ 70C8 21BD71    LXI H,MSG3
+ 70CB CD8A04    CALL CRLF
+ 70CE CDD803    CALL OUTMSG
+ 70D1 CDD770    CALL DLY
+ 70D4 C3A970    JMP SWAP
+                
+ 70D7 0E02      DLY:MVI C,02H
+                
+ 70D9 3A0521    ROUT:LDA 2105H
+ 70DC FE01      CPI 01H
+ 70DE C2E770    JNZ GL_DN_LED
+ 70E1 21A271    LXI H,DAT_UP
+ 70E4 C3EA70    JMP START_DIR_FG
+                
+ 70E7 21A571    GL_DN_LED:LXI H,DAT_DN
+                
+ 70EA 7E        START_DIR_FG:MOV A,M
+ 70EB D308      OUT PORTA
+ 70ED 23        INX H
+ 70EE 7E        MOV A,M
+ 70EF D309      OUT PORTB
+ 70F1 2B        DCX H
+ 70F2 11FF0F    LXI D,0FFFH
+ 70F5 CD1506    CALL DELAY
+ 70F8 3E00      MVI A,00H
+ 70FA D308      OUT PORTA
+ 70FC D309      OUT PORTB
+ 70FE 11FF0F    LXI D,0FFFH
+ 7101 CD1506    CALL DELAY
+ 7104 0D        DCR C
+ 7105 C2D970    JNZ ROUT
+ 7108 3A5321    LDA 2153H
+ 710B FE00      CPI 00H
+ 710D C21371    JNZ INTR_FLR
+ 7110 C34471    JMP OUT_OF_DIR
+                
+ 7113 219A71    INTR_FLR:LXIH,DAT_PTA
+ 7116 23        INX H
+ 7117 7E        MOV A,M
+ 7118 D308      OUT PORTA
+ 711A 219E71    LXIH,DAT_PTB
+ 711D 23        INX H
+ 711E 7E        MOV A,M
+ 711F D309      OUT PORTB
+ 7121 11FFFF    LXI D,0FFFFH
+ 7124 CD1506    CALL DELAY
+ 7127 21D371    LXI H,MSG6
+ 712A CD8A04    CALL CRLF
+ 712D CDD803    CALL OUTMSG
+ 7130 3A5321    LDA 2153H
+ 7133 5F        MOV E,A
+ 7134 0602      MVI B,02H
+ 7136 CD6C03    CALL NMOUT
+ 7139 CD9704    CALL CRONLY
+ 713C 3E00      MVI A,00H
+ 713E 325321    STA 2153H
+ 7141 C3D770    JMP DLY
+                
+ 7144 C9        OUT_OF_DIR:RET
+                
+ 7145 3E89      DANGER:MVI A,89H
+ 7147 D30B      OUT CR55
+ 7149 21C771    LXI H,MSG4
+ 714C CD8A04    CALL CRLF
+ 714F CDD803    CALL OUTMSG
+ 7152 CD9704    CALL CRONLY
+ 7155 DB0A      DNGR_LOOP:IN PORTC
+ 7157 F67F      ORI 07FH
+ 7159 FEFF      CPI 0FFH
+ 715B C27971    JNZ SAFE
+ 715E 3E00      MVI A,00H
+ 7160 D309      OUT PORTB
+ 7162 D308      OUT PORTA
+ 7164 11FF0F    LXID,0FFFH
+ 7167 CD1506    CALL DELAY
+ 716A 3EFF      MVI A,0FFH
+ 716C D308      OUT PORTA
+ 716E D309      OUT PORTB
+ 7170 11FF0F    LXID,0FFFH
+ 7173 CD1506    CALL DELAY
+ 7176 C35571    JMP DNGR_LOOP
+                
+ 7179 21CE71    SAFE:LXI H,MSG5
+ 717C CD8A04    CALL CRLF
+ 717F CDD803    CALL OUTMSG
+ 7182 CD9704    CALL CRONLY
+ 7185 0E02      MVI C,02H
+                
+ 7187 3E00      SAF1:MVI A,00H
+ 7189 D308      OUT PORTA
+ 718B D309      OUT PORTB
+ 718D 11FFFF    LXID,0FFFFH
+ 7190 CD1506    CALL DELAY
+ 7193 0D        DCR C
+ 7194 C28771    JNZ SAF1
+ 7197 C30F70    JMP FINALPOS
+                
+ 719A 00        DAT_PTA:DFB 00H
+ 719B 00                DFB 00H
+ 719C 02                DFB 02H
+ 719D 03                DFB 03H
+ 719E 40        DAT_PTB:DFB 40H
+ 719F 04                DFB 04H
+ 71A0 00                DFB 00H
+ 71A1 03                DFB 03H
+ 71A2 01        DAT_UP:DFB 01H
+ 71A3 22                DFB 22H
+ 71A4 03                DFB 03H
+ 71A5 04        DAT_DN:DFB 04H
+ 71A6 88                DFB 88H
+ 71A7 03                DFB 03H
+ 71A8 50        MSG1:DFB 50H
+ 71A9 4F             DFB 4FH
+ 71AA 53             DFB 53H
+ 71AB 49             DFB 49H
+ 71AC 54             DFB 54H
+ 71AD 49             DFB 49H
+ 71AE 4F             DFB 4FH
+ 71AF 4E             DFB 4EH
+ 71B0 20             DFB 20H
+ 71B1 20             DFB 20H
+ 71B2 03             DFB 03H
+                
+ 71B3 47        MSG2:DFB 47H
+ 71B4 4F        DFB 4FH
+ 71B5 49        DFB 49H
+ 71B6 4E        DFB 4EH
+ 71B7 47        DFB 47H
+ 71B8 20        DFB 20H
+ 71B9 20        DFB 20H
+ 71BA 55        DFB 55H
+ 71BB 50        DFB 50H
+ 71BC 03        DFB 03H
+ 71BD 47        MSG3:DFB 47H
+ 71BE 4F        DFB 4FH
+ 71BF 49        DFB 49H
+ 71C0 4E        DFB 4EH
+ 71C1 47        DFB 47H
+ 71C2 20        DFB 20H
+ 71C3 20        DFB 20H
+ 71C4 44        DFB 44H
+ 71C5 4E        DFB 4EH
+ 71C6 03        DFB 03H
+ 71C7 44        MSG4:DFB 44H
+ 71C8 41        DFB 41H
+ 71C9 4E        DFB 4EH
+ 71CA 47        DFB 47H
+ 71CB 45        DFB 45H
+ 71CC 52        DFB 52H
+ 71CD 03        DFB 03H
+ 71CE 53        MSG5:DFB 53H
+ 71CF 41        DFB 41H
+ 71D0 46        DFB 46H
+ 71D1 45        DFB 45H
+ 71D2 03        DFB 03H
+ 71D3 50         MSG6:DFB 50H
+ 71D4 4F             DFB 4FH
+ 71D5 53             DFB 53H
+ 71D6 49             DFB 49H
+ 71D7 54             DFB 54H
+ 71D8 49             DFB 49H
+ 71D9 4F             DFB 4FH
+ 71DA 4E             DFB 4EH
+ 71DB 20             DFB 20H
+ 71DC 20             DFB 20H
+ 71DD 03             DFB 03H
+                
+                
+                
+                	END
+
+0007  A                    0000  B                    0001  C             
+000C  CMDMOD               000B  CR55                 048A  CRLF          
+0497  CRONLY               0002  D                    7145  DANGER        
+71A5  DAT_DN               719A  DAT_PTA              719E  DAT_PTB       
+71A2  DAT_UP               0615  DELAY                7083  DIRECTION     
+70D7  DLY                  7155  DNGR_LOOP            70B2  DOWN          
+0003  E                    700F  FINALPOS             7064  FRST_FLR      
+70E7  GL_DN_LED            7072  GND_FLR              0004  H             
+7004  INIT                 7113  INTR_FLR             703A  KEYPRESS      
+0005  L                    0006  M                    71A8  MSG1          
+71B3  MSG2                 71BD  MSG3                 71C7  MSG4          
+71CE  MSG5                 71D3  MSG6                 036C  NMOUT         
+03D8  OUTMSG               7144  OUT_OF_DIR           0008  PORTA         
+0009  PORTB                000A  PORTC                0476  RCVNO         
+70D9  ROUT                 7187  SAF1                 7179  SAFE          
+7057  SEC_FLR              70EA  START_DIR_FG         7095  STRT_UP_DIR   
+70C3  ST_DN_DIR            70A9  SWAP                 01F1  TEST          
+7080  WRONG_REQ            
+
+

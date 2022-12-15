@@ -1,0 +1,9 @@
+
+Warning: No STACK segment
+
+ Start  Stop   Length  Name                   Class
+ 00000H 00182H 0183H  X86P59L2               
+
+ Origin   Group
+
+Program entry point at 0000:0100

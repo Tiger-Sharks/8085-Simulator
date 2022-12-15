@@ -1,0 +1,276 @@
+
+
+
+
+        PAGE,70
+        TITLE-- LCD86
+;
+LCD86     SEGMENT
+        ASSUME CS:LCD86, DS:LCD86 ,ES:LCD86
+        ORG 100H   ;COM FORMAT IS RECOMMENDED.
+STRT:   JMP SKIP_DATA
+;SKIP LOOK UP/ DATA BASES IF ANY
+;ON KIT YOU NEED TO DO INIT FOR SP
+;[TO SEPARATE STACK OF YOUR PROGRAME FROM
+;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET
+;TO 0000 AT POWER ON BY MONITOR.
+;YOU CAN OFCOURSE CHANGE IT BY ADDING A
+;FEW MORE MOVE`S.
+;BUT WHILE WORKING ON PC YOU CAN`T TOUCH
+;SEGMENT REGISTERS SINCE THEY ARE
+;SET BY DOS LOADER,SO MANAGE THESE
+;INSTRUCTIONS AS SHOWN IN COMMENT FIELD.
+SKIP_DATA:MOV AX,11FFH
+        ;INIT OF SP FOR KIT
+STRT1:  MOV SP,AX
+        ;MOV AX,AX   ON PC
+        PUSH CS
+        ;THIS IS THE BEST WAY TO LOAD DS
+        POP DS
+        ;WITH SEGMENT VALUE.
+        NOP
+        ;LOAD KIT INT S (A0-BF) IN PC USING
+        NOP
+        ;CALL LDINPC
+        NOP
+        ;PLACE ABOVE CALL IN PLACE OF 3 NOP`S
+;THE ACTUAL PROGRAM OF LCD INTERFACE STARTS BELOW
+LCDINIT: MOV AL,30H
+         CALL OUTINS
+         MOV CX,0BF0H
+         INT 0AAH     ;CALL DELAY
+         MOV AL,30H
+         CALL OUTINS
+         MOV CX,0BF0H
+         INT 0AAH
+         MOV AL,30H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,38H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,08H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,01H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,06H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,0CH
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,00H
+         PUSH CS   ;LEA CX,LINCUR   ;MOV CHANGED
+         POP CX
+         LEA SI,LINCUR
+         INT 0B0H
+DSPRTN:  LEA BX,DATABASE
+DSPRTN1: MOV AL,[BX]
+         INC BX
+         MOV DL,AL
+         CMP AL,03H
+         JZ CMDMOD
+         CALL WRRTN
+         JMP DSPRTN1
+CMDMOD:  INT 0A3H
+WRRTN:  PUSH AX
+        PUSH BX
+        MOV AL,DL
+        AND AL,7FH
+        CMP AL,0AH
+        JZ LFRTN
+        CMP AL,0DH
+        JZ CARGRTN
+        CMP AL,08H
+        JZ BSRTN
+        MOV DL,AL
+        LEA BX,LINCUR
+        MOV AL,[BX]    ;LDS AL,LINCUR
+        AND AL,0FH
+        MOV BH,AL
+        INC AL
+        PUSH CS   ;LEA CX,LINCUR
+        POP CX
+        LEA SI,LINCUR
+        INT 0B0H
+        MOV AL,DL
+        CALL WRLCD
+RETURN: POP BX
+        POP AX
+        RET
+BSRTN:  MOV DL,AL
+        LEA BX,LINCUR
+        MOV AL,[BX]
+        OR AL,AL
+        JZ BSRTN1
+        DEC AL
+BSRTN1: PUSH CS
+        POP CX
+        LEA SI,LINCUR    ;0I89086980535
+        INT 0B0H
+        MOV AL,DL
+        JMP RETURN
+LFRTN:  PUSH BX
+        MOV DL,AL
+        MOV BL,10H
+        MOV BH,00H
+LFTRN1:  MOV AL,20H
+         CALL WRLCD
+         INC BH
+         DEC BL
+         JNZ LFTRN1
+         MOV AL,DL
+         POP BX
+         JMP RETURN
+CARGRTN: MOV DL,AL
+         MOV AL,00H
+         PUSH CS
+         POP CX
+         LEA SI,LINCUR
+         INT 0B0H
+         MOV AL,DL
+         JMP RETURN
+WRLCD:   PUSH AX
+         PUSH BX
+         MOV DL,AL
+         MOV AL,09H
+         MOV DH,AL
+         DEC DH
+         MOV AL,BH
+         MOV BH,DH
+         MOV BL,AL
+         CMP AL,DH
+         JC WLCSK1
+         MOV AL,DH
+         ADD AL,BH
+         MOV DH,AL
+         MOV AL,BL
+         CMP AL,DH
+         JC WLCSK2
+         MOV AL,DH
+         ADD AL,BH
+         MOV DH,AL
+         MOV AL,BL
+         CMP AL,DH
+         JC WLCSK3
+WLCSK4:  MOV AL,BH
+         ADD AL,BH
+         MOV DH,AL
+         MOV BL,AL
+         ADD AL,40H
+         SUB AL,DH
+         JMP LCDWR
+WLCSK3:  MOV AL,BL
+         SUB AL,BH
+         JMP LCDWR
+WLCSK2:  MOV AL,BL
+         ADD AL,40H
+         SUB AL,BH
+         JMP LCDWR
+WLCSK1:
+LCDWR:   OR AL,80H
+         CALL OUTINS
+         CALL CHKBSY
+         MOV AL,DL
+         CALL OUTDT
+         POP BX
+         POP AX
+         RET
+OUTINS:  PUSH DX
+         MOV BL,AL
+         MOV AL,80H
+         MOV DX,8006H
+         OUT DX,AL
+         MOV AL,00H
+         MOV DX,8004H
+         OUT DX,AL
+         MOV AL,04H
+         OUT DX,AL
+         MOV AL,BL
+         MOV DX,8002H
+         OUT DX,AL
+         MOV AL,01H
+         MOV DX,8004H
+         OUT DX,AL
+         POP DX
+         RET
+CHKBSY:  NOP
+         PUSH DX
+         MOV AL,82H
+         MOV DX,8006H
+         OUT DX,AL
+INDT:    MOV AL,01H
+         MOV DX,8004H
+         OUT DX,AL
+         MOV AL,05H
+         OUT DX,AL
+         MOV DX,8002H
+         IN AL,DX
+         MOV BL,AL
+         MOV AL,01H
+         MOV DX,8004H
+         OUT DX,AL
+         MOV AL,BL
+         OR AL,AL
+         JS INDT
+         POP DX
+         RET
+OUTDT:   MOV CL,AL
+         MOV AL,80H
+         MOV DX,8006H
+         OUT DX,AL
+         MOV AL,02H
+         MOV DX,8004H
+         OUT DX,AL
+         MOV AL,06H
+         OUT DX,AL
+         MOV AL,CL
+         MOV DX,8002H
+         OUT DX,AL
+         MOV AL,03H
+         MOV DX,8004H ;PORTC
+         OUT DX,AL
+         RET
+LINCUR:  DB 00H
+DATABASE: DB 41H
+          DB 4EH
+          DB 5EH
+          DB 48H
+          DB 55H
+          DB 4DH
+          DB 41H
+          DB 4EH
+          DB 03H
+LCD86     ENDS
+        END STRT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+%%%%	 		 

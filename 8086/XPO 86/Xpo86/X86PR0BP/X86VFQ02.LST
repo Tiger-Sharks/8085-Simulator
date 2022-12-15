@@ -1,0 +1,99 @@
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-1
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+ 	 	 	 	 	PAGE,80
+ 	 	 	 	       	TITLE-- 8253 SOUND GENERATOR.
+ 	 	 	 	
+ 0000	 	 	 	X868253   	SEGMENT
+ 	 	 	 	
+ 	 	 	 	          	ASSUME CS:X868253, DS:X868253 ,
+	 	 	 	ES:X868253
+ 0100	 	 	 	          	ORG 100H 	;COM FORMAT IS 
+	 	 	 	RECOMMENDED.
+ 	 	 	 	
+ 0100  EB 01 90	 	 	STRT: 	JMP 	SKIP_DATA   	;SKIP LOOK UP/ 
+	 	 	 	DATA BASES IF ANY
+ 	 	 	 	
+ 	 	 	 	;ON KIT YOU NEED TO DO INIT FOR SP [TO SEPARATE
+	 	 	 	 STACK OF YOUR PROGRAME FROM
+ 	 	 	 	;MONITORS],DS AS SHOWN BELOW.SS,ES ARE SET TO 0
+	 	 	 	000 AT POWER ON BY MONITOR.
+ 	 	 	 	;YOU CAN OFCOURSE CHANGE IT BY ADDING A FEW MOR
+	 	 	 	E MOVE`S.
+ 	 	 	 	;BUT WHILE WORKING ON PC YOU CAN`T TOUCH SEGMEN
+	 	 	 	T REGISTERS SINCE THEY ARE
+ 	 	 	 	;SET BY DOS LOADER,SO MANAGE THESE INSTRUCTIONS
+	 	 	 	 AS SHOWN IN COMMENT FIELD.  
+ 	 	 	 	
+ 0103	 	 	 	SKIP_DATA:
+ 0103  B8 10FF	 	 	 	MOV     AX,10FFH  	; Initof SP for
+	 	 	 	 Kit
+ 0106  8B C0	 	 	        MOV     AX,AX     	; On PC
+ 0108  0E	 	 	        PUSH    CS        	; Init for DS
+ 0109  1F	 	 	        POP     DS  
+ 	 	 	 	                	; Load kit INTS (A0-BF)
+	 	 	 	 
+ 010A  90	 	 	        NOP             ; In PC using
+ 010B  90	 	 	        NOP             ; CALL in place of 3 NO
+	 	 	 	P`S
+ 010C  90	 	 	        NOP             ;
+ 	 	 	 	 	 	 	 	 	
+ 	 	 	 	 	
+ 010D  BB 042F	 	 	START:  MOV	BX,042FH
+ 0110  B0 B6	 	 	LUP:	MOV 	AL,0B6H 	;Init the 8253 
+	 	 	 	in 
+ 0112  BA 8C07	 	 	        MOV 	DX,8C07H	;counter 2 mode
+	 	 	 	 3
+ 0115  EE	 	 	        OUT 	DX,AL	 	;
+ 0116  8A C3	 	 	        MOV 	AL,BL        	;Load LSB count
+	 	 	 	 of      
+ 0118  BA 8C05	 	 	        MOV 	DX,8C05H	;timer for 1KHz
+	 	 	 	 freq.
+ 011B  EE	 	 	        OUT 	DX,AL	 	;
+ 011C  8A C7	 	 	        MOV 	AL,BH        	;Load MSB count
+	 	 	 	 of 
+ 011E  EE	 	 	        OUT 	DX,AL	 	;timer for 1KHZ
+	 	 	 	 freq. 
+ 011F  B9 00FF	 	 	        MOV 	CX,00FFH     	; Delay Count  
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	1-2
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+ 0122  CD AA	 	 	        INT 	0AAH          	; Delay 
+ 0124  4B	 	 	        DEC     BX 
+ 0125  81 FB 00F9	 	        CMP     BX,00F9H	;Compair with 1
+	 	 	 	0kHz count.
+ 0129  75 E5	 	 	 	JNZ     LUP
+ 012B  EB E0	 	 	 	JMP     START	 	;Restart.
+ 012D  EB DE	 	 	JMP 	START	 	        ; Jump to start
+	 	 	 	.
+ 	 	 	 	 	 	
+ 012F	 	 	 	X868253   	ENDS
+ 	 	 	 	 	END   	STRT
+
+ IBM Personal Computer MACRO Assembler   Version 2.00  	Page	Symbols
+	 	 	 	-1
+-- 8253 SOUND GENERATOR.	 	 	 	 	10-01-99    
+
+
+Segments and Groups:
+
+	 	N a m e	 	 	Size	Align	Combine	Class
+
+X868253. . . . . . . . . . . . .	012F	PARA  	NONE	
+
+Symbols:            
+
+	 	N a m e	 	 	Type	Value	Attr         
+
+LUP. . . . . . . . . . . . . . .	L NEAR 	0110	X868253
+SKIP_DATA. . . . . . . . . . . .	L NEAR 	0103	X868253
+START. . . . . . . . . . . . . .	L NEAR 	010D	X868253
+STRT . . . . . . . . . . . . . .	L NEAR 	0100	X868253
+
+50632 Bytes free   
+
+Warning Severe
+Errors	Errors 
+0	0

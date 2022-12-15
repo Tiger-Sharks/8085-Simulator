@@ -1,0 +1,68 @@
+ AS V1.42 Beta [Bld 56] - source file ADDSBCD.ASM - page 1 - 2/13/2008 19:01:47
+
+
+       1/       0 :                     		cpu 8085
+       2/       0 :                     
+       3/       0 :                     ; Program adds a series of bcd numbers.
+       4/       0 :                     ; The number of numbers to add is stored at location 2100h
+       5/       0 :                     ; The result is stored at location 2101.
+       6/       0 :                     ; The series starts from location 2102.
+       7/       0 :                     
+       8/    6600 :                     		org 6600h		;Four bytes blank after previous program
+       9/    6600 :                     	start:
+      10/    6600 : 21 00 21            		lxi h,2100h		;Point to number of numbers to add.
+      11/    6603 : 4E                  		mov c,m			;Store number to C. Will be used as counter.
+      12/    6604 : AF                  		xra a			;clear accumulator
+      13/    6605 : 23                  		inx h
+      14/    6606 :                     	add_next:
+      15/    6606 : 23                  		inx h			;point to first number to add
+      16/    6607 : 86                  		add m			;Add number to accumulator
+      17/    6608 : 27                  		daa				;Decimal adjust accumulator
+      18/    6609 :                     		;inx h			;This instruction exists in the book Wrong?
+      19/    6609 : 0D                  		dcr c			;Decrement the counter
+      20/    660A : C2 06 66            		jnz add_next	;Keep adding till all numbers are over
+      21/    660D :                     
+      22/    660D : 32 01 21            		sta 2101h		;Store result to location 2101h
+      23/    6610 : CF                  		rst 1
+      24/    6611 :                     		
+      25/    6611 :                     ;Last address used by the program 19D8h == 6616
+ AS V1.42 Beta [Bld 56] - source file ADDSBCD.ASM - page 2 - 2/13/2008 19:01:47
+
+
+  symbol table (* = unused):
+  ------------------------
+
+ ADD_NEXT :                    6606 C | *ARCHITECTURE :  i386-unknown-win32 - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   2/13/2008 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      8085 - | *MOMCPUNAME :                  8085 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *RELAXED :                        0 - |
+*START :                       6600 C | *TIME :                    19:01:47 - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     30 symbols
+     29 unused symbols
+
+ AS V1.42 Beta [Bld 56] - source file ADDSBCD.ASM - page 3 - 2/13/2008 19:01:47
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     25 lines source file
+      1 pass
+      0 errors
+      0 warnings
